@@ -1,0 +1,190 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0" version="24.8.6">
+  <diagram name="Page-1" id="9f46799a-70d6-7492-0946-bef42562c5a5">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="Drone" tooltip="Drone has number of parameters wich are needed for movement and battery discharge calculation. Each parameter will have default value" id="78961159f06e98e8-17">
+          <mxCell style="swimlane;html=1;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fillColor=none;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+            <mxGeometry x="40" y="83" width="190" height="367" as="geometry">
+              <mxRectangle x="40" y="83" width="80" height="30" as="alternateBounds" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drone_id: int" tooltip="Each drone will have uniq id" id="78961159f06e98e8-21">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="26" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ number_of_rotors: int" tooltip="Number of rotors in drone (Quadrocopter - 4, Hexacopter - 6, Octocopter - 8)" id="9prEqNhGztI3xwlYx712-43">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="52" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ mass_of_drone: int" tooltip="Mass of drone in kg" id="78961159f06e98e8-23">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="78" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ aditional_mass: int" tooltip="Mass of payload in kg (will be 0 in default)" id="9prEqNhGztI3xwlYx712-39">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="104" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ communication_type: char" tooltip="Communication type - Radio/Wi-Fi" id="9prEqNhGztI3xwlYx712-3">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="130" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ antenna_efficiency: float" tooltip="Antena efficiency - parameter needed for calculation of antena&#39;s energy consumption" id="9prEqNhGztI3xwlYx712-4">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="156" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ aditional_power: int" tooltip="Power needed for sensors and additional functionality of drone in [W] Watt" id="78961159f06e98e8-25">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="182" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ battery_capacity: int" tooltip="Battery capacity of given drone in Watt [W]" id="78961159f06e98e8-24">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="208" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ battery_remain: int" tooltip="Battery_capacity - battery_discharge in Watt [W]" id="9prEqNhGztI3xwlYx712-2">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="234" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ coordinates: int" tooltip="Current coordinates of drone relatively to given terrain map (x,y,z)" id="78961159f06e98e8-26">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="260" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ network_parameters: int" tooltip="Here will be all parameters needed to build a network for drone swarm" id="9prEqNhGztI3xwlYx712-40">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="286" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drone_size: int" tooltip="Drone size - sphere around middle point of drone" id="9prEqNhGztI3xwlYx712-45">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="312" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drone_velocity_parameters: int" tooltip="Velocity parameters needed for move calculation and battery discharge (velocity, acceleration)" id="0fWhQ81rwPuv2FPlw-8L-3">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="78961159f06e98e8-17">
+            <mxGeometry y="338" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Manual User" tooltip="This is a human operator or/and charging station which can be a part of drone swarm/network or a simple node for sending some commands to swarm. It will have option for move" id="9prEqNhGztI3xwlYx712-5">
+          <mxCell style="swimlane;html=1;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fillColor=none;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+            <mxGeometry x="280" y="83" width="170" height="197" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drone_id: int" tooltip="Each drone will have uniq id" id="9prEqNhGztI3xwlYx712-44">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="26" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ basis_station_indicator: int" tooltip="Indicator will show if it is basis station or some additional node (node that uses network)" id="9prEqNhGztI3xwlYx712-46">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="52" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ coordinates: int" tooltip="Current coordinates of drone relatively to given terrain map (x,y,z)" id="9prEqNhGztI3xwlYx712-9">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="78" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ communication_type: char" tooltip="Communication type - Radio/Wi-Fi" id="9prEqNhGztI3xwlYx712-12">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="104" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ antenna_efficiency: float" tooltip="Antena efficiency - parameter needed for calculation of antena&#39;s energy consumption" id="9prEqNhGztI3xwlYx712-13">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="130" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ network_parameters: int" tooltip="Here will be all parameters needed to build a network for drone swarm" id="9prEqNhGztI3xwlYx712-41">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-5">
+            <mxGeometry y="156" width="170" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Map" tooltip="All topology data and drones locations will be stored here" id="9prEqNhGztI3xwlYx712-14">
+          <mxCell style="swimlane;html=1;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fillColor=none;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+            <mxGeometry x="520" y="83" width="190" height="137" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ map_topology_matrix: float" tooltip="Matrix that will descript topology" id="9prEqNhGztI3xwlYx712-22">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-14">
+            <mxGeometry y="26" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drones_location_matrix: float" tooltip="Current location of drones on map" id="9prEqNhGztI3xwlYx712-42">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-14">
+            <mxGeometry y="52" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drones_trajectory_matrix: float" tooltip="Optionaly.&#xa;Simulation will have two parameters of collision detection:&#xa;1. Option to check collision with near object using &quot;sensors&quot;. In this case there no trajectory matrix.&#xa;2.Option to check trajectory collision." id="0fWhQ81rwPuv2FPlw-8L-1">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-14">
+            <mxGeometry y="78" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ drones_databes: float" tooltip="Optional part - here can be stored list of drones" id="0fWhQ81rwPuv2FPlw-8L-2">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-14">
+            <mxGeometry y="104" width="190" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="9prEqNhGztI3xwlYx712-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="78961159f06e98e8-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9prEqNhGztI3xwlYx712-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="9prEqNhGztI3xwlYx712-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9prEqNhGztI3xwlYx712-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="9prEqNhGztI3xwlYx712-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9prEqNhGztI3xwlYx712-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="9prEqNhGztI3xwlYx712-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9prEqNhGztI3xwlYx712-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="9prEqNhGztI3xwlYx712-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="Simulation control block" tooltip="This block controls all simulation process and simulate work of drone sensors (collision detection, updating of telemetry)" link="https://www.draw.io/#G1xTP9pFeM1cvbmMAmezTHyAb7NuG7ZL91" linkTarget="_blank" id="9prEqNhGztI3xwlYx712-24">
+          <mxCell style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+            <mxGeometry x="440" y="400" width="120" height="120" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="9prEqNhGztI3xwlYx712-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-25" target="78961159f06e98e8-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="Logger" tooltip="Logger - will save all events and periodically saves Drone telemetry" id="9prEqNhGztI3xwlYx712-25">
+          <mxCell style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+            <mxGeometry x="890" y="400" width="120" height="120" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Calculation" tooltip="All &quot;havy&quot; calculations will use this block. For example energy consumption for each action, movement and collision detection, signal strength" id="9prEqNhGztI3xwlYx712-26">
+          <mxCell style="swimlane;html=1;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fillColor=none;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+            <mxGeometry x="760" y="83" width="260" height="117" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ energy_consumption_calculation" tooltip="Energy consumption calculation" id="9prEqNhGztI3xwlYx712-27">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-26">
+            <mxGeometry y="26" width="260" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ collision_detection_calculation" tooltip="Collision detection after receiving move command" id="9prEqNhGztI3xwlYx712-29">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-26">
+            <mxGeometry y="52" width="260" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="+ signal_strength" tooltip="Signal srength calculation uses different channel models" id="9prEqNhGztI3xwlYx712-30">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;whiteSpace=wrap;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="9prEqNhGztI3xwlYx712-26">
+            <mxGeometry y="78" width="260" height="26" as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
