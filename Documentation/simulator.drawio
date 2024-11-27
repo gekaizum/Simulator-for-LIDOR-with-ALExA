@@ -1,10 +1,10 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0" version="24.8.6">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0" version="24.9.0">
   <diagram name="Page-1" id="9f46799a-70d6-7492-0946-bef42562c5a5">
     <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <UserObject label="Drone" tooltip="Drone has number of parameters wich are needed for movement and battery discharge calculation. Each parameter will have default value" id="78961159f06e98e8-17">
+        <UserObject label="Drone" tooltip="Drone has number of parameters wich are needed for movement and battery discharge calculation. Each parameter will have default value" link="https://github.com/gekaizum/Simulator-for-LIDOR-with-ALExA/blob/main/Documentation/droneFSM.drawio" linkTarget="_blank" id="78961159f06e98e8-17">
           <mxCell style="swimlane;html=1;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fillColor=none;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
             <mxGeometry x="40" y="83" width="190" height="367" as="geometry">
               <mxRectangle x="40" y="83" width="80" height="30" as="alternateBounds" />
@@ -151,7 +151,7 @@
         <mxCell id="9prEqNhGztI3xwlYx712-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="9prEqNhGztI3xwlYx712-24" target="9prEqNhGztI3xwlYx712-25">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <UserObject label="Simulation control block" tooltip="This block controls all simulation process and simulate work of drone sensors (collision detection, updating of telemetry)" link="https://www.draw.io/#G1xTP9pFeM1cvbmMAmezTHyAb7NuG7ZL91" linkTarget="_blank" id="9prEqNhGztI3xwlYx712-24">
+        <UserObject label="Simulation control block" tooltip="This block controls all simulation process and simulate work of drone sensors (collision detection, updating of telemetry)" link="https://github.com/gekaizum/Simulator-for-LIDOR-with-ALExA/blob/main/Documentation/simulation_control_block.drawio" linkTarget="_blank" id="9prEqNhGztI3xwlYx712-24">
           <mxCell style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
             <mxGeometry x="440" y="400" width="120" height="120" as="geometry" />
           </mxCell>
