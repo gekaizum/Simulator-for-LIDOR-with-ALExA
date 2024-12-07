@@ -16,7 +16,7 @@ terrain = gaussian_filter(terrain, sigma=50)  # Smoothing for a natural appearan
 terrain_cm = np.round(terrain * 100).astype(int)  # Convert meters to centimeters
 
 # Save to file
-np.savetxt("heightmap_cm.txt", terrain_cm, fmt="%d")  # Save as integers
+np.savetxt("heightmap.txt", terrain_cm, fmt="%d")  # Save as integers
 
 # Visualize the heightmap in high resolution
 plt.figure(figsize=(20, 20))  # Adjust the figure size for high resolution
