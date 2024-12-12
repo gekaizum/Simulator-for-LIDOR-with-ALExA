@@ -2,7 +2,7 @@ network Simulation {
     submodules:
         heightMapLoader: HeightMapLoader {
             parameters:
-                heightMapFile = "heightmap_cm.txt";
+                heightMapFile = "heightmap.txt";
                 gridSize = 5000;
                 blockSize = 100;
         }
