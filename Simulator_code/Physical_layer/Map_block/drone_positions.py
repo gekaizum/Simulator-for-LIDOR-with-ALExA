@@ -65,6 +65,10 @@ def current_drone_move(drone_data,time_step=1):
                             drone["Destination"]=drone["Current_Position"]
                             drone["Is_Moving"]=False
                             break
+                        #else if
+                            ##!!!!!!!!!!!!!!!!Here we will check collision with ground!!!!
+                            
+                            ############################################################
                     drone_objects[drone["Drone_ID"]].current_position[0]=drone["Current_Position"][0] # update drone object coordinates
                     drone["Next_Move"] = 2
                     drone["Idle_Steps"][0] = 0
@@ -83,6 +87,9 @@ def current_drone_move(drone_data,time_step=1):
                             drone["Destination"]=drone["Current_Position"]
                             drone["Is_Moving"]=False
                             break
+                        ##!!!!!!!!!!!!!!!!Here we will check collision with ground!!!!
+                            
+                        ############################################################
                     drone_objects[drone["Drone_ID"]].current_position[1]=drone["Current_Position"][1]
                     drone["Next_Move"] = 3
                     drone["Idle_Steps"][1] = 0
@@ -101,6 +108,9 @@ def current_drone_move(drone_data,time_step=1):
                             drone["Destination"]=drone["Current_Position"]
                             drone["Is_Moving"]=False
                             break
+                        ##!!!!!!!!!!!!!!!!Here we will check collision with ground!!!!
+                            
+                        ############################################################
                     drone_objects[drone["Drone_ID"]].current_position[2]=drone["Current_Position"][2]
                     drone["Next_Move"] = 1
                     drone["Idle_Steps"][2] = 0
