@@ -1,8 +1,12 @@
 #include <omnetpp.h>
-#include <fstream>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
+
+using namespace omnetpp;
 
 class HeightMapLoader : public cSimpleModule {
 private:
@@ -42,14 +46,14 @@ protected:
 
         // Read the file line by line
         while (std::getline(file, line)) {
-            if (rowIndex >= startRow && rowIndex < endRow) { // Check if row is within the block
+            if (rowIndex >= startRow && rowIndex < endRow) { // Check if the row is within the block
                 std::vector<int> row;
                 std::istringstream ss(line);
                 int colIndex = 0, height;
 
                 // Read each column in the row
                 while (ss >> height) {
-                    if (colIndex >= startCol && colIndex < endCol) { // Check if column is within the block
+                    if (colIndex >= startCol && colIndex < endCol) { // Check if the column is within the block
                         row.push_back(height);
                     }
                     colIndex++;
@@ -70,11 +74,11 @@ protected:
 public:
     // Retrieve the height value at the specified coordinates
     int getHeightAt(int x, int y) {
-        // Determine which block the coordinates belong to
+        // Determine which block contains the specified coordinates
         int blockX = x / blockSize;
         int blockY = y / blockSize;
 
-        // Load the block if it is not currently loaded
+        // Load the block if it's not currently loaded
         if (blockX != currentBlockX || blockY != currentBlockY) {
             loadBlock(blockX, blockY);
         }
@@ -84,4 +88,45 @@ public:
         int localY = y % blockSize;
         return blockCache[localX][localY]; // Return the height value
     }
+
+    // Find the point with the maximum height along the line from (x1, y1) to (x2, y2)
+    std::tuple<int, int, int> findMaxHeightOnLine(int x1, int y1, int x2, int y2) {
+        int dx = std::abs(x2 - x1); // Absolute difference in x-coordinates
+        int dy = std::abs(y2 - y1); // Absolute difference in y-coordinates
+        int sx = (x1 < x2) ? 1 : -1; // Step direction for x
+        int sy = (y1 < y2) ? 1 : -1; // Step direction for y
+
+        int err = dx - dy; // Error term for Bresenham's algorithm
+
+        int maxZ = getHeightAt(x1, y1); // Initialize max height with the starting point
+        int maxX = x1, maxY = y1; // Initialize coordinates of the max height point
+
+        while (true) {
+            // Get the height at the current coordinates
+            int currentZ = getHeightAt(x1, y1);
+            if (currentZ > maxZ) {
+                maxZ = currentZ;
+                maxX = x1;
+                maxY = y1;
+            }
+
+            // If we reach the end point, exit the loop
+            if (x1 == x2 && y1 == y2) break;
+
+            int e2 = 2 * err; // Double the error term
+            if (e2 > -dy) {   // Adjust x if necessary
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {    // Adjust y if necessary
+                err += dx;
+                y1 += sy;
+            }
+        }
+
+        // Return the coordinates and height of the maximum point
+        return {maxX, maxY, maxZ};
+    }
 };
+
+Define_Module(HeightMapLoader);
