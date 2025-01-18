@@ -14,6 +14,7 @@ class SignalStrengthCalculation : public cSimpleModule {
     double calculateFreeSpacePathLoss(double transmittedPower, double gainTransmitter, double gainReceiver, double distance, double frequency);
     double calculateTwoRayGroundReflection(double transmittedPower, double gainTransmitter, double gainReceiver, double h_Transmitter, double h_Receiver, double distance);
     double calculateKnifeEdgeDiffraction(double transmittedPower, double wavelength, double t_to_obst, double r_to_obst, double h_Eff);
+    double calculateEffectiveHeight(double t_to_obst, double r_to_obst, double h_Transmitter, double h_Receiver, double h_obstacle);
   protected:
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
