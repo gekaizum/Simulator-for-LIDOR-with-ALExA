@@ -1,0 +1,13 @@
+1. Setup OMNET++ environment variables:
+    * which opp_makemake
+    * export OMNETPP_HOME=~/Downloads/omnetpp-6.1
+    * export PATH=$OMNETPP_HOME/bin:$PATH
+    To make these changes permanent, add them to ~/.bashrc or ~/.bash_profile:
+      echo 'export OMNETPP_HOME=~/omnetpp-6.0' >> ~/.bashrc
+      echo 'export PATH=$OMNETPP_HOME/bin:$PATH' >> ~/.bashrc
+      echo 'export LD_LIBRARY_PATH=$OMNETPP_HOME/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+      source ~/.bashrc
+2. Install INET framework:
+    After download:
+    * make makefiles
+    * make
