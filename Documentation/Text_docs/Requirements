@@ -11,3 +11,5 @@
     After download:
     * make makefiles
     * make
+    Fatal error: z3++.h: No such file or directory" in INET Compilation:
+         sudo apt install libz3-dev
