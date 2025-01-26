@@ -21,7 +21,7 @@ inline double calculateTotalCurrent(float weight, double acceleration, double ve
 	double accelerationEnergy =0;
 	double velocityEnergy =0;
 	if (acceleration != 0){ //will be done once when move command received
-		accelerationEnergy = 0.5 * weight * std::pow(acceleration, 2)) * (velocity/acceleration);
+		accelerationEnergy = 0.5 * weight * std::pow(acceleration, 2) * (velocity/acceleration);
 	}
 	if (velocity != 0) {//will be done once when move command received
 		double air_resistance_factor = 0.05; // Adjusted based on aerodynamics
@@ -42,7 +42,7 @@ inline double updateBatteryCapacity(double &remainingCapacity, double currentCon
 		remainingCapacity = remainingCapacity - (sensorPower + hoveringPower + additionalPower)*time_step;
 	}
 	else { //Will be used after any movement command or sending message
-		remainingCapacity -= currentConsumption
+		remainingCapacity -= currentConsumption;
 	}
     return remainingCapacity;
 }
