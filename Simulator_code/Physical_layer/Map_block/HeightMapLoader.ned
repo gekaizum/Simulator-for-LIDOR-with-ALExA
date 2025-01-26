@@ -1,6 +1,8 @@
-simple HeightMapLoader {
+package Physical_layer.Map_block;
+
+simple HeightMapLoader
+{
     parameters:
-        string heightMapFile;  // Path to the heightmap file
-        int gridSize;          // Size of the map (e.g., 5000 for a 5000x5000 map)
-        int blockSize = default(100); // Size of blocks for block-based loading (optional)
+        string heightmap = default("heightmap.txt");
+        int blockSize = default(100);
 }
