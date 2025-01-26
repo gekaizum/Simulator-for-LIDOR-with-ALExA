@@ -6,7 +6,7 @@
 #include <array>
 #include "../Calculation_block/BatteryConsumption.cpp"
 #include "../Calculation_block/SignalStrengthCalculation.cpp"
-#include "drone_positions_c.cpp"
+//#include "drone_positions_c.cpp"
 
 using namespace omnetpp;
 //using namespace inet;
@@ -55,7 +55,7 @@ class Drone : public cSimpleModule {
     void handleDroneInAir(cMessage *msg);
     void handleWaitingForCommands(cMessage *msg);
     void handleReturningToBase(cMessage *msg);
-    void handleNonOperational();
+    void handleNonOperational(cMessage *msg);
 
     // Helper functions
     //bool checkCollision();
@@ -68,7 +68,7 @@ class Drone : public cSimpleModule {
     virtual void handleMessage(cMessage *msg); // Handles incoming messages
 	virtual void finish();
   public:
-	const int Drone_ID;				// Unique identifier for the drone
+	int Drone_ID;				// Unique identifier for the drone
 	double acceleration;
     double x_velocity;
     double y_velocity;
@@ -83,6 +83,6 @@ class Drone : public cSimpleModule {
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
     void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
 };
-
+Define_Module(Drone);
 #endif /* DRONE_H_ */
 

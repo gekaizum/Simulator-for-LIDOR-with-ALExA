@@ -18,7 +18,7 @@ msg->addPar("z") = 0;
 send(msg, "out");
 */
 
-Define_Module(Drone);
+//Define_Module(Drone);
 ////////////////////FSM functions///////////////////////////////////////////////////////////////////
 void Drone::initialize() {
 	state = INITSTAGE_LOCAL;                            // Set initial state
@@ -31,7 +31,7 @@ void Drone::initialize() {
 	Destination[2] = 0;
 	Drone_ID = par("Drone_ID");                         // Get the drone's ID from parameters
 	EV << "Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
-	hoveringCurrent = calculateHoveringCurrent(mass_of_drone+additional_mass, battery_voltage, battery_efficiency);
+	hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
 	EV << "Drone " << Drone_ID << "Power consumption for hovering: "<< hoveringCurrent << endl;
 	////////////////This part for debug use only and will be deleted///////////////////
 	if (Drone_ID==1){
@@ -45,8 +45,8 @@ void Drone::initialize() {
 void Drone::handleMessage(cMessage *msg) {
     if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
         EV << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
-		Current_Position[0] = msg->par("x").floatValue();
-		Current_Position[1] = msg->par("y").floatValue();
+		Current_Position[0] = msg->par("x").doubleValue();
+		Current_Position[1] = msg->par("y").doubleValue();
 		Destination[0] = Current_Position[0];
 		Destination[1] = Current_Position[0];
 		EV << "Drone " << getName() << " initial coordinates updated: x=" << Current_Position[0] <<
@@ -65,7 +65,7 @@ void Drone::handleMessage(cMessage *msg) {
 				handleReturningToBase(msg);
 				break;
 			case NON_OPERATIONAL:
-				handleNonOperational();
+				handleNonOperational(msg);
 				break;
 		}
 	}
@@ -94,7 +94,7 @@ void Drone::handleWaitingForTakeoff(cMessage *msg) {
         EV << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
 		in_air==true;
         state = WAITING_FOR_COMMANDS; // Transition to DRONE_IN_AIR state
-		Current_Position[2] = msg->par("z").floatValue();
+		Current_Position[2] = msg->par("z").doubleValue();
 		Destination[2] = Current_Position[2];
 		EV << "Drone " << getName() << " initial coordinates updated: x=" << Current_Position[0] <<
 		", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
@@ -119,9 +119,9 @@ void Drone::handleWaitingForCommands(cMessage *msg) {
         x_velocity = msg->par("x_velocity").doubleValue();
 		y_velocity = msg->par("y_velocity").doubleValue();
 		z_velocity = msg->par("z_velocity").doubleValue();
-		Destination[0] = msg->par("x").floatValue();
-		Destination[1] = msg->par("y").floatValue();
-		Destination[2] = msg->par("z").floatValue();
+		Destination[0] = msg->par("x").doubleValue();
+		Destination[1] = msg->par("y").doubleValue();
+		Destination[2] = msg->par("z").doubleValue();
 		//Need to calculate total velocity
 		//Use calculateTotalCurrent() to see battery consumption
 		//Use updateBatteryCapacity() to update battery discharge
@@ -136,29 +136,29 @@ void Drone::handleWaitingForCommands(cMessage *msg) {
 		state = NON_OPERATIONAL;
 	}
 	else {
-        EV << "Unknown command received: " << command << endl;
+        EV << "Unknown command received: " << msg << endl;
     }
 }
 
-void Drone::handleReturningToBase() {
+void Drone::handleReturningToBase(cMessage *msg) {
     EV << "Drone is returning to base station." << endl;
     state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
 }
 
-void Drone::handleNonOperational() {
+void Drone::handleNonOperational(cMessage *msg) {
     EV << "Drone is non-operational due to collision." << endl;
 	EV << "Drone " << getName() << " is non-operational due to collision. New message received and ignored." << endl;
 	EV << "Message: " << msg->getName() << endl;
 }
 
-virtual void finish() override {
+void finish() {
 	cancelAndDelete(batteryCheckEvent);
 }
 
 /////////////additional functions///////////////////////////////////////////////////////////////////
 void batteryCheckHelper(){
 	EV << "Battery check event at " << simTime() << " sec." << endl;
-	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
+	double battery_remain_joules = this->battery_remain * battery_voltage * 3600 / 1000;
 	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
 								additional_power, hoveringCurrent); // in Joules
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
