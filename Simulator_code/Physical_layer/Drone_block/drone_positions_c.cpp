@@ -3,7 +3,8 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
-#include "HeightMapLoader.cpp"
+#include "../Map_block/HeightMapLoader.h"
+#include "../Drone_block/Drone.h"
 
 //All this parameters will be in drone struct object outside this file
 //Need to add apropriate include
@@ -40,37 +41,45 @@ std::vector<Drone> initialize_drones(int num_drones, const std::vector<std::arra
 
 // Function to update drone movement
 // Function will be used when movement command is received to update parameters only
-void update_drone_position(std::vector<Drone>& drone_data, int drone_id, const std::array<float, 3>& new_endpoint) {
-	drone_data[drone_id-1].Destination = new_endpoint;
+void update_drone_position(std::vector<Drone>& drone_data, int drone_id, float* new_endpoint) {
+	drone_data[drone_id-1].Destination[0] = new_endpoint[0];
+	drone_data[drone_id-1].Destination[1] = new_endpoint[1];
+	drone_data[drone_id-1].Destination[2] = new_endpoint[2];
 	drone_data[drone_id-1].Is_Moving = true;
-	drone_data[drone_id-1].Idle_Steps = {0, 0, 0};
+	drone_data[drone_id-1].Idle_Steps[0] = 0;
+	drone_data[drone_id-1].Idle_Steps[1] = 0;
+	drone_data[drone_id-1].Idle_Steps[2] = 0;
 }
 
 // Function will check and do all drones moves
-void current_drone_move(std::vector<Drone>& drone_data, float time_step = 1.0f) {
-    for (auto& drone : drone_data) {
+void current_drone_move(std::vector<Drone>& drone_objects, float time_step, HeightMapLoader* Current_Map ) {
+    for (auto& drone : drone_objects) {
         if (drone.Is_Moving) {
             // Move in x-axis
             if (drone.Next_Move == 1 && drone.Destination[0] != drone.Current_Position[0]) {
                 float x_move = drone_objects[drone.Drone_ID].x_velocity * time_step; // Example velocity
                 if (x_move > 0.2f) {
                     drone.Current_Position[0] += x_move;
-					for (auto& col_dec : drone_data) {
+					for (auto& col_dec : drone_objects) {
                         if (drone.Drone_ID != col_dec.Drone_ID && drone.Current_Position[0] == col_dec.Current_Position[0]){ //collision detected
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
 						//collision with ground
-                        else if (getHeightAt(static_cast<int>(drone.Current_Position[0]), static_cast<int>(drone.Current_Position[1])) >= drone.Current_Position[2]){
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                        else if (Current_Map->getHeightAt(drone.Current_Position[0], drone.Current_Position[1]) >= drone.Current_Position[2]){
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
 					}
-                    drone_objects[drone.Drone_ID].current_position[0]=drone.Current_Position[0]; // update drone object coordinates               
+                    drone_objects[drone.Drone_ID].Current_Position[0]=drone.Current_Position[0]; // update drone object coordinates
                     drone.Next_Move = 2;
                     drone.Idle_Steps[0] = 0;
                 } else {
@@ -84,22 +93,26 @@ void current_drone_move(std::vector<Drone>& drone_data, float time_step = 1.0f) 
                 float y_move = drone_objects[drone.Drone_ID].y_velocity * time_step; // y-axis velocity
                 if (y_move > 0.2f) {
                     drone.Current_Position[1] += y_move;
-					for (auto& col_dec : drone_data) {
+					for (auto& col_dec : drone_objects) {
                         if (drone.Drone_ID != col_dec.Drone_ID && drone.Current_Position[1] == col_dec.Current_Position[1]){ //collision detected
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
                         //collision with ground
-                        else if (getHeightAt(static_cast<int>(drone.Current_Position[0]), static_cast<int>(drone.Current_Position[1])) >= drone.Current_Position[2]){
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                        else if (Current_Map->getHeightAt(static_cast<int>(drone.Current_Position[0]), static_cast<int>(drone.Current_Position[1])) >= drone.Current_Position[2]){
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
 					}
-                    drone_objects[drone.Drone_ID].current_position[1]=drone.Current_Position[1]; // update drone object coordinates               
+                    drone_objects[drone.Drone_ID].Current_Position[1]=drone.Current_Position[1]; // update drone object coordinates
                     drone.Next_Move = 3;
                     drone.Idle_Steps[1] = 0;
                 } else {
@@ -113,22 +126,26 @@ void current_drone_move(std::vector<Drone>& drone_data, float time_step = 1.0f) 
                 float z_move = drone_objects[drone.Drone_ID].z_velocity * time_step; // Example velocity
                 if (z_move > 0.2f) {
                     drone.Current_Position[2] += z_move;
-					for (auto& col_dec : drone_data) {
+					for (auto& col_dec : drone_objects) {
                         if (drone.Drone_ID != col_dec.Drone_ID && drone.Current_Position[2] == col_dec.Current_Position[2]){ //collision detected
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
                         //collision with ground
-                        else if (getHeightAt(static_cast<int>(drone.Current_Position[0]), static_cast<int>(drone.Current_Position[1])) >= drone.Current_Position[2]){
-                            drone_objects[drone.Drone_ID].non_operational = True;
-                            drone.Destination=drone.Current_Position;
-                            drone.Is_Moving=False
-                            break
+                        else if (Current_Map->getHeightAt(static_cast<int>(drone.Current_Position[0]), static_cast<int>(drone.Current_Position[1])) >= drone.Current_Position[2]){
+                            drone_objects[drone.Drone_ID].non_operational = true;
+                            drone.Destination[0]=drone.Current_Position[0];
+                            drone.Destination[1]=drone.Current_Position[1];
+                            drone.Destination[2]=drone.Current_Position[2];
+                            drone.Is_Moving=false;
+                            break;
 						}
 					}
-                    drone_objects[drone.Drone_ID].current_position[2]=drone.Current_Position[2]; // update drone object coordinates               
+                    drone_objects[drone.Drone_ID].Current_Position[2]=drone.Current_Position[2]; // update drone object coordinates
                     drone.Next_Move = 1;
                     drone.Idle_Steps[2] = 0;
                 } else {

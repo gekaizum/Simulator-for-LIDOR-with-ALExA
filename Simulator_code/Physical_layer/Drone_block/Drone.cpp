@@ -1,83 +1,56 @@
 // Include OMNeT++ library for simulation-specific features
 #include <omnetpp.h>
 // Include INET's TCP application base for managing TCP communication
-#include <inet/applications/tcpapp/TcpAppBase.h>
-#include <inet/common/INETDefs.h>
 #include <string>
 #include <array>
+#include "Drone.h"
 
 using namespace omnetpp;
-using namespace inet;
-
-enum DroneState {
-    POWER_ON,               // Initial state when the drone is powered on
-    WAITING_FOR_TAKEOFF,    // Drone is waiting for a TAKEOFF signal
-    DRONE_IN_AIR,           // Drone is airborne
-    WAITING_FOR_COMMANDS,   // Drone is waiting for new commands
-    RETURNING_TO_BASE,      // Drone is returning to its base station
-    NON_OPERATIONAL         // Drone is non-operational (e.g., due to collision)
-};
-
-class Drone : public TcpAppBase {
-  private:
-    int drone_id;                              // Unique identifier for the drone
-    int number_of_rotors;                      // Number of rotors on the drone
-    int mass_of_drone;                         // Base mass of the drone
-    int additional_mass;                       // Additional payload mass
-    char communication_type;                   // Communication type ('W' for WiFi, 'R' for Radio)
-    float antenna_efficiency;                  // Efficiency of the antenna
-    int additional_power;                      // Power required for additional equipment
-    int battery_capacity;                      // Total battery capacity in mAh
-    int battery_remain;                        // Remaining battery capacity in mAh
-    std::array<float, 3> drone_Position;       // Drone's position as x, y, z coordinates
-    int network_parameters;                    // Placeholder for network-specific parameters
-    int drone_size;                            // Size category of the drone
-    int drone_velocity_parameters;             // Velocity-related parameters
-
-    DroneState state;                          // Current state of the drone
-    bool collision_detection_mode;             // Whether collision detection is active
-
-    // State handling functions
-    void handlePowerOn();
-    void handleWaitingForTakeoff(cMessage *msg);
-    void handleDroneInAir();
-    void handleWaitingForCommands();
-    void handleReturningToBase();
-    void handleNonOperational();
-
-    // Helper functions
-    bool checkCollision();
-    void executeMoveCommand();
-
-  protected:
-    virtual void initialize(int stage) override; // Initializes the drone module
-    virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
-
-  public:
-    void broadcast(const std::string& message);              // Broadcasts a message to all drones
-    void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
-};
+//using namespace inet;
 
 Define_Module(Drone);
 
-void Drone::initialize(int stage) {
-    TcpAppBase::initialize(stage);
-    if (stage == INITSTAGE_LOCAL) {
-        state = POWER_ON;                                    // Set initial state
-        collision_detection_mode = true;                     // Enable collision detection
-        drone_Position = {0.0, 0.0, 0.0};                    // Set default position to (0, 0, 0)
-        drone_id = par("drone_id");                         // Get the drone's ID from parameters
-        EV << "Drone " << drone_id << " initialized in POWER_ON state with position (0, 0, 0)." << endl;
-    }
+void Drone::initialize() {
+    //TcpAppBase::initialize(stage);
+    //if (stage == INITSTAGE_LOCAL) {
+        state = POWER_ON;                                   // Set initial state
+        collision_detection_mode = true;                    // Enable collision detection
+        Current_Position[0] = 0;                            // Set default position to (0, 0, 0)
+        Current_Position[1] = 0;
+        Current_Position[2] = 0;
+        Drone_ID = par("Drone_ID");                         // Get the drone's ID from parameters
+        EV << "Drone " << Drone_ID << " initialized in POWER_ON state with position (0, 0, 0)." << endl;
+        hoveringCurrent = calculateHoveringCurrent(mass_of_drone+additional_mass, battery_voltage, battery_efficiency);
+        if (Drone_ID==1){
+            cMessage *myMsg = new cMessage("TAKEOFF");
+            //cMessage *batteryCalcResponse = new cMessage("BatteryCalcResponse");
+            //myMsg->addPar("TAKEOFF") = batteryCalcResponse->par("battery_remain");
+            //myMsg->addPar("TAKEOFF")=TAKEOFF;
+            send(myMsg, "socketOut");
+            //delete myMsg;
+            //myMsg=nullptr;
+            // Clean up simulated response
+            //delete batteryCalcResponse;
+            //TAKEOFF = new cMessage("TAKEOFF");
+            //scheduleAt(simTime() + 1.0, TAKEOFF);  // Schedule for 1s after start
+        }
+    //}
 }
 
-void Drone::handleMessageWhenUp(cMessage *msg) {
+void Drone::handleMessage(cMessage *msg) {
+    if (strcmp(msg->getName(), "TAKEOFF") == 0) {
+        EV << "Drone " << getName() << " is taking off at t=" << simTime() << endl;
+        // Safely delete the event
+        delete msg;
+        msg = nullptr;
+    }
+    cMessage *myMsg = new cMessage("TAKEOFF");
     switch (state) {
         case POWER_ON:
-            handlePowerOn();
+            handlePowerOn(myMsg);
             break;
         case WAITING_FOR_TAKEOFF:
-            handleWaitingForTakeoff(msg);
+            handleWaitingForTakeoff(myMsg);
             break;
         case DRONE_IN_AIR:
             handleDroneInAir();
@@ -96,11 +69,14 @@ void Drone::handleMessageWhenUp(cMessage *msg) {
 }
 
 void Drone::handleWaitingForTakeoff(cMessage *msg) {
-    EV << "Drone is waiting for takeoff sequence." << endl;
+    EV << "Drone is waiting for TAKEOFF sequence." << endl;
 
     if (std::string(msg->getName()) == "TAKEOFF") {         // Check for TAKEOFF signal
-        EV << "Takeoff signal received. Drone is transitioning to DRONE_IN_AIR state." << endl;
+        EV << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
         state = DRONE_IN_AIR;                                // Transition to DRONE_IN_AIR state
+        //For debug use only
+        send(msg, "socketOut");
+        ///////////////////////////////
     } else {
         EV << "Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
     }
@@ -111,9 +87,10 @@ void Drone::handleDroneInAir() {
     state = WAITING_FOR_COMMANDS;                            // Transition to WAITING_FOR_COMMANDS state
 }
 
-void Drone::handlePowerOn() {
+void Drone::handlePowerOn(cMessage *msg) {
     EV << "Drone is powering on." << endl;
     state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
+    send(msg, "socketOut");
 }
 
 void Drone::handleWaitingForCommands() {
@@ -156,14 +133,14 @@ void Drone::executeMoveCommand() {
 }
 
 void Drone::broadcast(const std::string& message) {
-    EV << "Drone " << drone_id << " broadcasting message: " << message << endl;
+    EV << "Drone " << Drone_ID << " broadcasting message: " << message << endl;
 
     cMessage *msg = new cMessage(message.c_str());           // Create a new message for broadcasting
     send(msg, "socketOut");                                 // Send the message via the output socket
 }
 
 void Drone::sendTo(int target_id, const std::string& message) {
-    EV << "Drone " << drone_id << " sending message to Drone " << target_id << ": " << message << endl;
+    EV << "Drone " << Drone_ID << " sending message to Drone " << target_id << ": " << message << endl;
 
     cMessage *msg = new cMessage(message.c_str());           // Create a new message for direct communication
     send(msg, "socketOut");                                 // Send the message via the output socket
