@@ -122,6 +122,10 @@ void Drone::handleWaitingForCommands(cMessage *msg) {
 		Destination[0] = msg->par("x").floatValue();
 		Destination[1] = msg->par("y").floatValue();
 		Destination[2] = msg->par("z").floatValue();
+		//Need to calculate total velocity
+		//Use calculateTotalCurrent() to see battery consumption
+		//Use updateBatteryCapacity() to update battery discharge
+		//Remember to convert Joules to mAh
 		Is_Moving = true;
 		Next_Move = 1;
     } 
