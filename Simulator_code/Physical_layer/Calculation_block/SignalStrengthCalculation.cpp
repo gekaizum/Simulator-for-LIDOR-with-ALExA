@@ -42,7 +42,7 @@ double calculateFreeSpacePathLoss(double frequencyHz, double distanceMeters) {
 // Function to calculate Two-Ray Ground Reflection
 double calculateTwoRayGroundReflection(double txHeight, double rxHeight, double distance, double frequencyHz) {
     if (distance <= 0) return 0;
-    double directPathLoss = freeSpacePathLoss(frequencyHz, distance);
+    double directPathLoss = calculateFreeSpacePathLoss(frequencyHz, distance);
     double groundReflectionLoss = 10 * log10((txHeight * rxHeight) / (distance * distance));
     return directPathLoss - groundReflectionLoss;
 }
@@ -66,13 +66,13 @@ double calculateSignalLoss(PropagationModel model, double frequencyHz, double di
 
     switch (model) {
         case PropagationModel::FREE_SPACE:
-            pathLoss = freeSpacePathLoss(frequencyHz, distance);
+            pathLoss = calculateFreeSpacePathLoss(frequencyHz, distance);
             break;
         case PropagationModel::TWO_RAY:
-            pathLoss = twoRayGroundReflection(txHeight, rxHeight, distance, frequencyHz);
+            pathLoss = calculateTwoRayGroundReflection(txHeight, rxHeight, distance, frequencyHz);
             break;
         case PropagationModel::KNIFE_EDGE:
-            pathLoss = knifeEdgeDiffraction(obstacleHeight, t_to_obst, r_to_obst, frequencyHz);
+            pathLoss = calculateKnifeEdgeDiffraction(obstacleHeight, t_to_obst, r_to_obst, frequencyHz);
             break;
         default:
             std::cerr << "Invalid propagation model selected!" << std::endl;
