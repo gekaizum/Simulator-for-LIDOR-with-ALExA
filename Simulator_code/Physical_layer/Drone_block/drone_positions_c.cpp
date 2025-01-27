@@ -4,7 +4,8 @@
 #include <iostream>
 #include <unordered_map>
 #include "../Map_block/HeightMapLoader.h"
-#include "../Drone_block/Drone.h"
+#include "Drone.h"
+#include <omnetpp.h>
 
 //All this parameters will be in drone struct object outside this file
 //Need to add apropriate include

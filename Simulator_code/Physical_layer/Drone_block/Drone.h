@@ -4,8 +4,10 @@
 #include <omnetpp.h>
 #include <string>
 #include <array>
-#include "../Calculation_block/BatteryConsumption.cpp"
-#include "../Calculation_block/SignalStrengthCalculation.cpp"
+//#include "../Calculation_block/BatteryConsumption.cpp"
+#include "../Calculation_block/BatteryConsumption.h"
+//#include "../Calculation_block/SignalStrengthCalculation.cpp"
+#include "../Calculation_block/SignalStrengthCalculation.h"
 //#include "drone_positions_c.cpp"
 
 using namespace omnetpp;
@@ -26,10 +28,10 @@ enum DroneState {
 class Drone : public cSimpleModule {
   private:
     int number_of_rotors;					// Number of rotors on the drone
-	float motor_efficiency;					// efficiency of motors [W/N]
+    double motor_efficiency;					// efficiency of motors [W/N]
 	
-    float mass_of_drone;					// Base mass of the drone [kg]
-    float additional_mass;                  // Additional payload mass [kg]
+    double mass_of_drone;					// Base mass of the drone [kg]
+    double additional_mass;                  // Additional payload mass [kg]
 	
     //char communication_type;              // Communication type ('W' for WiFi, 'R' for Radio)
 	double frequencyHz;						// Frequency used by drone to communicate
@@ -39,12 +41,12 @@ class Drone : public cSimpleModule {
     double additional_power;				// Power required for additional equipment
     double battery_capacity;				// Total battery capacity in mAh
     double battery_remain;					// Remaining battery capacity in mAh
-    int battery_voltage;
+    double battery_voltage;
     //int network_parameters;				// Placeholder for network-specific parameters
     int drone_size;							// Size category of the drone - one number in meters
     double hoveringCurrent;					// Power needed for hovering
 
-    DroneState state;						// Current state of the drone for FSM
+    DroneState state = INITSTAGE_LOCAL;						// Current state of the drone for FSM
 	bool power_on = false;
 	bool in_air = false;
     //bool collision_detection_mode;		// Whether collision detection is active
@@ -60,7 +62,7 @@ class Drone : public cSimpleModule {
     // Helper functions
     //bool checkCollision();
     //void executeMoveCommand();
-	void batteryCheckHelper();
+	void batteryCheckHelper(int time_step);
 	//Periodical events for drone
 	cMessage *batteryCheckEvent;
   protected:

@@ -1,11 +1,11 @@
 // Include OMNeT++ library for simulation-specific features
-#include <omnetpp.h>
+//#include <omnetpp.h>
 // Include INET's TCP application base for managing TCP communication
-#include <string>
-#include <array>
+//#include <string>
+//#include <array>
 #include "Drone.h"
 
-using namespace omnetpp;
+//using namespace omnetpp;
 //using namespace inet;
 
 /*  Example of message
@@ -32,7 +32,7 @@ void Drone::initialize() {
 	Drone_ID = par("Drone_ID");                         // Get the drone's ID from parameters
 	EV << "Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
 	hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
-	EV << "Drone " << Drone_ID << "Power consumption for hovering: "<< hoveringCurrent << endl;
+	EV << "Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
 	////////////////This part for debug use only and will be deleted///////////////////
 	if (Drone_ID==1){
 		cMessage *myMsg = new cMessage("TAKEOFF");
@@ -101,7 +101,8 @@ void Drone::handleWaitingForTakeoff(cMessage *msg) {
         
     }
 	else if (msg == batteryCheckEvent) {
-		batteryCheckHelper();
+	    int time_step = 10;
+		batteryCheckHelper(time_step);
 		scheduleAt(simTime() + 10.0, batteryCheckEvent); // Repeat
 	}
 	else {
@@ -111,7 +112,8 @@ void Drone::handleWaitingForTakeoff(cMessage *msg) {
 
 void Drone::handleWaitingForCommands(cMessage *msg) {
 	if (msg == batteryCheckEvent) {
-		batteryCheckHelper();
+	    int time_step = 10;
+		batteryCheckHelper(time_step);
 		scheduleAt(simTime() + 10.0, batteryCheckEvent); // Repeat
 	}
     else if (strcmp(msg->par("State").stringValue(), "MOVE") == 0) {
@@ -151,16 +153,16 @@ void Drone::handleNonOperational(cMessage *msg) {
 	EV << "Message: " << msg->getName() << endl;
 }
 
-void finish() {
+void Drone::finish() {
 	cancelAndDelete(batteryCheckEvent);
 }
 
 /////////////additional functions///////////////////////////////////////////////////////////////////
-void batteryCheckHelper(){
+void Drone::batteryCheckHelper(int time_step){
 	EV << "Battery check event at " << simTime() << " sec." << endl;
-	double battery_remain_joules = this->battery_remain * battery_voltage * 3600 / 1000;
+	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
 	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
-								additional_power, hoveringCurrent); // in Joules
+								additional_power, hoveringCurrent, time_step); // in Joules
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 	EV << "Drone " << getName() << " remaining power: " << battery_remain << " mAh, " 
 	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
