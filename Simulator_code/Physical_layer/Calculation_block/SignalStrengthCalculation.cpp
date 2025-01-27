@@ -1,9 +1,10 @@
-#include <omnetpp.h>
-#include <cmath>
-#include <iostream>
+//#include <omnetpp.h>
+//#include <cmath>
+//#include <iostream>
 //#include <vector>
 //#include <string>
 //#include <sstream>
+#include "SignalStrengthCalculation.h"
 
 using namespace omnetpp;
 
@@ -17,15 +18,7 @@ using namespace omnetpp;
  // First you need to calculate signal loss using calculateSignalLoss()
  // Then received power in dBm using receivedPower()
  
-const double SPEED_OF_LIGHT = 3e8;  // Speed of light in m/s
-const double PI = 3.141592653589793;
 
-// Enum for selecting the propagation model
-enum class PropagationModel {
-    FREE_SPACE,
-    TWO_RAY,
-    KNIFE_EDGE
-};
 
 // Function to compute received power in dBm
 double receivedPower(double transmittedPower, double gainTx, double gainRx, double pathLoss) {
@@ -44,7 +37,7 @@ double calculateTwoRayGroundReflection(double txHeight, double rxHeight, double 
     if (distance <= 0) return 0;
     double directPathLoss = calculateFreeSpacePathLoss(frequencyHz, distance);
     double groundReflectionLoss = 10 * log10((txHeight * rxHeight) / (distance * distance));
-    return directPathLoss - groundReflectionLoss;
+    return (directPathLoss - groundReflectionLoss);
 }
 
 // Function to calculate Knife-Edge Diffraction
@@ -59,9 +52,8 @@ double calculateKnifeEdgeDiffraction(double obstacleHeight, double t_to_obst, do
 }
 
 // Unified function to compute signal loss based on the selected model
-double calculateSignalLoss(PropagationModel model, double frequencyHz, double distance, 
-                           double txHeight = 0, double rxHeight = 0, 
-                           double obstacleHeight = 0, double t_to_obst = 0, double r_to_obst = 0) {
+double calculateSignalLoss(PropagationModel model, double frequencyHz, double distance, double txHeight,
+                            double rxHeight,double obstacleHeight, double t_to_obst, double r_to_obst) {
     double pathLoss = 0;
 
     switch (model) {
