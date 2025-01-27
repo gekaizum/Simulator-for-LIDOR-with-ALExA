@@ -4,6 +4,7 @@
 #include <omnetpp.h>
 #include <string>
 #include <array>
+#include <cmath>
 //#include "../Calculation_block/BatteryConsumption.cpp"
 #include "../Calculation_block/BatteryConsumption.h"
 //#include "../Calculation_block/SignalStrengthCalculation.cpp"
@@ -46,13 +47,13 @@ class Drone : public cSimpleModule {
     int drone_size;							// Size category of the drone - one number in meters
     double hoveringCurrent;					// Power needed for hovering
 
-    DroneState state = INITSTAGE_LOCAL;						// Current state of the drone for FSM
+    DroneState state;						// Current state of the drone for FSM
 	bool power_on = false;
 	bool in_air = false;
     //bool collision_detection_mode;		// Whether collision detection is active
 
     // State handling functions
-    void handlePowerOn(cMessage *msg);
+    void handlePowerOn();
     void handleWaitingForTakeoff(cMessage *msg);
     void handleDroneInAir(cMessage *msg);
     void handleWaitingForCommands(cMessage *msg);
@@ -63,6 +64,7 @@ class Drone : public cSimpleModule {
     //bool checkCollision();
     //void executeMoveCommand();
 	void batteryCheckHelper(int time_step);
+	void batteryCheckHelper_forMove();
 	//Periodical events for drone
 	cMessage *batteryCheckEvent;
   protected:

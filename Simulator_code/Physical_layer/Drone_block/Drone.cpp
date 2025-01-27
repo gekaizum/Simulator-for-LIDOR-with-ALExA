@@ -34,28 +34,15 @@ void Drone::initialize() {
 	hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
 	EV << "Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
 	////////////////This part for debug use only and will be deleted///////////////////
-	if (Drone_ID==1){
+	/*if (Drone_ID==1){
 		cMessage *myMsg = new cMessage("TAKEOFF");
 		send(myMsg, "socketOut");
 		//scheduleAt(simTime() + 1.0, TAKEOFF);  // Schedule for 1s after start
-	}
+	}*/
 	///////////////////////////////////////////////////////////////////////////////////
 }
 
 void Drone::handleMessage(cMessage *msg) {
-    if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
-        EV << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
-		Current_Position[0] = msg->par("x").doubleValue();
-		Current_Position[1] = msg->par("y").doubleValue();
-		Destination[0] = Current_Position[0];
-		Destination[1] = Current_Position[0];
-		EV << "Drone " << getName() << " initial coordinates updated: x=" << Current_Position[0] <<
-		", y=" << Current_Position[1] << ", z=0" << endl;
-        delete msg;
-        msg = nullptr;
-		state = POWER_ON;
-		power_on=true;
-    }
 	if (power_on==true && in_air==true) {
 		switch (state) {
 			case WAITING_FOR_COMMANDS:
@@ -71,18 +58,29 @@ void Drone::handleMessage(cMessage *msg) {
 	}
 	else if (power_on==true){//here will be set of states where drone operates from ground as access point
 		switch (state) {
-			case POWER_ON:
-				handlePowerOn(msg);
-				break;
 			case WAITING_FOR_TAKEOFF:
 				handleWaitingForTakeoff(msg);
 				break;
 		}
 	}
+	else if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
+        EV << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
+        Current_Position[0] = msg->par("x").doubleValue();
+        Current_Position[1] = msg->par("y").doubleValue();
+        Destination[0] = Current_Position[0];
+        Destination[1] = Current_Position[0];
+        EV << "Drone " << getName() << " initial coordinates updated: x=" << Current_Position[0] <<
+        ", y=" << Current_Position[1] << ", z=0" << endl;
+        //delete msg;
+        //msg = nullptr;
+        state = POWER_ON;
+        power_on=true;
+        handlePowerOn();
+    }
     delete msg; // Clean up the message after processing
 }
 
-void Drone::handlePowerOn(cMessage *msg) {
+void Drone::handlePowerOn() {
     EV << "Drone is powering on and waiting for TAKEOFF sequence." << endl;
     state = WAITING_FOR_TAKEOFF; // Transition to WAITING_FOR_TAKEOFF state
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
@@ -93,11 +91,19 @@ void Drone::handleWaitingForTakeoff(cMessage *msg) {
     if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
         EV << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
 		in_air==true;
+		Is_Moving = true;
+		Next_Move = 3;//Take off will always start from moving on z axis
         state = WAITING_FOR_COMMANDS; // Transition to DRONE_IN_AIR state
-		Current_Position[2] = msg->par("z").doubleValue();
-		Destination[2] = Current_Position[2];
-		EV << "Drone " << getName() << " initial coordinates updated: x=" << Current_Position[0] <<
-		", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
+        Destination[0] = msg->par("x").doubleValue();
+        Destination[1] = msg->par("y").doubleValue();
+        Destination[2] = msg->par("z").doubleValue();
+		EV << "Drone " << getName() << " destination coordinates updated: x=" << Destination[0] <<
+		", y=" << Destination[1] << ", z=" << Destination[2] << endl;
+		acceleration = msg->par("acceleration").doubleValue();
+        x_velocity = msg->par("x_velocity").doubleValue();
+        y_velocity = msg->par("y_velocity").doubleValue();
+        z_velocity = msg->par("z_velocity").doubleValue();
+        batteryCheckHelper_forMove();
         
     }
 	else if (msg == batteryCheckEvent) {
@@ -124,12 +130,9 @@ void Drone::handleWaitingForCommands(cMessage *msg) {
 		Destination[0] = msg->par("x").doubleValue();
 		Destination[1] = msg->par("y").doubleValue();
 		Destination[2] = msg->par("z").doubleValue();
-		//Need to calculate total velocity
-		//Use calculateTotalCurrent() to see battery consumption
-		//Use updateBatteryCapacity() to update battery discharge
-		//Remember to convert Joules to mAh
 		Is_Moving = true;
 		Next_Move = 1;
+		batteryCheckHelper_forMove();
     } 
 	else if (strcmp(msg->par("State").stringValue(), "RETURN") == 0) {
         state = RETURNING_TO_BASE;
@@ -154,7 +157,7 @@ void Drone::handleNonOperational(cMessage *msg) {
 }
 
 void Drone::finish() {
-	cancelAndDelete(batteryCheckEvent);
+	//cancelAndDelete(batteryCheckEvent);
 }
 
 /////////////additional functions///////////////////////////////////////////////////////////////////
@@ -166,6 +169,14 @@ void Drone::batteryCheckHelper(int time_step){
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 	EV << "Drone " << getName() << " remaining power: " << battery_remain << " mAh, " 
 	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
+}
+
+void Drone::batteryCheckHelper_forMove(){
+        double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000; //battery remain in Joules
+        double total_velocity = std::sqrt(x_velocity*x_velocity+y_velocity*y_velocity+z_velocity*z_velocity); // Total velocity
+        double energyConsumption = calculateTotalCurrent(mass_of_drone+additional_mass, acceleration, total_velocity); // Energy needs for move
+        double remainingCapacity = updateBatteryCapacity(battery_remain_joules, energyConsumption, false, 0, 0, 0, total_velocity/acceleration); // in Joules
+        battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
