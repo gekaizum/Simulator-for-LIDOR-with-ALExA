@@ -1,24 +1,12 @@
-#include <omnetpp.h>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <cmath>
 #include "HeightMapLoader.h"
 
 using namespace omnetpp;
 
-Define_Module(HeightMapLoader);
-
-void HeightMapLoader::handleMessage(cMessage *msg){
-
-
-}
 // Initialize parameters from the NED file
-void HeightMapLoader::initialize() {
-    heightMapFile = par("heightmap").stringValue(); // Get the height map file path
-    blockSize = par("blockSize").intValue();            // Get the size of the block
+HeightMapLoader::HeightMapLoader(std::string heightmap, int bS) {
+    heightMapFile = heightmap; // Get the height map file path
+    //blockSize = par("blockSize").intValue();            // Get the size of the block
+    blockSize = bS;
     currentBlockX = -1;  // Set initial block coordinates to invalid values
     currentBlockY = -1;
 }

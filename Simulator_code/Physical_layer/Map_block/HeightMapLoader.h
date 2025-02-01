@@ -4,10 +4,14 @@
 #include <omnetpp.h>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <cmath>
 
 using namespace omnetpp;
 
-class HeightMapLoader : public cSimpleModule {
+class HeightMapLoader {
 private:
     std::vector<std::vector<int>> blockCache; // Cache for the currently loaded block of the height map
     int blockSize;
@@ -15,12 +19,11 @@ private:
     std::string heightMapFile;    // Path to the height map file
 
 protected:
-    virtual void initialize() override;
-    virtual void handleMessage(cMessage *msg) override;
+    //virtual void handleMessage(cMessage *msg) override;
     void loadBlock(int blockX, int blockY);
 
 public:
-    //HeightMapLoader();
+    HeightMapLoader(std::string heightmap, int bS);
     //virtual ~HeightMapLoader();
 
     //void loadHeightMap(const std::string& filename);
