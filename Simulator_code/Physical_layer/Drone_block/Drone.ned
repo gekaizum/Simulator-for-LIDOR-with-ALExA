@@ -29,6 +29,6 @@ simple Drone
     gates:
         input socketIn;
         output socketOut;
-        input socketControl;
+        inout socketControl;
 }
 

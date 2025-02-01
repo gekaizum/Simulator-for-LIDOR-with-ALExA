@@ -77,10 +77,12 @@ void Drone::handleMessage(cMessage *msg) {
         EV << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
         Current_Position[0] = msg->par("x").doubleValue();
         Current_Position[1] = msg->par("y").doubleValue();
+        Current_Position[2] = msg->par("z").doubleValue();
         Destination[0] = Current_Position[0];
-        Destination[1] = Current_Position[0];
+        Destination[1] = Current_Position[1];
+        Destination[2] = Current_Position[2];
         EV << "Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
-        ", y=" << Current_Position[1] << ", z=0" << endl;
+        ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
         state = POWER_ON;
         power_on=true;
         handlePowerOn();
