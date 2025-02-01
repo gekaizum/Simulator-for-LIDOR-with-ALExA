@@ -2,9 +2,11 @@ package Physical_layer.simulations;
 
 simple SimulationControl
 {
- parameters:
+    parameters:
+        int blockSize = default(100);
+        int numDrones = default(3);
+        int numOfSockets;
         //std::vector<Drone>& drone_data = default(nullptr);
     gates:
-        input socketIn;
-        output socketOut;   
+        inout controlSocket[numOfSockets];  
 }
