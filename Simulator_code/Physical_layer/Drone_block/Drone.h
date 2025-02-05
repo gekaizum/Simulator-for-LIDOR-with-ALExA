@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include <cmath>
+#include <fstream>
 //#include "../Calculation_block/BatteryConsumption.cpp"
 #include "../Calculation_block/BatteryConsumption.h"
 //#include "../Calculation_block/SignalStrengthCalculation.cpp"
@@ -84,8 +85,12 @@ class Drone : public cSimpleModule {
     float Destination[3]; // Drone destination as [x,y,z]
     float Current_Position[3]; // Drone's position as [x,y,z] coordinates
     uint8_t Next_Move;
+    float ChargeStationCoord[3];
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
     void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
+
+    std::ofstream droneLogFile; // logger for drone
+    std::string fileName;
 };
 Define_Module(Drone);
 #endif /* DRONE_H_ */
