@@ -17,7 +17,7 @@ double calculateHoveringPower(double weight, double motor_efficiency) {
 
 // Function to calculate total current consumption
 // Will be used after any movement command or sending message
-double calculateTotalCurrent(double weight, double acceleration, double velocity) {
+double calculateTotalCurrent(double weight, double acceleration, double velocity, double distance) {
 	double accelerationEnergy =0;
 	double velocityEnergy =0;
 	if (acceleration != 0){ //will be done once when move command received
@@ -26,7 +26,10 @@ double calculateTotalCurrent(double weight, double acceleration, double velocity
 	if (velocity != 0) {//will be done once when move command received
 		double air_resistance_factor = 0.05; // Adjusted based on aerodynamics
 		double drag_power = air_resistance_factor * std::pow(velocity, 2);
-		velocityEnergy = drag_power * (velocity/acceleration); // Energy in Joules
+
+		//Time need to be changed to distance/velocity
+		velocityEnergy = drag_power * (distance/velocity); // Energy in Joules
+
 	}
 	double totalCurrentConsumption = accelerationEnergy + velocityEnergy;
     return totalCurrentConsumption;

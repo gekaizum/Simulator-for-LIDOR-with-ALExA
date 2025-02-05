@@ -5,7 +5,7 @@
 #include <iostream>
 
 double calculateHoveringPower(double weight, double motor_efficiency);
-double calculateTotalCurrent(double weight, double acceleration, double velocity);
+double calculateTotalCurrent(double weight, double acceleration, double velocity, double distance);
 double updateBatteryCapacity(double &remainingCapacity, double currentConsumption, bool flag,
                                     double sensorPower, double additionalPower, double hoveringPower, int time_step);
 
