@@ -5,29 +5,20 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "../Drone_block/ChargingStation.h"
 
 using namespace omnetpp;
 
 // Structure to represent a charging station
-struct ChargingStation {
-    int id;  // Unique identifier for the station
-    int x;   // X-coordinate on the map
-    int y;   // Y-coordinate on the map
-};
 
-class ChargingStationManager : public cSimpleModule {
+class ChargingStationManager {
 private:
-    std::unordered_map<int, ChargingStation> stations; // Map of stations by ID
     int nextStationId;
-
 protected:
-    virtual void initialize() override;
-    //virtual void handleMessage(cMessage *msg) override;
 
 public:
     //ChargingStationManager();
     //virtual ~ChargingStationManager();
-
     int addStation(int x, int y);
     bool moveStation(int id, int newX, int newY);
     bool removeStation(int id);
