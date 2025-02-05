@@ -1,20 +1,24 @@
 package Physical_layer.simulations;
 
 //import Physical_layer.Map_block.HeightMapLoader;
-import Physical_layer.Map_block.ChargingStationManager;
+import Physical_layer.Drone_block.ChargingStation;
 import Physical_layer.Drone_block.Drone;
 
 network DroneNetwork
 {
     parameters:
+        int numChargeStation = default(2);
         int numDrones = default(3);
         @display("bgb=860,460");
     submodules:
         //mapLoader: HeightMapLoader {
         //    @display("p=55,42;i=device/palm;is=s");
         //}
-        chargingStationManager: ChargingStationManager {
-            @display("p=138,50;i=block/control");
+        ChargingStation[numChargeStation]: ChargingStation {
+            parameters:
+                ChargingStation_ID = parent.numDrones + index + 1;
+                numOfSockets = parent.numDrones;
+                @display("i=block/control");
         }
 
         drones[numDrones]: Drone {
