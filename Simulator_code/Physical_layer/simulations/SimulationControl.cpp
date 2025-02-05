@@ -31,7 +31,7 @@ void SimulationControl::initialize() {
     testInit->addPar("x") = 1;
     testInit->addPar("y") = 1;
     testInit->addPar("z") = Current_map->getHeightAt(1, 1);
-    SimControlLogger->logFile << "Start at height: " << Current_map->getHeightAt(1, 1) << endl;
+    SimControlLogger->logFile << "Drone 1: start at height: " << Current_map->getHeightAt(1, 1) << endl;
     scheduleAt(simTime() + 2.0, testInit);
     //////////////////////////////////////
     //Self event to check if there any move to be done
@@ -62,15 +62,17 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
         send(msg, "controlSocket$o",0);
         SimControlLogger->logFile << "POWER_ON signal sent to drone 1" << endl;
         cMessage *msg2 = msg->dup();
-        //msg2->par("x") = 10;
-        //msg2->par("y") = 10;
-        //msg2->par("z") = Current_map->getHeightAt(10, 10);
+        msg2->par("x") = 10;
+        msg2->par("y") = 10;
+        msg2->par("z") = Current_map->getHeightAt(10, 10);
         send(msg2, "controlSocket$o",1);
+        SimControlLogger->logFile << "Drone 2: start at height: " << Current_map->getHeightAt(10, 10) << endl;
         SimControlLogger->logFile << "POWER_ON signal sent to drone 2" << endl;
         cMessage *msg3 = msg->dup();
         msg3->par("x") = 20;
         msg3->par("y") = 20;
         msg3->par("z") = Current_map->getHeightAt(20, 20);
+        SimControlLogger->logFile << "Drone 3: start at height: " << Current_map->getHeightAt(20, 20) << endl;
         send(msg3, "controlSocket$o",2);
         SimControlLogger->logFile << "POWER_ON signal sent to drone 3" << endl;
 
@@ -78,7 +80,7 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
         testInit2->addPar("State") = "TAKEOFF";
         testInit2->addPar("x") = 1;
         testInit2->addPar("y") = 1;
-        testInit2->addPar("z") = Current_map->getHeightAt(1, 1)+150;
+        testInit2->addPar("z") = Current_map->getHeightAt(1, 1)+100;
         testInit2->addPar("acceleration") = 1;
         testInit2->addPar("x_velocity") = 5;
         testInit2->addPar("y_velocity") = 5;
@@ -90,15 +92,15 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
         //update_drone_position(drone_data, 1, [5,5,5]);
         SimControlLogger->logFile << "TAKEOFF signal sent to drone 1" << endl;
         cMessage *msg2 = msg->dup();
-        msg2->par("x") = 3;
-        msg2->par("y") = 3;
-        msg2->par("z") = Current_map->getHeightAt(1, 1)+150;
+        msg2->par("x") = 10;
+        msg2->par("y") = 10;
+        msg2->par("z") = Current_map->getHeightAt(10, 10)+150;
         send(msg2, "controlSocket$o",1);
         SimControlLogger->logFile << "TAKEOFF signal sent to drone 2" << endl;
         cMessage *msg3 = msg->dup();
-        msg3->par("x") = 5;
-        msg3->par("y") = 5;
-        msg3->par("z") = Current_map->getHeightAt(1, 1)+100;
+        msg3->par("x") = 20;
+        msg3->par("y") = 20;
+        msg3->par("z") = Current_map->getHeightAt(20, 20)+100;
         send(msg3, "controlSocket$o",2);
         SimControlLogger->logFile << "TAKEOFF signal sent to drone 3" << endl;
     }
@@ -114,6 +116,7 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
 void SimulationControl::simControl_mainFunc(){}
 void SimulationControl::finish(){
     delete Current_map;
+    //delete testInit;
     SimControlLogger->~SimulationControlLogger();
 }
 
