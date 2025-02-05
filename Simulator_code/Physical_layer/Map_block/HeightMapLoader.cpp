@@ -1,132 +1,117 @@
-#include <omnetpp.h>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <cmath>
+#include "HeightMapLoader.h"
 
 using namespace omnetpp;
 
-class HeightMapLoader : public cSimpleModule {
-private:
-    // Cache for the currently loaded block of the height map
-    std::vector<std::vector<int>> blockCache;
-    int blockSize;                // Size of the block to load
-    int currentBlockX, currentBlockY; // Current block coordinates in the grid
-    std::string heightMapFile;    // Path to the height map file
+// Initialize parameters from the NED file
+HeightMapLoader::HeightMapLoader(std::string heightmap, int bS) {
+    heightMapFile = heightmap; // Get the height map file path
+    //blockSize = par("blockSize").intValue();            // Get the size of the block
+    blockSize = bS;
+    currentBlockX = -1;  // Set initial block coordinates to invalid values
+    currentBlockY = -1;
+}
 
-protected:
-    // Initialize parameters from the NED file
-    virtual void initialize() override {
-        heightMapFile = par("heightmap").stringValue(); // Get the height map file path
-        blockSize = par("blockSize").intValue();            // Get the size of the block
-        currentBlockX = -1;  // Set initial block coordinates to invalid values
-        currentBlockY = -1;
+// Load a specific block from the height map file
+void HeightMapLoader::loadBlock(int blockX, int blockY) {
+    blockCache.clear(); // Clear the cache to load a new block
+
+    // Open the height map file
+    std::ifstream file(heightMapFile);
+    if (!file.is_open()) {
+        throw cRuntimeError("Failed to open height map file: %s", heightMapFile.c_str());
     }
 
-    // Load a specific block from the height map file
-    void loadBlock(int blockX, int blockY) {
-        blockCache.clear(); // Clear the cache to load a new block
+    // Calculate the range of rows and columns to load
+    int startRow = blockX * blockSize;
+    int startCol = blockY * blockSize;
+    int endRow = startRow + blockSize;
+    int endCol = startCol + blockSize;
 
-        // Open the height map file
-        std::ifstream file(heightMapFile);
-        if (!file.is_open()) {
-            throw cRuntimeError("Failed to open height map file: %s", heightMapFile.c_str());
-        }
+    std::string line;
+    int rowIndex = 0; // Current row index being read
 
-        // Calculate the range of rows and columns to load
-        int startRow = blockX * blockSize;
-        int startCol = blockY * blockSize;
-        int endRow = startRow + blockSize;
-        int endCol = startCol + blockSize;
+    // Read the file line by line
+    while (std::getline(file, line)) {
+        if (rowIndex >= startRow && rowIndex < endRow) { // Check if the row is within the block
+            std::vector<int> row;
+            std::istringstream ss(line);
+            int colIndex = 0, height;
 
-        std::string line;
-        int rowIndex = 0; // Current row index being read
-
-        // Read the file line by line
-        while (std::getline(file, line)) {
-            if (rowIndex >= startRow && rowIndex < endRow) { // Check if the row is within the block
-                std::vector<int> row;
-                std::istringstream ss(line);
-                int colIndex = 0, height;
-
-                // Read each column in the row
-                while (ss >> height) {
-                    if (colIndex >= startCol && colIndex < endCol) { // Check if the column is within the block
-                        row.push_back(height);
-                    }
-                    colIndex++;
+            // Read each column in the row
+            while (ss >> height) {
+                if (colIndex >= startCol && colIndex < endCol) { // Check if the column is within the block
+                    row.push_back(height);
                 }
-                blockCache.push_back(row); // Add the row to the cache
+                colIndex++;
             }
-            rowIndex++;
-            if (rowIndex >= endRow) { // Stop reading when the block is fully loaded
-                break;
-            }
+            blockCache.push_back(row); // Add the row to the cache
         }
-
-        // Update the current block coordinates
-        currentBlockX = blockX;
-        currentBlockY = blockY;
+        rowIndex++;
+        if (rowIndex >= endRow) { // Stop reading when the block is fully loaded
+            break;
+        }
     }
 
-public:
-    // Retrieve the height value at the specified coordinates
-    int getHeightAt(int x, int y) {
-        // Determine which block contains the specified coordinates
-        int blockX = x / blockSize;
-        int blockY = y / blockSize;
+    // Update the current block coordinates
+    currentBlockX = blockX;
+    currentBlockY = blockY;
+}
 
-        // Load the block if it's not currently loaded
-        if (blockX != currentBlockX || blockY != currentBlockY) {
-            loadBlock(blockX, blockY);
-        }
+// Retrieve the height value at the specified coordinates
+int HeightMapLoader::getHeightAt(float x, float y) {
+    // Determine which block contains the specified coordinates
+    int x_int = x;
+    int y_int = y;
+    int blockX = x_int / blockSize;
+    int blockY = y_int / blockSize;
 
-        // Calculate local coordinates within the block
-        int localX = x % blockSize;
-        int localY = y % blockSize;
-        return blockCache[localX][localY]; // Return the height value
+    // Load the block if it's not currently loaded
+    if (blockX != currentBlockX || blockY != currentBlockY) {
+        loadBlock(blockX, blockY);
     }
 
-    // Find the point with the maximum height along the line from (x1, y1) to (x2, y2)
-    std::tuple<int, int, int> findMaxHeightOnLine(int x1, int y1, int x2, int y2) {
-        int dx = std::abs(x2 - x1); // Absolute difference in x-coordinates
-        int dy = std::abs(y2 - y1); // Absolute difference in y-coordinates
-        int sx = (x1 < x2) ? 1 : -1; // Step direction for x
-        int sy = (y1 < y2) ? 1 : -1; // Step direction for y
+    // Calculate local coordinates within the block
+    int localX = x_int % blockSize;
+    int localY = y_int % blockSize;
+    return blockCache[localX][localY]; // Return the height value
+}
 
-        int err = dx - dy; // Error term for Bresenham's algorithm
+// Find the point with the maximum height along the line from (x1, y1) to (x2, y2)
+std::tuple<int, int, int> HeightMapLoader::findMaxHeightOnLine(int x1, int y1, int x2, int y2) {
+    int dx = std::abs(x2 - x1); // Absolute difference in x-coordinates
+    int dy = std::abs(y2 - y1); // Absolute difference in y-coordinates
+    int sx = (x1 < x2) ? 1 : -1; // Step direction for x
+    int sy = (y1 < y2) ? 1 : -1; // Step direction for y
 
-        int maxZ = getHeightAt(x1, y1); // Initialize max height with the starting point
-        int maxX = x1, maxY = y1; // Initialize coordinates of the max height point
+    int err = dx - dy; // Error term for Bresenham's algorithm
 
-        while (true) {
-            // Get the height at the current coordinates
-            int currentZ = getHeightAt(x1, y1);
-            if (currentZ > maxZ) {
-                maxZ = currentZ;
-                maxX = x1;
-                maxY = y1;
-            }
+    int maxZ = getHeightAt(x1, y1); // Initialize max height with the starting point
+    int maxX = x1, maxY = y1; // Initialize coordinates of the max height point
 
-            // If we reach the end point, exit the loop
-            if (x1 == x2 && y1 == y2) break;
-
-            int e2 = 2 * err; // Double the error term
-            if (e2 > -dy) {   // Adjust x if necessary
-                err -= dy;
-                x1 += sx;
-            }
-            if (e2 < dx) {    // Adjust y if necessary
-                err += dx;
-                y1 += sy;
-            }
+    while (true) {
+        // Get the height at the current coordinates
+        int currentZ = getHeightAt(x1, y1);
+        if (currentZ > maxZ) {
+            maxZ = currentZ;
+            maxX = x1;
+            maxY = y1;
         }
 
-        // Return the coordinates and height of the maximum point
-        return {maxX, maxY, maxZ};
-    }
-};
+        // If we reach the end point, exit the loop
+        if (x1 == x2 && y1 == y2) break;
 
-Define_Module(HeightMapLoader);
+        int e2 = 2 * err; // Double the error term
+        if (e2 > -dy) {   // Adjust x if necessary
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {    // Adjust y if necessary
+            err += dx;
+            y1 += sy;
+        }
+    }
+
+    // Return the coordinates and height of the maximum point
+    return {maxX, maxY, maxZ};
+}
+

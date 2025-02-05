@@ -1,169 +1,224 @@
 // Include OMNeT++ library for simulation-specific features
-#include <omnetpp.h>
+//#include <omnetpp.h>
 // Include INET's TCP application base for managing TCP communication
-#include <inet/applications/tcpapp/TcpAppBase.h>
-#include <inet/common/INETDefs.h>
-#include <string>
-#include <array>
+//#include <string>
+//#include <array>
+#include "Drone.h"
 
-using namespace omnetpp;
-using namespace inet;
+//using namespace omnetpp;
+//using namespace inet;
 
-enum DroneState {
-    POWER_ON,               // Initial state when the drone is powered on
-    WAITING_FOR_TAKEOFF,    // Drone is waiting for a TAKEOFF signal
-    DRONE_IN_AIR,           // Drone is airborne
-    WAITING_FOR_COMMANDS,   // Drone is waiting for new commands
-    RETURNING_TO_BASE,      // Drone is returning to its base station
-    NON_OPERATIONAL         // Drone is non-operational (e.g., due to collision)
-};
+/*  Example of message
+	It is a constant structure
+cMessage *msg = new cMessage("DroneData");
+msg->addPar("state") = "NAVIGATION";
+msg->addPar("x") = 12.5f;
+msg->addPar("y") = 8.3f;
+msg->addPar("z") = 0;
+send(msg, "out");
+*/
 
-class Drone : public TcpAppBase {
-  private:
-    int drone_id;                              // Unique identifier for the drone
-    int number_of_rotors;                      // Number of rotors on the drone
-    int mass_of_drone;                         // Base mass of the drone
-    int additional_mass;                       // Additional payload mass
-    char communication_type;                   // Communication type ('W' for WiFi, 'R' for Radio)
-    float antenna_efficiency;                  // Efficiency of the antenna
-    int additional_power;                      // Power required for additional equipment
-    int battery_capacity;                      // Total battery capacity in mAh
-    int battery_remain;                        // Remaining battery capacity in mAh
-    std::array<float, 3> drone_Position;       // Drone's position as x, y, z coordinates
-    int network_parameters;                    // Placeholder for network-specific parameters
-    int drone_size;                            // Size category of the drone
-    int drone_velocity_parameters;             // Velocity-related parameters
-
-    DroneState state;                          // Current state of the drone
-    bool collision_detection_mode;             // Whether collision detection is active
-
-    // State handling functions
-    void handlePowerOn();
-    void handleWaitingForTakeoff(cMessage *msg);
-    void handleDroneInAir();
-    void handleWaitingForCommands();
-    void handleReturningToBase();
-    void handleNonOperational();
-
-    // Helper functions
-    bool checkCollision();
-    void executeMoveCommand();
-
-  protected:
-    virtual void initialize(int stage) override; // Initializes the drone module
-    virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
-
-  public:
-    void broadcast(const std::string& message);              // Broadcasts a message to all drones
-    void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
-};
-
-Define_Module(Drone);
-
-void Drone::initialize(int stage) {
-    TcpAppBase::initialize(stage);
-    if (stage == INITSTAGE_LOCAL) {
-        state = POWER_ON;                                    // Set initial state
-        collision_detection_mode = true;                     // Enable collision detection
-        drone_Position = {0.0, 0.0, 0.0};                    // Set default position to (0, 0, 0)
-        drone_id = par("drone_id");                         // Get the drone's ID from parameters
-        EV << "Drone " << drone_id << " initialized in POWER_ON state with position (0, 0, 0)." << endl;
-    }
-}
-
-void Drone::handleMessageWhenUp(cMessage *msg) {
-    switch (state) {
-        case POWER_ON:
-            handlePowerOn();
-            break;
-        case WAITING_FOR_TAKEOFF:
-            handleWaitingForTakeoff(msg);
-            break;
-        case DRONE_IN_AIR:
-            handleDroneInAir();
-            break;
-        case WAITING_FOR_COMMANDS:
-            handleWaitingForCommands();
-            break;
-        case RETURNING_TO_BASE:
-            handleReturningToBase();
-            break;
-        case NON_OPERATIONAL:
-            handleNonOperational();
-            break;
-    }
-    delete msg; // Clean up the message after processing
-}
-
-void Drone::handleWaitingForTakeoff(cMessage *msg) {
-    EV << "Drone is waiting for takeoff sequence." << endl;
-
-    if (std::string(msg->getName()) == "TAKEOFF") {         // Check for TAKEOFF signal
-        EV << "Takeoff signal received. Drone is transitioning to DRONE_IN_AIR state." << endl;
-        state = DRONE_IN_AIR;                                // Transition to DRONE_IN_AIR state
+//Define_Module(Drone);
+////////////////////FSM functions///////////////////////////////////////////////////////////////////
+void Drone::initialize() {
+	state = INITSTAGE_LOCAL;                            // Set initial state
+	//collision_detection_mode = true;                  // Enable collision detection
+	Current_Position[0] = 0;                            // Set default position to (0, 0, 0)
+	Current_Position[1] = 0;
+	Current_Position[2] = 0;
+	Destination[0] = 0;
+	Destination[1] = 0;
+	Destination[2] = 0;
+	Idle_Steps[0] = 1;
+	Idle_Steps[1] = 1;
+	Idle_Steps[2] = 1;
+	Drone_ID = par("Drone_ID");                         // Get the drone's ID from parameters
+    number_of_rotors = par("number_of_rotors");
+    motor_efficiency = par("motor_efficiency");
+    mass_of_drone = par("mass_of_drone");
+    additional_mass = par("additional_mass");
+    frequencyHz = par("frequencyHz");
+    antena_power = par("antena_power");
+    sensor_power = par("sensor_power");
+    additional_power = par("additional_power");
+    battery_capacity = par("battery_capacity");
+    battery_remain = par("battery_remain");
+    battery_voltage = par("battery_voltage");
+    drone_size = par("drone_size");
+    acceleration = par("acceleration");
+    x_velocity = par("x_velocity");
+    y_velocity = par("y_velocity");
+    z_velocity = par("z_velocity");
+    fileName = "Drone_" + std::to_string(Drone_ID) + "_LogFile.log";
+    droneLogFile.open(fileName, std::ios::out);  // Create/open log file
+    if (!droneLogFile.is_open()) {
+        EV << "Error: Could not open log file!" << endl;
     } else {
-        EV << "Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
+        droneLogFile << "Simulation started at: " << simTime() << "\n";
+        droneLogFile.flush();
     }
+    droneLogFile << "Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
+	this->hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
+	droneLogFile << "Drone " << Drone_ID << " starting with: "<< mass_of_drone+additional_mass << " - total mass, " << motor_efficiency << " motor efficiency" << endl;
+	droneLogFile << "Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
 }
 
-void Drone::handleDroneInAir() {
-    EV << "Drone is in the air." << endl;
-    state = WAITING_FOR_COMMANDS;                            // Transition to WAITING_FOR_COMMANDS state
+void Drone::handleMessage(cMessage *msg) {
+	if (power_on==true && in_air==true) {
+		switch (state) {
+			case WAITING_FOR_COMMANDS:
+				handleWaitingForCommands(msg);
+				break;
+			case RETURNING_TO_BASE:
+				handleReturningToBase(msg);
+				break;
+			case NON_OPERATIONAL:
+				handleNonOperational(msg);
+				break;
+		}
+	}
+	else if (power_on==true){//here will be set of states where drone operates from ground as access point
+		switch (state) {
+			case WAITING_FOR_TAKEOFF:
+				handleWaitingForTakeoff(msg);
+				break;
+		}
+	}
+	else if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
+	    droneLogFile << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
+        Current_Position[0] = msg->par("x").doubleValue();
+        Current_Position[1] = msg->par("y").doubleValue();
+        Current_Position[2] = msg->par("z").doubleValue();
+        Destination[0] = Current_Position[0];
+        Destination[1] = Current_Position[1];
+        Destination[2] = Current_Position[2];
+        droneLogFile << "Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
+        ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
+        state = POWER_ON;
+        power_on=true;
+        handlePowerOn();
+    }
+    //delete msg; // Clean up the message after processing
 }
 
 void Drone::handlePowerOn() {
-    EV << "Drone is powering on." << endl;
-    state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
+    droneLogFile << "Drone is powering on and waiting for TAKEOFF sequence." << endl;
+    state = WAITING_FOR_TAKEOFF; // Transition to WAITING_FOR_TAKEOFF state
+	batteryCheckEvent = new cMessage("batteryCheckEvent");
+	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
+    scheduleAt(simTime() + 10.0, batteryCheckEvent);
+    //delete msg;
 }
 
-void Drone::handleWaitingForCommands() {
-    EV << "Drone is waiting for operational commands." << endl;
-    std::string command = "MOVE";                           // Placeholder for receiving commands
-
-    if (command == "MOVE") {
-        executeMoveCommand();                                // Execute move command and check for collisions
-    } else if (command == "RETURN") {
-        state = RETURNING_TO_BASE;                           // Transition to RETURNING_TO_BASE state
-    } else {
-        EV << "Unknown command received: " << command << endl;
+void Drone::handleWaitingForTakeoff(cMessage *msg) {
+    if (strcmp(msg->par("State").stringValue(), "batteryCheckEvent") == 0) {
+        int time_step = 10;
+        batteryCheckHelper(time_step);
+        scheduleAt(simTime() + 10.0, msg); // Repeat
+    }
+    else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
+        droneLogFile << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
+		in_air=true;
+		Is_Moving = true;
+		Next_Move = 3;//Take off will always start from moving on z axis
+        state = WAITING_FOR_COMMANDS; // Transition to DRONE_IN_AIR state
+        Destination[0] = msg->par("x").doubleValue();
+        Destination[1] = msg->par("y").doubleValue();
+        Destination[2] = msg->par("z").doubleValue();
+        droneLogFile << "Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
+		", y=" << Destination[1] << ", z=" << Destination[2] << endl;
+		acceleration = msg->par("acceleration").doubleValue();
+        x_velocity = msg->par("x_velocity").doubleValue();
+        y_velocity = msg->par("y_velocity").doubleValue();
+        z_velocity = msg->par("z_velocity").doubleValue();
+        batteryCheckHelper_forMove();
+        
+    }
+	else {
+	    droneLogFile << "Wrong command. Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
     }
 }
 
-void Drone::handleReturningToBase() {
-    EV << "Drone is returning to base station." << endl;
-    state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
-}
-
-void Drone::handleNonOperational() {
-    EV << "Drone is non-operational due to collision." << endl;
-}
-
-bool Drone::checkCollision() {
-    EV << "Checking for collisions..." << endl;
-    // Placeholder collision detection logic
-    return false; // Update with real collision detection logic
-}
-
-void Drone::executeMoveCommand() {
-    EV << "Executing move command." << endl;
-
-    if (checkCollision()) {
-        EV << "Collision detected! Drone transitioning to NON_OPERATIONAL state." << endl;
-        state = NON_OPERATIONAL;                             // Transition to NON_OPERATIONAL state
-    } else {
-        EV << "Move command executed successfully." << endl;
+void Drone::handleWaitingForCommands(cMessage *msg) {
+	if (strcmp(msg->par("State").stringValue(), "batteryCheckEvent") == 0) {
+	    int time_step = 10;
+		batteryCheckHelper(time_step);
+		scheduleAt(simTime() + 10.0, msg); // Repeat
+	}
+    else if (strcmp(msg->par("State").stringValue(), "MOVE") == 0) {
+		acceleration = msg->par("acceleration").doubleValue();
+        x_velocity = msg->par("x_velocity").doubleValue();
+		y_velocity = msg->par("y_velocity").doubleValue();
+		z_velocity = msg->par("z_velocity").doubleValue();
+		Destination[0] = msg->par("x").doubleValue();
+		Destination[1] = msg->par("y").doubleValue();
+		Destination[2] = msg->par("z").doubleValue();
+		Is_Moving = true;
+		Next_Move = 1;
+		batteryCheckHelper_forMove();
+    } 
+	else if (strcmp(msg->par("State").stringValue(), "RETURN") == 0) {
+        state = RETURNING_TO_BASE;
+    }
+	else if (strcmp(msg->par("State").stringValue(), "NON_OPERATIONAL") == 0){
+		state = NON_OPERATIONAL;
+	}
+	else {
+	    droneLogFile << "Unknown command received: " << msg << endl;
     }
 }
 
+void Drone::handleReturningToBase(cMessage *msg) {
+    droneLogFile << "Drone is returning to base station." << endl;
+    state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
+}
+
+void Drone::handleNonOperational(cMessage *msg) {
+    droneLogFile << "Drone is non-operational due to collision." << endl;
+    droneLogFile << "Drone " << Drone_ID << " is non-operational due to collision. New message received and ignored." << endl;
+    droneLogFile << "Message: " << msg->getName() << endl;
+}
+
+void Drone::finish() {
+	//cancelAndDelete(batteryCheckEvent);
+    droneLogFile.close();
+}
+
+/////////////additional functions///////////////////////////////////////////////////////////////////
+void Drone::batteryCheckHelper(int time_step){
+    droneLogFile << "Battery check event at " << simTime() << " sec." << endl;
+	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
+	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
+								additional_power, hoveringCurrent, time_step); // in Joules
+	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
+	droneLogFile << "Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
+	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
+}
+
+void Drone::batteryCheckHelper_forMove(){
+        double distance = sqrt(std::pow(Destination[0]-Current_Position[0], 2)+std::pow(Destination[1]-Current_Position[1], 2)+std::pow(Destination[2]-Current_Position[2], 2));
+        double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000; //battery remain in Joules
+        double total_velocity = std::sqrt(x_velocity*x_velocity+y_velocity*y_velocity+z_velocity*z_velocity); // Total velocity
+        double energyConsumption = calculateTotalCurrent(mass_of_drone+additional_mass, acceleration, total_velocity, distance); // Energy needs for move
+        double remainingCapacity = updateBatteryCapacity(battery_remain_joules, energyConsumption, false, 0, 0, 0, total_velocity/acceleration); // in Joules
+        battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
+        droneLogFile << "Drone " << Drone_ID << " remaining power after move: " << battery_remain << " mAh, "
+            << (battery_remain/battery_capacity)*100 << "%" <<endl;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 void Drone::broadcast(const std::string& message) {
-    EV << "Drone " << drone_id << " broadcasting message: " << message << endl;
+    droneLogFile << "Drone " << Drone_ID << " broadcasting message: " << message << endl;
 
     cMessage *msg = new cMessage(message.c_str());           // Create a new message for broadcasting
     send(msg, "socketOut");                                 // Send the message via the output socket
 }
 
 void Drone::sendTo(int target_id, const std::string& message) {
-    EV << "Drone " << drone_id << " sending message to Drone " << target_id << ": " << message << endl;
+    droneLogFile << "Drone " << Drone_ID << " sending message to Drone " << target_id << ": " << message << endl;
 
     cMessage *msg = new cMessage(message.c_str());           // Create a new message for direct communication
     send(msg, "socketOut");                                 // Send the message via the output socket

@@ -1,5 +1,5 @@
 #
-# OMNeT++/OMNEST Makefile for drone_first_tests
+# OMNeT++/OMNEST Makefile for Simulator_code_mark_3
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out -I.
@@ -7,7 +7,7 @@
 
 # Name of target to be created (-o option)
 TARGET_DIR = .
-TARGET_NAME = drone_first_tests$(D)
+TARGET_NAME = Simulator_code_mark_3$(D)
 TARGET = $(TARGET_NAME)$(EXE_SUFFIX)
 TARGET_IMPLIB = $(TARGET_NAME)$(IMPLIB_SUFFIX)
 TARGET_IMPDEF = $(TARGET_NAME)$(IMPDEF_SUFFIX)
@@ -33,7 +33,15 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cpp, .msg and .sm files
-OBJS = $O/BatteryConsumption.o $O/Drone.o $O/SimulationControl.o
+OBJS = \
+    $O/Physical_layer/Calculation_block/BatteryConsumption.o \
+    $O/Physical_layer/Calculation_block/SignalStrengthCalculation.o \
+    $O/Physical_layer/Drone_block/Drone.o \
+    $O/Physical_layer/Drone_block/drone_positions_c.o \
+    $O/Physical_layer/Map_block/ChargingStationManager.o \
+    $O/Physical_layer/Map_block/HeightMapLoader.o \
+    $O/Physical_layer/simulations/SimulationControl.o \
+    $O/Physical_layer/simulations/SimulationControlLogger.o
 
 # Message files
 MSGFILES =
