@@ -4,6 +4,13 @@ package Physical_layer.simulations;
 import Physical_layer.Drone_block.ChargingStation;
 import Physical_layer.Drone_block.Drone;
 
+//****new - For wireless Network****//
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
+import inet.node.contract.INetworkNode;
+import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
+import inet.visualizer.contract.IIntegratedVisualizer;
+//****new - For wireless Network****//
+
 network DroneNetwork
 {
     parameters:
@@ -21,7 +28,7 @@ network DroneNetwork
                 @display("i=block/control");
         }
 
-        drones[numDrones]: Drone {
+        drone[numDrones]: Drone {
             parameters:
                 Drone_ID = index + 1;
                 @display("i=device/satellite");
@@ -36,14 +43,32 @@ network DroneNetwork
     			//vector<Drone>& drone_data = drones[numDrones]; //List of drones needed for "drone_positions_c"
                 @display("p=340,220");
         }
+        
+//****new - For wireless Network****//      
+        visualizer: <default(firstAvailableOrEmpty("IntegratedOsgVisualizer"))> like IIntegratedVisualizer if typename != "" {
+            parameters:
+                @display("p=100,300;is=s");
+        }
+        configurator: Ipv4NetworkConfigurator {
+            parameters:
+                @display("p=100,100;is=s");
+        }
+        radioMedium: Ieee80211ScalarRadioMedium {
+            parameters:
+                @display("p=100,200;is=s");
+        }
+                                     
+//****new - For wireless Network****//        
+        
+     
     connections allowunconnected:
         for i=0..numDrones-2 {
-            drones[i].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drones[i+1].socketIn;
+            drone[i].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drone[i+1].socketIn;
         }
-        drones[numDrones-1].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drones[0].socketIn;
+        drone[numDrones-1].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drone[0].socketIn;
 
         for i=0..numDrones-1 {
-            simControl.controlSocket[i] <--> drones[i].socketControl;
+            simControl.controlSocket[i] <--> drone[i].socketControl;
         }
 }
 
