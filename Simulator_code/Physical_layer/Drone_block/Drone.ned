@@ -1,10 +1,16 @@
 package Physical_layer.Drone_block;
-
 package simulations;
 
-simple Drone
+//****new - For wireless Network****//
+
+import inet.node.inet.AdhocHost;
+import inet.routing.aodv.Aodv;
+
+//****new - For wireless Network****//
+
+module Drone extends AdhocHost
 {
-    parameters:
+    parameters: 
         int Drone_ID;
         int number_of_rotors = 4;
         double motor_efficiency = default(0.6);
@@ -30,5 +36,18 @@ simple Drone
         input socketIn;
         output socketOut;
         inout socketControl;
+        
+//****new - For wireless Network****//
+        
+    submodules:
+        aodv: Aodv {
+            @display("p=825,226");
+        }
+    connections:
+        aodv.socketOut --> at.in++;
+        aodv.socketIn <-- at.out++;
+        
+//****new - For wireless Network****//
+
 }
 
