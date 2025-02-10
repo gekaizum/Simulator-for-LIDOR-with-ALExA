@@ -9,22 +9,20 @@
 
 using namespace omnetpp;
 
-// Structure to represent a charging station
-
 class ChargingStationManager {
 private:
     int nextStationId;
-protected:
+    std::vector<ChargingStation*> ChargingStation_data;
+    cModule* parentModule;
 
 public:
-    //ChargingStationManager();
-    //virtual ~ChargingStationManager();
-    int addStation(int x, int y);
-    bool moveStation(int id, int newX, int newY);
+    ChargingStationManager(cModule* parent,int numOfChargeStation, int nSid);
+    virtual ~ChargingStationManager();
+    void addStation(int x, int y, int z);
+    bool moveStation(int id, int newX, int newY, int newZ);
     bool removeStation(int id);
-    bool getStationLocation(int id, int &x, int &y);
+    bool getStationLocation(int id, int &x, int &y, int &z);
     void printAllStations();
 };
 
 #endif /* CHARGINGSTATIONMANAGER_H_ */
-
