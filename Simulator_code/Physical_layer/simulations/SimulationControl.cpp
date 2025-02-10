@@ -25,6 +25,9 @@ void SimulationControl::initialize() {
     int blockSize = par("blockSize").intValue();
     Current_map = new HeightMapLoader("heightmap.txt", blockSize);
     ////////////////////////////////////////
+    nextStationId = par("nextStationId");
+    numOfChargeStation = par("numOfChargeStation");
+    ChargStationManager = new ChargingStationManager(getParentModule(),numOfChargeStation,nextStationId);
     //Test message to power on all drones
     testInit = new cMessage("testInit");
     testInit->addPar("State") = "POWER_ON";
@@ -89,7 +92,6 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
     }
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0){
         send(msg, "controlSocket$o",0);
-        //update_drone_position(drone_data, 1, [5,5,5]);
         SimControlLogger->logFile << "TAKEOFF signal sent to drone 1" << endl;
         cMessage *msg2 = msg->dup();
         msg2->par("x") = 10;
@@ -116,6 +118,7 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
 void SimulationControl::simControl_mainFunc(){}
 void SimulationControl::finish(){
     delete Current_map;
+    delete ChargStationManager;
     //delete testInit;
     SimControlLogger->~SimulationControlLogger();
 }

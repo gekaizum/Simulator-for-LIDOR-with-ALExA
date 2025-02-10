@@ -6,7 +6,8 @@ simple SimulationControl
         int blockSize = default(100);
         int numDrones = default(3);
         int numOfSockets;
-        //std::vector<Drone>& drone_data = default(nullptr);
+        int numOfChargeStation;
+        int nextStationId;
     gates:
         inout controlSocket[numOfSockets];  
 }
