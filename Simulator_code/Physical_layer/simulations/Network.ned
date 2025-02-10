@@ -29,8 +29,10 @@ network DroneNetwork
         simControl: SimulationControl {
             parameters:
                 blockSize = default(100);
-                numDrones = default(3);
-                numOfSockets = default(3);
+                numDrones = parent.numDrones;
+                numOfSockets = parent.numDrones;
+                numOfChargeStation = parent.numChargeStation;
+                nextStationId = numOfChargeStation + numDrones;
                 //Drone drones_list = drones;
 			    //string heightMapFile = "heightmap.txt"; //Map will be stored here
     			//vector<Drone>& drone_data = drones[numDrones]; //List of drones needed for "drone_positions_c"

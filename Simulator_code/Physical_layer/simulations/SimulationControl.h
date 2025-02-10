@@ -12,6 +12,7 @@
 #include "../Drone_block/Drone.h"
 #include <vector>
 #include "../Drone_block/drone_positions_c.h"
+#include "../Map_block/ChargingStationManager.h"
 
 using namespace omnetpp;
 
@@ -20,11 +21,14 @@ class SimulationControl : public cSimpleModule {
     std::string heightMapFile = "heightmap.txt"; //Map will be stored here
     int blockSize;
     std::vector<Drone*> drone_data; //List of drones needed for "drone_positions_c"
+    int numOfChargeStation;
+    int nextStationId;
     cMessage *testInit;
     cMessage *testInit2;
     cMessage *moveEventChecker;
     HeightMapLoader* Current_map = nullptr;
     SimulationControlLogger* SimControlLogger = nullptr;
+    ChargingStationManager* ChargStationManager = nullptr;
     void simControl_mainFunc();
   protected:
     virtual void initialize(); // Initializes the drone module

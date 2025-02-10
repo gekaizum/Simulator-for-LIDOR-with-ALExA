@@ -36,6 +36,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 OBJS = \
     $O/Physical_layer/Calculation_block/BatteryConsumption.o \
     $O/Physical_layer/Calculation_block/SignalStrengthCalculation.o \
+    $O/Physical_layer/Drone_block/ChargingStation.o \
     $O/Physical_layer/Drone_block/Drone.o \
     $O/Physical_layer/Drone_block/drone_positions_c.o \
     $O/Physical_layer/Map_block/ChargingStationManager.o \
