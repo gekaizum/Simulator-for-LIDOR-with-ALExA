@@ -19,7 +19,6 @@ private:
     std::string heightMapFile;    // Path to the height map file
 
 protected:
-    //virtual void handleMessage(cMessage *msg) override;
     void loadBlock(int blockX, int blockY);
 
 public:
