@@ -1,3 +1,6 @@
+//This file and corresponding .cpp file contains functions needed to calculate battery usage according to different actions:
+//Power needed for hovering, power needed fore movement, power needed for communication, any additional power requirements
+
 #ifndef PHYSICAL_LAYER_CALCULATION_BLOCK_BATTERYCONSUMPTION_H_
 #define PHYSICAL_LAYER_CALCULATION_BLOCK_BATTERYCONSUMPTION_H_
 
