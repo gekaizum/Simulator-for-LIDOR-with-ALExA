@@ -50,13 +50,24 @@ void SimulationControl::initialize() {
 
     // Extract drones from the NED submodules
     for (int i = 0; i < nD; i++) {
-        cModule* droneModule = getParentModule()->getSubmodule("drones", i);
-        if (droneModule) {
-            Drone* drone = check_and_cast<Drone*>(droneModule);
+        // Create a string for the module path
+        std::string modulePath = "DroneNetwork.drones[" + std::to_string(i) + "]";
+
+        // Get the module using the path
+        cModule *host = getModuleByPath(modulePath.c_str());
+
+        if (host) {
+            // Get the "droneControl" submodule and cast it to DroneControl*
+            DroneControl *drone = check_and_cast<DroneControl *>(host->getSubmodule("droneControl"));
             drone_data.push_back(drone);  // Store pointers to Drone instances
         } else {
             SimControlLogger->logFile << "Warning: Drone submodule " << i << " not found!" << endl;
         }
+    }
+    //std::string getInfo() const { return "Drone ID: " + std::to_string(id);
+    SimControlLogger->logFile << "Drone Objects (" << drone_data.size() << "):" << endl;
+    for (const auto& drone : drone_data) {
+        SimControlLogger->logFile << "Drone ID: " << drone->Drone_ID << endl;
     }
     /////////////////////////////////////
 }
