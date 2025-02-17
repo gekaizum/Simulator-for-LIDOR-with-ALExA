@@ -11,7 +11,7 @@
 #include <omnetpp.h>
 //#include "../Physical_layer/Drone_block/DroneControl.h"
 //#include "../Physical_layer/Map_block/ChargingStationManager.h"
-//#include "../Physical_layer/simulations/SimulationControl.h"
+#include "../Physical_layer/simulations/SimulationControl.h"
 #include "BasicProtocolLogger.h"
 
 using namespace omnetpp;
@@ -19,6 +19,7 @@ using namespace omnetpp;
 class BasicProtocol : public cSimpleModule {
   private:
     BasicProtocolLogger* BPLogger = nullptr;
+    SimulationControl *controlModule;
     //movement cMessages
     cMessage *setBase;
     cMessage *takeOff;
@@ -101,16 +102,25 @@ class BasicProtocol : public cSimpleModule {
     //Sensor, data and monitoring
     /////////////////////////////
     /**/
-    bool getDrone_status(int protocol,int drone_id);
+    //Saves navigation data array at nav_array: double [x_position, y_position, z_position, acceleration,
+    //                                          x_velocity, y_velocity, z_velocity,
+    //                                          x_destination, y_destination, z_destination, battery_ramain[mAh]
+    //                                          x_chargStation, y_chargStation, z_chargStation]
+    bool getDrone_navData(int drone_id, double *nav_array);
     /**/
-    bool getDrone_position(int protocol,int drone_id);
+    //Saves status array at stat_array: bool [power_on, non_operational]
+    bool getDrone_status(int drone_id, double *stat_array);
+    //Saves position array at pos_array: double [x_position, y_position, z_position]
+    bool getDrone_position(int protocol,int drone_id, double *pos_array);
     /**/
-    bool getDrone_altitude(int protocol,int drone_id);
+    //Saves altitude at altitude
+    bool getDrone_altitude(int protocol,int drone_id, double &altitude);
     /**/
-    bool getDrone_batteryStatus(int protocol,int drone_id);
+    //Saves battery remain capacity at batteryStatus
+    bool getDrone_batteryStatus(int protocol,int drone_id, double &batteryStatus);
     /**/
     //not in use in current simulator version
-    bool getDrone_SensorData(int protocol,int drone_id);
+    bool getDrone_SensorData();
     /**/
 };
 

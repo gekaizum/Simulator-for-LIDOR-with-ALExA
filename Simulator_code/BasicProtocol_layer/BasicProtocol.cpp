@@ -9,8 +9,12 @@
 void BasicProtocol::initialize() { // Initializes the drone module
     BPLogger = new BasicProtocolLogger();
     BPLogger->logFile.flush();
-    BPLogger->logFile << "Basic protocol layer online" << endl;
     message_init();
+    //std::string modulePath = "DroneNetwork.simControl";
+    // Get the module using the path
+    //controlModule = getModuleByPath(modulePath.c_str());
+    controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simulationControl"));
+    BPLogger->logFile << "Basic protocol layer online" << endl;
 }
 void BasicProtocol::handleMessage(cMessage *msg){ // Handles incoming messages
 
@@ -45,6 +49,7 @@ void BasicProtocol::message_init(){
     setAcceleration->addPar("State") = "SETACCEL";
     /**/
     BPLogger->logFile << "Movement cMessages initialized" << endl;
+    ///////////////////////////////////////////////////////////////
     //State management cMessages
     /**/
     stopDrone = new cMessage("stopDrone");
@@ -57,7 +62,23 @@ void BasicProtocol::message_init(){
     powerOffDrone->addPar("State") = "POWER_OFF";
     /**/
     BPLogger->logFile << "State management cMessages initialized" << endl;
-
+    /////////////////////////////////////////////////////////////////////
+    //Sensor, data and monitoring cMessages
+    /**/
+    getStatusDrone = new cMessage("getStatusDrone");
+    getStatusDrone->addPar("State") = "SEND_STAT";
+    /**/
+    getPositionDrone = new cMessage("getPositionDrone");
+    getPositionDrone->addPar("State") = "SEND_POS";
+    /**/
+    getAltitudeDrone = new cMessage("getAltitudeDrone");
+    getAltitudeDrone->addPar("State") = "SEND_ALT";
+    /**/
+    getBatteryDrone = new cMessage("getBatteryDrone");
+    getBatteryDrone->addPar("State") = "SEND_BATT";
+    /**/
+    BPLogger->logFile << "Sensor, data and monitoring cMessages initialized" << endl;
+    /////////////////////////////////////////////////////////////////////
 }
 //movement commands
 bool BasicProtocol::set_base(int protocol, int drone_id,double x_base, double y_base, double z_base){
@@ -67,7 +88,7 @@ bool BasicProtocol::set_base(int protocol, int drone_id,double x_base, double y_
         msg->par("x") = x_base;
         msg->par("y") = y_base;
         msg->par("z") = z_base;
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Base station coordinates sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -89,7 +110,7 @@ bool BasicProtocol::take_off(int protocol,int drone_id,double x_dest, double y_d
         msg->par("x") = x_dest;
         msg->par("y") = y_dest;
         msg->par("z") = z_dest;
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Take off sequence sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -108,7 +129,7 @@ bool BasicProtocol::land_drone(int protocol,int drone_id){
     BPLogger->logFile << "land_drone command received at:" << simTime() << endl;
     if(protocol == 1){
         cMessage *msg = landDrone->dup();
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Landing sequence sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -130,7 +151,7 @@ bool BasicProtocol::move_to(int protocol,int drone_id,double x_dest, double y_de
         msg->par("x") = x_dest;
         msg->par("y") = y_dest;
         msg->par("z") = z_dest;
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Movement command sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -154,7 +175,7 @@ bool BasicProtocol::set_velocity(int protocol,int drone_id,double x_vel, double 
         msg->par("x_vel") = x_vel;
         msg->par("y_vel") = y_vel;
         msg->par("z_vel") = z_vel;
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Velocity values sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -174,7 +195,7 @@ bool BasicProtocol::set_acceleration(int protocol,int drone_id,double accelerati
     if(protocol == 1){
         cMessage *msg = setAcceleration->dup();
         msg->par("acceleration") = acceleration;
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Acceleration value sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -196,7 +217,7 @@ bool BasicProtocol::stop_drone(int protocol,int drone_id){
     BPLogger->logFile << "stop_drone command received at:" << simTime() << endl;
     if(protocol == 1){
         cMessage *msg = stopDrone->dup();
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Stop command sent to drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -219,7 +240,7 @@ bool BasicProtocol::powerOn_drone(int drone_id, double x_pos, double y_pos, doub
     msg->par("x") = x_pos;
     msg->par("y") = y_pos;
     msg->par("z") = z_pos;
-    send(msg, "dronesSocket$o",drone_id);
+    send(msg, "dronesSocket$o",drone_id-1);
     BPLogger->logFile << "Power on drone with ID: "<< drone_id << "via cMessages." << endl;
     return true;
 }
@@ -227,7 +248,7 @@ bool BasicProtocol::powerOff_drone(int protocol,int drone_id){
     BPLogger->logFile << "powerOff_drone command received at:" << simTime() << endl;
     if(protocol == 1){
         cMessage *msg = powerOffDrone->dup();
-        send(msg, "dronesSocket$o",drone_id);
+        send(msg, "dronesSocket$o",drone_id-1);
         BPLogger->logFile << "Power off drone with ID: "<< drone_id << "via cMessages." << endl;
         return true;
     }
@@ -244,17 +265,41 @@ bool BasicProtocol::powerOff_drone(int protocol,int drone_id){
 }
 
 //Sensor, data and monitoring
-bool BasicProtocol::getDrone_status(int protocol,int drone_id){
-
+bool BasicProtocol::getDrone_navData(int drone_id, double *nav_array){
+    nav_array[0]=controlModule->drone_data[drone_id-1]->Current_Position[0];
+    nav_array[1]=controlModule->drone_data[drone_id-1]->Current_Position[1];
+    nav_array[2]=controlModule->drone_data[drone_id-1]->Current_Position[2];
+    nav_array[3]=controlModule->drone_data[drone_id-1]->acceleration;
+    nav_array[4]=controlModule->drone_data[drone_id-1]->x_velocity;
+    nav_array[5]=controlModule->drone_data[drone_id-1]->y_velocity;
+    nav_array[6]=controlModule->drone_data[drone_id-1]->z_velocity;
+    nav_array[7]=controlModule->drone_data[drone_id-1]->Destination[0];
+    nav_array[8]=controlModule->drone_data[drone_id-1]->Destination[1];
+    nav_array[9]=controlModule->drone_data[drone_id-1]->Destination[2];
+    nav_array[10]=controlModule->drone_data[drone_id-1]->battery_remain;
+    nav_array[11]=controlModule->drone_data[drone_id-1]->ChargeStationCoord[0];
+    nav_array[12]=controlModule->drone_data[drone_id-1]->ChargeStationCoord[1];
+    nav_array[13]=controlModule->drone_data[drone_id-1]->ChargeStationCoord[2];
+    return true;
 }
-bool BasicProtocol::getDrone_position(int protocol,int drone_id){
-
+bool BasicProtocol::getDrone_status(int drone_id, double *stat_array){
+    stat_array[0]=controlModule->drone_data[drone_id-1]->power_on;
+    stat_array[1]=controlModule->drone_data[drone_id-1]->non_operational;
+    return true;
 }
-bool BasicProtocol::getDrone_altitude(int protocol,int drone_id){
-
+bool BasicProtocol::getDrone_position(int protocol,int drone_id, double *pos_array){
+    pos_array[0]=controlModule->drone_data[drone_id-1]->Current_Position[0];
+    pos_array[1]=controlModule->drone_data[drone_id-1]->Current_Position[1];
+    pos_array[2]=controlModule->drone_data[drone_id-1]->Current_Position[2];
+    return true;
 }
-bool BasicProtocol::getDrone_batteryStatus(int protocol,int drone_id){
-
+bool BasicProtocol::getDrone_altitude(int protocol,int drone_id, double &altitude){
+    altitude = controlModule->drone_data[drone_id-1]->Current_Position[2];
+    return true;
 }
-bool BasicProtocol::getDrone_SensorData(int protocol,int drone_id){return true;}//not in use in current simulator version
+bool BasicProtocol::getDrone_batteryStatus(int protocol,int drone_id, double &batteryStatus){
+    batteryStatus = controlModule->drone_data[drone_id-1]->battery_remain;
+    return true;
+}
+bool BasicProtocol::getDrone_SensorData(){return true;}//not in use in current simulator version
 
