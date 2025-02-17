@@ -14,3 +14,14 @@
 // 
 
 package BasicProtocol_layer;
+
+simple BasicProtocol
+{
+    parameters:
+        int numOfdronesSockets;
+        int numOfchargeStationSockets;
+    gates:
+        inout controlSocket;
+        inout dronesSocket[numOfdronesSockets];
+        inout chargingStationSocket[numOfchargeStationSockets];   
+}
