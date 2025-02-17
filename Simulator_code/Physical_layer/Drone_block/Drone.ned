@@ -21,6 +21,7 @@ module Drone extends WirelessHost
         //input socketIn;
         //output socketOut;
         inout socketControl;
+        inout basicProtocolSocket;
         //input in[];
         //output out[];
         input droneControlIn;

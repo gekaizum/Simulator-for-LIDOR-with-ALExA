@@ -20,7 +20,7 @@ void DroneControl::initialize(int stage) {
     ApplicationBase::initialize(stage);  // Call base class initialization
     if (stage == inet::INITSTAGE_LOCAL) {
         Drone_ID = par("Drone_ID");                         // Get the drone's ID from parameters
-        fileName = "Drone_" + std::to_string(Drone_ID) + "_LogFile.log";
+        fileName = "Drone_logs/Drone_" + std::to_string(Drone_ID) + "_LogFile.log";
         droneLogFile.open(fileName, std::ios::out);  // Create/open log file
         if (!droneLogFile.is_open()) {
             EV << "Error: Could not open log file!" << endl;
