@@ -1,8 +1,10 @@
-package Physical_layer.simulations;
+//package Physical_layer.simulations;
 
 //import Physical_layer.Map_block.HeightMapLoader;
 import Physical_layer.Drone_block.ChargingStation;
 import Physical_layer.Drone_block.Drone;
+import Physical_layer.simulations.SimulationControl;
+import BasicProtocol_layer.BasicProtocol;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 
 //channel DataLinkChannel extends ned.DatarateChannel {
@@ -16,11 +18,7 @@ network DroneNetwork
         int numChargeStation = default(2);
         int numDrones = default(3);
         @display("bgb=860,460");
-        //string place="p=100,";
     submodules:
-        //mapLoader: HeightMapLoader {
-        //    @display("p=55,42;i=device/palm;is=s");
-        //}
         ChargingStation[numChargeStation]: ChargingStation {
             parameters:
                 ChargingStation_ID = parent.numDrones + index + 1;
@@ -33,11 +31,6 @@ network DroneNetwork
         drones[numDrones]: Drone {
             parameters:
                 Drone_ID = index + 1;
-                //displayPositionY = 200 + Drone_ID * 50;
-                //displayString = "a=0,p=200," + string(displayPositionY);
-                //@display(displayString);
-                
-                //@display("i=device/satellite");
         }
         simControl: SimulationControl {
             parameters:
@@ -46,10 +39,12 @@ network DroneNetwork
                 numOfSockets = parent.numDrones;
                 numOfChargeStation = parent.numChargeStation;
                 nextStationId = numOfChargeStation + numDrones;
-                //Drone drones_list = drones;
-			    //string heightMapFile = "heightmap.txt"; //Map will be stored here
-    			//vector<Drone>& drone_data = drones[numDrones]; //List of drones needed for "drone_positions_c"
-                @display("p=250,280");
+                @display("p=260,50");
+        }
+        basicProtocol: BasicProtocol {
+            numOfdronesSockets = parent.numDrones;
+            numOfchargeStationSockets = parent.numChargeStation;
+            @display("p=130,50");
         }
     connections allowunconnected:
         //connection for cMessages between drone's submodules
@@ -58,8 +53,17 @@ network DroneNetwork
         //}
         //drones[numDrones-1].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drones[0].socketIn;
 
+		//Connection between Simulation control and drones for cMessage passing
         for i=0..numDrones-1 {
             simControl.controlSocket[i] <--> drones[i].socketControl;
         }
+        //Connection between Basic protocol layer and Physical layer modules for cMessage passing
+        for i=0..numDrones-1 {
+            basicProtocol.dronesSocket[i] <--> drones[i].basicProtocolSocket;
+        }
+        for i=0..numChargeStation-1 {
+            basicProtocol.chargingStationSocket[i] <--> ChargingStation[i].basicProtocolSocket;
+        }
+        basicProtocol.controlSocket <--> simControl.basicProtocolSocket;
 }
 

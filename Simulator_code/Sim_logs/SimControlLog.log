@@ -1,0 +1,13 @@
+Simulation started at: 0
+Simulation control online
+New map created
+Drone 1: start at height: 110
+Drone Objects (3):
+Drone ID: 1
+Drone ID: 2
+Drone ID: 3
+POWER_ON signal sent to drone 1
+Drone 2: start at height: 125
+POWER_ON signal sent to drone 2
+Drone 3: start at height: 88
+POWER_ON signal sent to drone 3
