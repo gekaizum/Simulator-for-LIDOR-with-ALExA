@@ -23,8 +23,6 @@ class SimulationControl : public cSimpleModule {
     std::vector<DroneControl*> drone_data; //List of drones needed for "drone_positions_c"
     int numOfChargeStation;
     int nextStationId;
-    cMessage *testInit;
-    cMessage *testInit2;
     cMessage *moveEventChecker;
     HeightMapLoader* Current_map = nullptr;
     SimulationControlLogger* SimControlLogger = nullptr;
@@ -35,7 +33,7 @@ class SimulationControl : public cSimpleModule {
     virtual void handleMessage(cMessage *msg); // Handles incoming messages
     virtual void finish();
   public:
-
+    double height_checker(double x_pos, double y_pos);
 };
 
 Define_Module(SimulationControl);
