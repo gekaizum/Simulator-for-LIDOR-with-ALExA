@@ -20,7 +20,7 @@ terrain = gaussian_filter(terrain, sigma=1)  # Smoothing for a natural appearanc
 terrain -= terrain.min()
 
 # Save to file
-np.savetxt("heightmap.txt", terrain, fmt="%d")  # Save as integers
+np.savetxt("Sim_logs/heightmap.txt", terrain, fmt="%d")  # Save as integers
 
 # Visualize the heightmap in high resolution
 plt.figure(figsize=(20, 20))  # Adjust the figure size for high resolution
