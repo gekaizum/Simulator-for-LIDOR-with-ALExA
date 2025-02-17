@@ -19,11 +19,11 @@ void SimulationControl::initialize() {
     SimControlLogger = new SimulationControlLogger();
     SimControlLogger->logFile.flush();
     SimControlLogger->logFile << "Simulation control online" << endl;
-    int res = system("python3 ../Map_block/python_map_generator.py");
+    int res = system("python3 Physical_layer/Map_block/python_map_generator.py");
     SimControlLogger->logFile << "New map created" << endl;
     //Map object creation///////////////////
     int blockSize = par("blockSize").intValue();
-    Current_map = new HeightMapLoader("heightmap.txt", blockSize);
+    Current_map = new HeightMapLoader("Sim_logs/heightmap.txt", blockSize);
     ////////////////////////////////////////
     nextStationId = par("nextStationId");
     numOfChargeStation = par("numOfChargeStation");

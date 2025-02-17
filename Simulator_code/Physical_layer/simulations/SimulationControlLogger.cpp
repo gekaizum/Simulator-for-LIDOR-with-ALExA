@@ -8,7 +8,7 @@
 using namespace omnetpp;
 
 SimulationControlLogger::SimulationControlLogger(){
-    logFile.open("SimControlLog.log", std::ios::out);  // Create/open log file
+    logFile.open("Sim_logs/SimControlLog.log", std::ios::out);  // Create/open log file
     if (!logFile.is_open()) {
         EV << "Error: Could not open log file!" << endl;
     } else {
