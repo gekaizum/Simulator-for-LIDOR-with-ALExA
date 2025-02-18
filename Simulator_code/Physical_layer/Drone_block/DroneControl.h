@@ -46,14 +46,13 @@ class DroneControl : public ApplicationBase {
     double sensor_power;					// Power needed gor sensor operating
     double additional_power;				// Power required for additional equipment
     double battery_capacity;				// Total battery capacity in mAh
-    double battery_remain;					// Remaining battery capacity in mAh
     double battery_voltage;
     //int network_parameters;				// Placeholder for network-specific parameters
     int drone_size;							// Size category of the drone - one number in meters
     double hoveringCurrent;					// Power needed for hovering
 
     DroneState state;						// Current state of the drone for FSM
-	bool power_on = false;
+
 	bool in_air = false;
     //bool collision_detection_mode;		// Whether collision detection is active
 
@@ -81,6 +80,8 @@ class DroneControl : public ApplicationBase {
 	virtual void finish();
   public:
 	int Drone_ID;				// Unique identifier for the drone
+	double battery_remain;                  // Remaining battery capacity in mAh
+	bool power_on = false;
 	double acceleration;
     double x_velocity;
     double y_velocity;
@@ -89,10 +90,10 @@ class DroneControl : public ApplicationBase {
     bool Is_Moving = false;
     bool non_operational = false;
     uint8_t Idle_Steps[3];
-    float Destination[3]; // Drone destination as [x,y,z]
-    float Current_Position[3]; // Drone's position as [x,y,z] coordinates
+    double Destination[3]; // Drone destination as [x,y,z]
+    double Current_Position[3]; // Drone's position as [x,y,z] coordinates
     uint8_t Next_Move;
-    float ChargeStationCoord[3];
+    double ChargeStationCoord[3];
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
     void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
     //void updateNetworkLinks(Drone* linkDrone, bool connected, std::string selectedProtocol);

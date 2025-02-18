@@ -20,7 +20,6 @@ class SimulationControl : public cSimpleModule {
   private:
     std::string heightMapFile = "heightmap.txt"; //Map will be stored here
     int blockSize;
-    std::vector<DroneControl*> drone_data; //List of drones needed for "drone_positions_c"
     int numOfChargeStation;
     int nextStationId;
     cMessage *moveEventChecker;
@@ -33,6 +32,7 @@ class SimulationControl : public cSimpleModule {
     virtual void handleMessage(cMessage *msg); // Handles incoming messages
     virtual void finish();
   public:
+    std::vector<DroneControl*> drone_data; //List of drones needed for "drone_positions_c"
     double height_checker(double x_pos, double y_pos);
 };
 

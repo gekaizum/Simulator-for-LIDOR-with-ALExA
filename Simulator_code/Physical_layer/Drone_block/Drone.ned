@@ -10,8 +10,8 @@ module Drone extends WirelessHost
     parameters:
         int Drone_ID;
         mobility.typename = "StationaryMobility";  // Force stationary behavior
-        mobility.initialX = default(100m);  // Read X from display
-        mobility.initialY = default(200m + Drone_ID * 50m);               // Read Y from display
+        mobility.initialX = default(200m + Drone_ID * 50m);  // Read X from display
+        mobility.initialY = default(200m);               // Read Y from display
         mobility.initialZ = default(0m);
         mobility.initFromDisplayString = false;
         mobility.updateFromDisplayString = false;

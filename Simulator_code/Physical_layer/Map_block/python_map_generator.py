@@ -10,7 +10,7 @@ resolution = 1    # Resolution of 1x1 meter
 # Generate terrain heights
 np.random.seed(rd.randint(1, 100))  # For reproducibility
 terrain = np.random.rand(grid_size, grid_size) * 300 + 100 # Heights from 0 to 300 meters
-terrain = gaussian_filter(terrain, sigma=1)  # Smoothing for a natural appearance
+terrain = gaussian_filter(terrain, sigma=0.5)  # Smoothing for a natural appearance
 
 # Convert heights to integers in centimeters
 #terrain_cm = np.round(terrain * 100).astype(int)  # Convert meters to centimeters
