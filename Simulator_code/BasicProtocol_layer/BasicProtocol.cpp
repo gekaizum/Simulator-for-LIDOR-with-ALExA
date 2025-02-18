@@ -10,10 +10,8 @@ void BasicProtocol::initialize() { // Initializes the drone module
     BPLogger = new BasicProtocolLogger();
     BPLogger->logFile.flush();
     message_init();
-    //std::string modulePath = "DroneNetwork.simControl";
-    // Get the module using the path
-    //controlModule = getModuleByPath(modulePath.c_str());
-    controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simulationControl"));
+    controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simControl"));
+    //controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule(name, index)
     BPLogger->logFile << "Basic protocol layer online" << endl;
 }
 void BasicProtocol::handleMessage(cMessage *msg){ // Handles incoming messages
