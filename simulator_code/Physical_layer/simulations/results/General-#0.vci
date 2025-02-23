@@ -1,0 +1,831 @@
+file 93515 1740340124                                           
+version 3
+run General-0-20250223-21:47:00-7054
+attr configname General
+attr datetime 20250223-21:47:00
+attr datetimef 20250223-214700
+attr experiment General
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network Physical_layer.simulations.DroneNetwork
+attr processid 7054
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+config image-path ../../../inet/images
+config ned-path .;../Map_block;../Calculation_block;../Drone_block;
+config debug-on-errors true
+config record-eventlog true
+config network Physical_layer.simulations.DroneNetwork
+config sim-time-limit 500s
+config **.mapLoader.heightmap "\"heightmap.txt\""
+config **.mapLoader.blockSize 100
+config *.drones[*].ipv4.arp.typename GlobalArp
+config *.drones[0].numApps 1
+config *.drones[0].app[0].typename UdpBasicApp
+config *.drones[0].app[0].destAddresses "\"drones[1]\""
+config *.drones[0].app[0].destPort 5000
+config *.drones[0].app[0].messageLength 1000B
+config *.drones[0].app[0].sendInterval exponential(5s)
+config *.drones[0].app[0].packetName "\"UDPData\""
+config *.drones[1].numApps 1
+config *.drones[1].app[0].typename UdpSink
+config *.drones[1].app[0].localPort 5000
+config *.drones[*].wlan[0].typename AckingWirelessInterface
+config *.drones[*].wlan[0].mac.useAck false
+config *.drones[*].wlan[0].mac.fullDuplex false
+config *.drones[*].wlan[0].radio.transmitter.communicationRange 500m
+config *.drones[*].wlan[0].radio.receiver.ignoreInterference true
+config *.drones[*].wlan[0].mac.headerLength 23B
+config *.drones[*].**.bitrate 1Mbps
+
+vector 0 DroneNetwork.drones[0].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 1 DroneNetwork.drones[0].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 2 DroneNetwork.drones[0].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 3 DroneNetwork.drones[0].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 4 DroneNetwork.drones[0].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 5 DroneNetwork.drones[0].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 6 DroneNetwork.drones[0].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 7 DroneNetwork.drones[0].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 8 DroneNetwork.drones[0].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 9 DroneNetwork.drones[0].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 10 DroneNetwork.drones[0].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 11 DroneNetwork.drones[0].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 12 DroneNetwork.drones[0].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 13 DroneNetwork.drones[0].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 14 DroneNetwork.drones[0].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 15 DroneNetwork.drones[0].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 16 DroneNetwork.drones[0].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 17 DroneNetwork.drones[0].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 18 DroneNetwork.drones[0].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 19 DroneNetwork.drones[0].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 20 DroneNetwork.drones[0].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 21 DroneNetwork.drones[0].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 22 DroneNetwork.drones[0].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 23 DroneNetwork.drones[0].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 24 DroneNetwork.drones[0].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 25 DroneNetwork.drones[0].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 26 DroneNetwork.drones[0].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 27 DroneNetwork.drones[0].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 28 DroneNetwork.drones[0].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 29 DroneNetwork.drones[0].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 30 DroneNetwork.drones[0].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 31 DroneNetwork.drones[0].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 32 DroneNetwork.drones[0].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 33 DroneNetwork.drones[0].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 34 DroneNetwork.drones[0].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 35 DroneNetwork.drones[0].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 36 DroneNetwork.drones[0].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 37 DroneNetwork.drones[0].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+vector 38 DroneNetwork.drones[0].app[0] packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 39 DroneNetwork.drones[0].app[0] throughput:vector ETV
+attr recordingmode vector
+attr source throughput(packetReceived)
+attr title throughput
+attr unit bps
+vector 40 DroneNetwork.drones[0].app[0] packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 41 DroneNetwork.drones[0].app[0] rcvdPkLifetime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source dataAge(packetReceived)
+attr title "received packet lifetime"
+attr unit s
+vector 42 DroneNetwork.drones[0].app[0] rcvdPkSeqNo:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source appPkSeqNo(packetReceived)
+attr title "received packet sequence number"
+vector 43 DroneNetwork.drones[1].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 44 DroneNetwork.drones[1].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 45 DroneNetwork.drones[1].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 46 DroneNetwork.drones[1].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 47 DroneNetwork.drones[1].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 48 DroneNetwork.drones[1].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 49 DroneNetwork.drones[1].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 50 DroneNetwork.drones[1].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 51 DroneNetwork.drones[1].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 52 DroneNetwork.drones[1].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 53 DroneNetwork.drones[1].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 54 DroneNetwork.drones[1].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 55 DroneNetwork.drones[1].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 56 DroneNetwork.drones[1].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 57 DroneNetwork.drones[1].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 58 DroneNetwork.drones[1].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 59 DroneNetwork.drones[1].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 60 DroneNetwork.drones[1].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 61 DroneNetwork.drones[1].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 62 DroneNetwork.drones[1].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 63 DroneNetwork.drones[1].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 64 DroneNetwork.drones[1].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 65 DroneNetwork.drones[1].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 66 DroneNetwork.drones[1].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 67 DroneNetwork.drones[1].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 68 DroneNetwork.drones[1].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 69 DroneNetwork.drones[1].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 70 DroneNetwork.drones[1].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 71 DroneNetwork.drones[1].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 72 DroneNetwork.drones[1].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 73 DroneNetwork.drones[1].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 74 DroneNetwork.drones[1].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 75 DroneNetwork.drones[1].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 76 DroneNetwork.drones[1].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 77 DroneNetwork.drones[1].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 78 DroneNetwork.drones[1].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 79 DroneNetwork.drones[1].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 80 DroneNetwork.drones[1].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+vector 81 DroneNetwork.drones[1].app[0] packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 82 DroneNetwork.drones[1].app[0] throughput:vector ETV
+attr recordingmode vector
+attr source throughput(packetReceived)
+attr title throughput
+attr unit bps
+vector 83 DroneNetwork.drones[1].app[0] endToEndDelay:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source dataAge(packetReceived)
+attr title "end-to-end delay"
+attr unit s
+vector 84 DroneNetwork.drones[1].app[0] rcvdPkSeqNo:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source appPkSeqNo(packetReceived)
+attr title "received packet sequence number"
+vector 85 DroneNetwork.drones[2].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 86 DroneNetwork.drones[2].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 87 DroneNetwork.drones[2].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 88 DroneNetwork.drones[2].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 89 DroneNetwork.drones[2].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 90 DroneNetwork.drones[2].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 91 DroneNetwork.drones[2].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 92 DroneNetwork.drones[2].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 93 DroneNetwork.drones[2].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 94 DroneNetwork.drones[2].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 95 DroneNetwork.drones[2].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 96 DroneNetwork.drones[2].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 97 DroneNetwork.drones[2].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 98 DroneNetwork.drones[2].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 99 DroneNetwork.drones[2].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 100 DroneNetwork.drones[2].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 101 DroneNetwork.drones[2].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 102 DroneNetwork.drones[2].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 103 DroneNetwork.drones[2].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 104 DroneNetwork.drones[2].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 105 DroneNetwork.drones[2].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 106 DroneNetwork.drones[2].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 107 DroneNetwork.drones[2].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 108 DroneNetwork.drones[2].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 109 DroneNetwork.drones[2].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 110 DroneNetwork.drones[2].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 111 DroneNetwork.drones[2].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 112 DroneNetwork.drones[2].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 113 DroneNetwork.drones[2].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 114 DroneNetwork.drones[2].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 115 DroneNetwork.drones[2].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 116 DroneNetwork.drones[2].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 117 DroneNetwork.drones[2].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 118 DroneNetwork.drones[2].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 119 DroneNetwork.drones[2].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 120 DroneNetwork.drones[2].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 121 DroneNetwork.drones[2].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 122 DroneNetwork.drones[2].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+4	32100 251 0 377 0 38.840374225909 14 0 0 0 0
+5	32351 251 0 377 0 38.840374225909 14 0 0 0 0
+6	32602 211 27 377 3.983593851549 38.840374225909 9 0 0 0 0
+7	32813 234 27 377 3.983593851549 38.840374225909 9 416 8224 42784 338863104
+8	33047 4850 27 377 0.1 38.8 388 0 86400 423680 35921715200
+9	37897 234 27 377 3.983593851549 38.840374225909 9 416 8224 42784 338863104
+10	38131 5238 27 377 0.1 38.8 388 0 86400 423680 35921715200
+15	43369 76 51 252 3.984954185113 19.388676522885 3 48 48 144 6912
+16	43445 239 27 377 3.983593851549 38.840374225909 9 75 1051 5555 5545505
+17	43684 239 27 377 3.983593851549 38.840374225909 9 52 1028 5348 5294736
+18	43923 76 51 252 3.984954185113 19.388676522885 3 71 71 213 15123
+22	43999 442 0 377 0 38.840374225909 20 0 3 45 117
+23	44441 570 0 377 0 38.840374225909 24 0 3 21 39
+24	45011 805 27 377 3.983593851549 38.840374225909 33 0 2 33 49
+33	45816 267 22 375 3.979372522829 38.840374225909 10 32 1008 6176 6100480
+34	46083 76 54 255 3.984954185113 19.388676522885 3 28 28 84 2352
+35	46159 82 0 255 0 19.388676522885 4 0 3 6 14
+36	46241 9 0 0 0 0 1 0 0 0 0
+37	46250 9 0 0 0 0 1 0 0 0 0
+40	46259 165 20 371 3.979372522829 38.837985900351 6 1000 1000 6000 6000000
+47	46424 118 0 240 0 19.388012356103 8 0 0 0 0
+48	46542 118 0 240 0 19.388012356103 8 0 0 0 0
+49	46660 73 39 240 3.984290018331 19.388012356103 3 0 0 0 0
+50	46733 79 39 240 3.984290018331 19.388012356103 3 384 384 1152 442368
+51	46812 2532 39 240 0.1 19.3 193 0 3840 7680 29491200
+52	49344 79 39 240 3.984290018331 19.388012356103 3 384 384 1152 442368
+53	49423 2532 39 240 0.1 19.3 193 0 3840 7680 29491200
+58	51955 214 33 302 3.984290018331 22.271928667492 8 52 1028 5296 5292032
+59	52169 76 39 240 3.984290018331 19.388012356103 3 71 71 213 15123
+60	52245 76 39 240 3.984290018331 19.388012356103 3 48 48 144 6912
+61	52321 214 33 302 3.984290018331 22.271928667492 8 75 1051 5480 5539880
+65	52535 173 0 249 0 19.388676356103 9 0 3 17 43
+66	52708 547 0 301 0 22.271928667492 23 0 3 36 84
+67	53255 292 39 249 3.984290018331 19.388676356103 12 0 2 12 18
+76	53547 76 37 238 3.984290018331 19.388012356103 3 28 28 84 2352
+77	53623 214 35 304 3.984290018331 22.271928667492 8 32 1008 5136 5083392
+78	53837 205 0 304 0 22.271928667492 9 0 8 36 204
+79	54042 9 0 0 0 0 1 0 0 0 0
+80	54051 9 0 0 0 0 1 0 0 0 0
+81	54060 138 75 305 3.993458351895 22.271928667492 5 1000 1000 5000 5000000
+82	54198 2942 75 305 0.1 22.2 222 0 80000 320000 25600000000
+83	57140 188 75 305 3.993458351895 22.271928667492 5 0.008504166782 0.014100759032 0.056547095034 0.00067075553133519
+84	57328 123 75 305 3.993458351895 22.271928667492 5 0 4 10 30
+89	57451 116 0 264 0 19.392471387894 8 0 0 0 0
+90	57567 116 0 264 0 19.392471387894 8 0 0 0 0
+91	57683 71 63 264 3.987304001965 19.392471387894 3 0 0 0 0
+92	57754 77 63 264 3.987304001965 19.392471387894 3 416 416 1248 519168
+93	57831 2532 63 264 0.1 19.3 193 0 4160 8320 34611200
+94	60363 77 63 264 3.987304001965 19.392471387894 3 416 416 1248 519168
+95	60440 2532 63 264 0.1 19.3 193 0 4160 8320 34611200
+100	62972 79 44 245 3.984290185113 19.388012522885 3 52 52 156 8112
+101	63051 77 63 264 3.987304001965 19.392471387894 3 75 75 225 16875
+102	63128 77 63 264 3.987304001965 19.392471387894 3 52 52 156 8112
+103	63205 215 44 307 3.984290185113 22.271928834274 8 71 1051 2540 2241200
+106	63420 136 52 307 3.984954185113 22.271928834274 5 71 1051 2315 2224325
+107	63556 178 0 268 0 19.393167387894 9 0 3 17 43
+108	63734 788 0 306 0 22.271928834274 32 0 3 60 144
+109	64522 296 63 268 3.987304001965 19.393167387894 12 0 2 12 18
+118	64818 77 61 262 3.987304001965 19.392471387894 3 32 32 96 3072
+119	64895 79 46 247 3.984290185113 19.388012522885 3 32 32 96 3072
+120	64974 86 0 247 0 19.388012522885 4 0 3 6 14
+121	65060 10 0 0 0 0 1 0 0 0 0
+122	65070 10 0 0 0 0 1 0 0 0 0
+4	65080 48 406 444 38.841734559473 41.255996425093 2 0 0 0 0
+5	65128 48 406 444 38.841734559473 41.255996425093 2 0 0 0 0
+6	65176 48 406 444 38.841734559473 41.255996425093 2 0 0 0 0
+7	65224 54 406 444 38.841734559473 41.255996425093 2 8224 8224 16448 135268352
+8	65278 310 444 444 38.9 41.2 24 0 86400 86400 7464960000
+9	65588 54 406 444 38.841734559473 41.255996425093 2 8224 8224 16448 135268352
+10	65642 334 444 444 38.9 41.2 24 0 86400 86400 7464960000
+15	65976 26 401 401 38.841734559473 38.841734559473 1 48 48 48 2304
+16	66002 56 406 444 38.841734559473 41.255996425093 2 1051 1051 2102 2209202
+17	66058 56 406 444 38.841734559473 41.255996425093 2 1028 1028 2056 2113568
+18	66114 26 401 401 38.841734559473 38.841734559473 1 71 71 71 5041
+22	66140 125 381 448 38.841070225909 41.264500425093 5 2 3 12 30
+23	66265 175 381 448 38.841070225909 41.264500425093 7 0 3 7 13
+24	66440 275 378 448 38.840374225909 41.264500425093 11 0 2 11 17
+33	66715 82 442 479 41.255996425093 45.021330915623 3 32 1008 2048 2033152
+34	66797 26 404 404 38.841734559473 38.841734559473 1 28 28 28 784
+35	66823 25 404 404 38.841734559473 38.841734559473 1 4 4 4 16
+40	66848 56 441 475 41.255996425093 45.019366991657 2 1000 1000 2000 2000000
+47	66904 25 389 389 38.841070392691 38.841070392691 1 0 0 0 0
+48	66929 25 389 389 38.841070392691 38.841070392691 1 0 0 0 0
+49	66954 25 389 389 38.841070392691 38.841070392691 1 0 0 0 0
+50	66979 27 389 389 38.841070392691 38.841070392691 1 384 384 384 147456
+51	67006 2695 389 389 19.4 38.8 195 0 3840 3840 14745600
+52	69701 27 389 389 38.841070392691 38.841070392691 1 384 384 384 147456
+53	69728 2695 389 389 19.4 38.8 195 0 3840 3840 14745600
+58	72423 82 383 450 38.841070392691 41.264500591875 3 52 1028 2108 2116272
+59	72505 26 389 389 38.841070392691 38.841070392691 1 71 71 71 5041
+60	72531 26 389 389 38.841070392691 38.841070392691 1 48 48 48 2304
+61	72557 82 383 450 38.841070392691 41.264500591875 3 75 1051 2177 2214827
+65	72639 50 389 398 38.841070392691 38.841734392691 2 2 3 5 13
+66	72689 200 379 449 38.840374392691 41.264500591875 8 0 3 13 31
+67	72889 100 389 398 38.841070392691 38.841734392691 4 0 2 4 6
+76	72989 26 387 387 38.841070392691 38.841070392691 1 28 28 28 784
+77	73015 82 385 452 38.841070392691 41.264500591875 3 32 1008 2048 2033152
+78	73097 77 385 452 38.841070392691 41.264500591875 3 9 11 30 302
+81	73174 56 425 453 38.850238726255 41.264500591875 2 1000 1000 2000 2000000
+82	73230 2630 425 453 22.3 41.2 190 0 80000 160000 12800000000
+83	75860 76 425 453 38.850238726255 41.264500591875 2 0.008504166782 0.012252825904 0.020756992686 0.00022245259528981
+84	75936 50 425 453 38.850238726255 41.264500591875 2 5 6 11 61
+89	75986 24 413 413 38.84502918464 38.84502918464 1 0 0 0 0
+90	76010 24 413 413 38.84502918464 38.84502918464 1 0 0 0 0
+91	76034 24 413 413 38.84502918464 38.84502918464 1 0 0 0 0
+92	76058 26 413 413 38.84502918464 38.84502918464 1 416 416 416 173056
+93	76084 2695 413 413 19.4 38.8 195 0 4160 4160 17305600
+94	78779 26 413 413 38.84502918464 38.84502918464 1 416 416 416 173056
+95	78805 2695 413 413 19.4 38.8 195 0 4160 4160 17305600
+100	81500 27 394 394 38.841070559473 38.841070559473 1 52 52 52 2704
+101	81527 26 413 413 38.84502918464 38.84502918464 1 75 75 75 5625
+102	81553 26 413 413 38.84502918464 38.84502918464 1 52 52 52 2704
+103	81579 83 394 455 38.841070559473 41.264500758657 3 71 1051 1197 1115267
+106	81662 56 402 455 38.841734559473 41.264500758657 2 71 1051 1122 1109642
+107	81718 50 413 417 38.84502918464 38.84572518464 2 2 3 5 13
+108	81768 283 380 454 38.840374559473 41.264500758657 11 0 3 21 51
+109	82051 100 413 417 38.84502918464 38.84572518464 4 0 2 4 6
+118	82151 26 411 411 38.84502918464 38.84502918464 1 32 32 32 1024
+119	82177 27 396 396 38.841070559473 38.841070559473 1 32 32 32 1024
+120	82204 26 396 396 38.841070559473 38.841070559473 1 4 4 4 16
+8	82230 514 480 480 41.3 45.021330915623 39 0 82240 82240 6763417600
+10	82744 553 480 480 41.3 45.021330915623 39 0 82240 82240 6763417600
+39	83297 6136 480 480 0.1 45.021330915623 451 0 0 0 0
+51	89433 882 480 480 38.9 45.021330915623 63 0 3840 3840 14745600
+53	90315 882 480 480 38.9 45.021330915623 63 0 3840 3840 14745600
+82	91197 553 480 480 41.3 45.021330915623 39 0 80000 80000 6400000000
+93	91750 882 480 480 38.9 45.021330915623 63 0 4160 4160 17305600
+95	92632 882 480 480 38.9 45.021330915623 63 0 4160 4160 17305600
+

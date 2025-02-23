@@ -1,0 +1,29 @@
+Simulation started at: 0
+Drone: Local initialization
+Drone 2 initialized in INITSTAGE_LOCAL state with position (0, 0, 0).
+Drone 2 starting with: 1.5 - total mass, 0.6 motor efficiency
+Drone 2 power consumption for hovering: 24.525
+Drone droneControl received POWER_ON command at t=2
+Drone 2 initial coordinates updated: x=10, y=10, z=137
+Drone is powering on and waiting for TAKEOFF sequence.
+Battery check event at 12 sec.
+Drone 2 remaining power: 7995.29 mAh, 99.9411%
+TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state.
+Drone 2 destination coordinates updated: x=10, y=10, z=287
+Drone 2 remaining power after move: 7993.96 mAh, 99.9245%
+Battery check event at 22 sec.
+Drone 2 remaining power: 7989.25 mAh, 99.8656%
+Battery check event at 32 sec.
+Drone 2 remaining power: 7984.54 mAh, 99.8067%
+Battery check event at 42 sec.
+Drone 2 remaining power: 7979.83 mAh, 99.7479%
+Battery check event at 52 sec.
+Drone 2 remaining power: 7975.12 mAh, 99.689%
+Battery check event at 62 sec.
+Drone 2 remaining power: 7970.41 mAh, 99.6302%
+Battery check event at 72 sec.
+Drone 2 remaining power: 7965.7 mAh, 99.5713%
+Battery check event at 82 sec.
+Drone 2 remaining power: 7960.99 mAh, 99.5124%
+Battery check event at 92 sec.
+Drone 2 remaining power: 7956.29 mAh, 99.4536%

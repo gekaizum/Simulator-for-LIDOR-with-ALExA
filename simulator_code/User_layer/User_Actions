@@ -1,0 +1,132 @@
+
+set_base
+
+take_off
+
+land_drone
+
+move_to
+
+hover
+
+rotate
+
+set_velocity
+
+set_acceleration
+
+return_to_base
+
+stop_drone
+
+calibrate_drone
+
+setMode_drone
+
+powerOn_drone
+
+powerOff_drone
+
+getDrone_navData
+
+getDrone_status
+
+getDrone_position
+
+getDrone_altitude
+
+getDrone_batteryStatus
+
+getDrone_SensorData
+
+
+
+
+
+int protocol:
+	1. None - command from user algorithm, will be done using cMessages
+    2. UDP - command from manual user, will be sent from base station (not in use in current version)
+    3. TCP - command from manual user, will be sent from base station (not in use in current version)
+ 
+ 
+
+
+movement commands:
+ 
+    bool set_base(int protocol,int drone_id,double x_base, double y_base, double z_base);
+    			Updates the base station coordinates of chosen drone
+    
+    bool take_off(int protocol,int drone_id,double x_dest, double y_dest, double z_dest);
+				Drone take off sequence. You need to set up velocity and acceleration before or default values will be used
+				
+    bool land_drone(int protocol,int drone_id);
+    			Landing on ground - movement on z-direction, after landing TAKEOFF sequence need to bee implemented again
+    			
+    bool move_to(int protocol,int drone_id,double x_dest, double y_dest, double z_dest);
+    			Drone movement command. You need to set up velocity and acceleration before or default values will be used
+    			 
+    bool hover();
+    			not in use in current simulator version
+    			
+    bool rotate();
+    			not in use in current simulator version
+    			
+    bool set_velocity(int protocol,int drone_id,double x_vel, double y_vel, double z_vel);
+				Set velocity parameters for next move of drone  
+				  
+    bool set_acceleration(int protocol,int drone_id,double acceleration);
+				Set acceleration parameters for next move of drone
+				
+    bool return_to_base();//not in use in current simulator version
+				not in use in current simulator version
+
+
+
+				
+State management commands
+
+    bool stop_drone(int protocol,int drone_id);
+    			Stops any drone movements, drone continue hovering
+    			
+    bool calibrate_drone();
+    			not in use in current simulator version
+    			
+    bool setMode_drone();
+    			not in use in current simulator version
+    			
+    bool powerOn_drone(int drone_id, double x_pos, double y_pos, double z_pos);
+    			Activates drone, drone becomes active access point on ground
+    			
+    bool powerOff_drone(int protocol,int drone_id);
+    			Deactivates drone, cannot respond to any command except power on
+
+
+
+
+Sensor, data and monitoring
+
+    bool getDrone_navData(int drone_id, double *nav_array);
+			    Saves navigation data array at nav_array: double [x_position, y_position, z_position, acceleration,
+					  x_velocity, y_velocity, z_velocity,
+					  x_destination, y_destination, z_destination, battery_ramain[mAh]
+					  x_chargStation, y_chargStation, z_chargStation]    
+					  
+    bool getDrone_status(int drone_id, double *stat_array);
+    			Saves status array at stat_array: bool [power_on, non_operational]
+    
+    bool getDrone_position(int protocol,int drone_id, double *pos_array);
+    			Saves position array at pos_array: double [x_position, y_position, z_position]
+    			
+    bool getDrone_altitude(int protocol,int drone_id, double &altitude);
+    			Saves altitude at altitude
+    			
+    bool getDrone_batteryStatus(int protocol,int drone_id, double &batteryStatus);
+    			Saves battery remain capacity at batteryStatus
+    			
+    bool getDrone_SensorData();
+    			not in use in current simulator version
+    
+    
+    
+    
+    
