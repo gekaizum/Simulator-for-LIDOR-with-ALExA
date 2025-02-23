@@ -1,8 +1,0 @@
-Simulation started at: 0
-Drone: Local initialization
-Drone 1 initialized in INITSTAGE_LOCAL state with position (0, 0, 0).
-Drone 1 starting with: 1.5 - total mass, 0.6 motor efficiency
-Drone 1 power consumption for hovering: 24.525
-Drone droneControl received POWER_ON command at t=2
-Drone 1 initial coordinates updated: x=1, y=1, z=110
-Drone is powering on and waiting for TAKEOFF sequence.
