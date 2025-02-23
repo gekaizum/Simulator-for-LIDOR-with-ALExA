@@ -1,0 +1,88 @@
+Simulation started at: 0
+Simulation control online
+New map created
+Drone 1: start at height: 93
+POWER_ON signal sent to drone 1
+Drone 2: start at height: 137
+POWER_ON signal sent to drone 2
+Drone 3: start at height: 120
+POWER_ON signal sent to drone 3
+TAKEOFF signal sent to drone 1
+TAKEOFF signal sent to drone 2
+TAKEOFF signal sent to drone 3
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 move in z direction
+Drone 1 in motion
+Drone 1 reached destination: x=1, y=1, z=193
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 3 in motion
+Drone 3 reached destination: x=20, y=20, z=220
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 2 in motion
+Drone 2 move in z direction
+Drone 2 in motion
+Drone 2 reached destination: x=10, y=10, z=287

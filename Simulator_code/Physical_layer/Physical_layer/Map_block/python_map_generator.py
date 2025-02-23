@@ -1,0 +1,34 @@
+import numpy as np
+import random as rd
+from scipy.ndimage import gaussian_filter
+import matplotlib.pyplot as plt
+
+# Map size
+grid_size = 5000  # 5000x5000 meters
+resolution = 1    # Resolution of 1x1 meter
+
+# Generate terrain heights
+np.random.seed(rd.randint(1, 100))  # For reproducibility
+terrain = np.random.rand(grid_size, grid_size) * 300 + 100 # Heights from 0 to 300 meters
+terrain = gaussian_filter(terrain, sigma=0.5)  # Smoothing for a natural appearance
+
+# Convert heights to integers in centimeters
+#terrain_cm = np.round(terrain * 100).astype(int)  # Convert meters to centimeters
+
+# Normalize heights to start from 0
+#terrain_cm -= terrain_cm.min()
+terrain -= terrain.min()
+
+# Save to file
+np.savetxt("Sim_logs/heightmap.txt", terrain, fmt="%d")  # Save as integers
+
+# Visualize the heightmap in high resolution
+plt.figure(figsize=(20, 20))  # Adjust the figure size for high resolution
+plt.imshow(terrain, cmap="terrain")
+plt.colorbar(label="Height (m)")
+plt.title("Normalized Heightmap", fontsize=20)
+plt.axis('off')  # Optional: turn off axes for a cleaner look
+
+# Save the image in high resolution
+plt.savefig("heightmap_high_res.png", dpi=300, bbox_inches='tight')  # Save with high DPI
+plt.show()
