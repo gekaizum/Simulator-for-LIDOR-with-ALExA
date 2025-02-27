@@ -13,15 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package User_layer;
+package Physical_layer.Drone_block;
 
-simple UserLayer
+//import inet.applications.base.ApplicationBase;
+//import inet.transportlayer.contract.tcp.TcpSocket;
+import inet.applications.tcpapp.TcpServerApp;
+
+module DroneTcpApp extends TcpServerApp
 {
     parameters:
-        int numOfdronesSockets = default(3);
-        int numOfchargeStationSockets = default(2);
+        //string connectAddress = default("");
+        //int connectPort = default(5000);
+        //int messageLength = default(512B);
     gates:
-        inout controlSocket;
-        inout dronesSocket[numOfdronesSockets];
-        inout chargingStationSocket[numOfchargeStationSockets];   
+        //input socketIn;
+        //output socketOut;
+        input tcpAppIn@directIn;  // External control input gate @directIn
+    connections allowunconnected:
 }
+

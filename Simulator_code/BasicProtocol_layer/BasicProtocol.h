@@ -12,7 +12,12 @@
 //#include "../Physical_layer/Drone_block/DroneControl.h"
 //#include "../Physical_layer/Map_block/ChargingStationManager.h"
 #include "../Physical_layer/simulations/SimulationControl.h"
+#include "../Physical_layer/Map_block/HeightMapLoader.h"
 #include "BasicProtocolLogger.h"
+
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/transportlayer/contract/tcp/TcpSocket.h"
+#include "inet/common/packet/Packet.h"
 
 using namespace omnetpp;
 
@@ -36,6 +41,8 @@ class BasicProtocol : public cSimpleModule {
     cMessage *getPositionDrone;
     cMessage *getAltitudeDrone;
     cMessage *getBatteryDrone;
+
+    double heightVal;
     void message_init();
   protected:
     virtual void initialize(); // Initializes the drone module
@@ -122,6 +129,11 @@ class BasicProtocol : public cSimpleModule {
     //not in use in current simulator version
     bool getDrone_SensorData();
     /**/
+    /////////////////////////////
+    //Connection
+    /////////////////////////////
+    /**/
+    bool sendMsgTCP(int drone_id_sender, int drone_id_receiver);
 };
 
 Define_Module(BasicProtocol);

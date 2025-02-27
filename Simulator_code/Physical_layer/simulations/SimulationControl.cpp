@@ -77,8 +77,8 @@ void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messag
     }
 }
 void SimulationControl::simControl_mainFunc(){}
-double SimulationControl::height_checker(double x_pos, double y_pos){
-    return Current_map->getHeightAt(x_pos, y_pos);
+void SimulationControl::height_checker(double x_pos, double y_pos, double &z_val){
+    z_val = Current_map->getHeightAt(x_pos, y_pos);
 }
 void SimulationControl::finish(){
     delete Current_map;

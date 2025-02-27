@@ -56,6 +56,10 @@ void DroneControl::initialize(int stage) {
         x_velocity = par("x_velocity");
         y_velocity = par("y_velocity");
         z_velocity = par("z_velocity");
+
+        //socketTcp.setOutputGate(gate("socketOut"));
+        //socketTcp.bind(1000);
+
         droneLogFile << "Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
         this->hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
         droneLogFile << "Drone " << Drone_ID << " starting with: "<< mass_of_drone+additional_mass << " - total mass, " << motor_efficiency << " motor efficiency" << endl;
@@ -111,6 +115,8 @@ void DroneControl::handlePowerOn() {
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
 	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
     scheduleAt(simTime() + 10.0, batteryCheckEvent);
+    //L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+    //BPLogger->logFile << "L3Adress is:" << destAddr << endl;
 }
 
 void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
@@ -121,21 +127,21 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
     }
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
         droneLogFile << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
-		in_air=true;
-		Is_Moving = true;
-		Next_Move = 3;//Take off will always start from moving on z axis
-        state = WAITING_FOR_COMMANDS; // Transition to DRONE_IN_AIR state
-        Destination[0] = msg->par("x").doubleValue();
-        Destination[1] = msg->par("y").doubleValue();
-        Destination[2] = msg->par("z").doubleValue();
-        droneLogFile << "Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
-		", y=" << Destination[1] << ", z=" << Destination[2] << endl;
-		acceleration = msg->par("acceleration").doubleValue();
-        x_velocity = msg->par("x_velocity").doubleValue();
-        y_velocity = msg->par("y_velocity").doubleValue();
-        z_velocity = msg->par("z_velocity").doubleValue();
+        handleMove(msg);
         batteryCheckHelper_forMove();
-        
+        in_air=true;
+        Is_Moving = true;
+        Next_Move = 3;//Take off will always start from moving on z axis
+        state = WAITING_FOR_COMMANDS; // Transition to DRONE_IN_AIR state
+
+    }
+    else if (strcmp(msg->par("State").stringValue(), "SETACCEL") == 0){
+        droneLogFile << "SETACCEL signal received. Acceleration parameters changed." << endl;
+        handleSetAcceleration(msg);
+    }
+    else if (strcmp(msg->par("State").stringValue(), "SETVEL") == 0){
+        droneLogFile << "SETVEL signal received. Velocity parameters changed." << endl;
+        handleSetVelocity(msg);
     }
 	else {
 	    droneLogFile << "Wrong command. Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
@@ -149,13 +155,7 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 		scheduleAt(simTime() + 10.0, msg); // Repeat
 	}
     else if (strcmp(msg->par("State").stringValue(), "MOVE") == 0) {
-		acceleration = msg->par("acceleration").doubleValue();
-        x_velocity = msg->par("x_velocity").doubleValue();
-		y_velocity = msg->par("y_velocity").doubleValue();
-		z_velocity = msg->par("z_velocity").doubleValue();
-		Destination[0] = msg->par("x").doubleValue();
-		Destination[1] = msg->par("y").doubleValue();
-		Destination[2] = msg->par("z").doubleValue();
+        handleMove(msg);
 		Is_Moving = true;
 		Next_Move = 1;
 		batteryCheckHelper_forMove();
@@ -166,6 +166,21 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 	else if (strcmp(msg->par("State").stringValue(), "NON_OPERATIONAL") == 0){
 		state = NON_OPERATIONAL;
 	}
+	else if (strcmp(msg->par("State").stringValue(), "STOP") == 0) {
+        Is_Moving = false;
+        Next_Move = 1;
+        Destination[0] = Current_Position[0];
+        Destination[1] = Current_Position[1];
+        Destination[2] = Current_Position[2];
+        droneLogFile << "Drone " << Drone_ID << " was stoped at: x=" << Current_Position[0] <<
+                ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
+    }
+	else if (strcmp(msg->par("State").stringValue(), "SETBASE") == 0){
+	    handleSetBase(msg);
+    }
+	else if (strcmp(msg->par("State").stringValue(), "sendTcp") == 0){
+	    handleSendTcp(msg);
+    }
 	else {
 	    droneLogFile << "Unknown command received: " << msg << endl;
     }
@@ -221,29 +236,31 @@ void DroneControl::handleCrashOperation(inet::LifecycleOperation *operation) {
     EV << "Drone: Crash operation" << endl;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/*void DroneControl::updateNetworkLinks(Drone* linkDrone, bool connected, std::string selectedProtocol) {
-    if (connected == false) {
-        disconnect(linkDrone);
-    }
-    else {
-        establishLink(linkDrone, selectedProtocol);
-    }
+void DroneControl::handleSetAcceleration(cMessage *msg){
+    acceleration = msg->par("acceleration").doubleValue();
+    droneLogFile << "Drone " << Drone_ID << " acceleration set to: " << acceleration << " m/sec" << endl;
 }
-void DroneControl::establishLink(Drone *otherDrone, std::string protocol)
-{
-    if (this->gate("out")->isConnected()) return; // Prevent duplicate links
-
-    cDatarateChannel *channel = cDatarateChannel::create("datalink");
-    channel->setDatarate(protocol == "UDP" ? 54e6 : 100e6); // Set speed based on protocol
-    this->gate("out")->connectTo(otherDrone->gate("in"), channel);
+void DroneControl::handleSetVelocity(cMessage *msg){
+    x_velocity = msg->par("x_vel").doubleValue();
+    y_velocity = msg->par("y_vel").doubleValue();
+    z_velocity = msg->par("z_vel").doubleValue();
+    droneLogFile << "Drone " << Drone_ID << " velocity values updated: x_velocity=" << x_velocity <<
+        ", y_velocity=" << y_velocity << ", z_velocity=" << z_velocity << endl;
 }
-
-
-void DroneControl::disconnect(Drone *otherDrone)
-{
-    if (this->gate("out")->isConnected())
-        this->gate("out")->disconnect();
-}*/
+void DroneControl::handleMove(cMessage *msg){
+    Destination[0] = msg->par("x").doubleValue();
+    Destination[1] = msg->par("y").doubleValue();
+    Destination[2] = msg->par("z").doubleValue();
+    droneLogFile << "Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
+    ", y=" << Destination[1] << ", z=" << Destination[2] << endl;
+}
+void DroneControl::handleSetBase(cMessage *msg){
+    ChargeStationCoord[0] = msg->par("x").doubleValue();
+    ChargeStationCoord[1] = msg->par("y").doubleValue();
+    ChargeStationCoord[2] = msg->par("z").doubleValue();
+    droneLogFile << "Drone " << Drone_ID << " base station coordinates updated: x=" << ChargeStationCoord[0] <<
+    ", y=" << ChargeStationCoord[1] << ", z=" << ChargeStationCoord[2] << endl;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,9 +271,24 @@ void DroneControl::broadcast(const std::string& message) {
     send(msg, "socketOut");                                 // Send the message via the output socket
 }
 
-void DroneControl::sendTo(int target_id, const std::string& message) {
-    droneLogFile << "Drone " << Drone_ID << " sending message to Drone " << target_id << ": " << message << endl;
-
-    cMessage *msg = new cMessage(message.c_str());           // Create a new message for direct communication
-    send(msg, "socketOut");                                 // Send the message via the output socket
+void DroneControl::handleSendTcp(cMessage *msg) {
+    //droneLogFile << "Drone " << Drone_ID << " sending message to Drone " << target_id << ": " << message << endl;
+    Enter_Method("handleSendTcp");
+    take(msg);
+    cModule *tcpApp = getParentModule()->getSubmodule("app", 0);
+    if (!tcpApp) {
+        droneLogFile << "Could not find app[0] module." <<endl;
+        delete msg;
+        return;
+    }
+    cGate *inGate = tcpApp->gate("tcpAppIn");
+    if (!inGate) {
+        droneLogFile << "app[0] has no 'in' gate." <<endl;
+        delete msg;
+        return;
+    }
+    droneLogFile << "Sending message to:" << tcpApp << " gate: " << inGate <<endl;
+    //sendDirect(msg, tcpApp, "socketIn");
+    sendDirect(msg, inGate);
+    //send(msg, "socketOut");                                 // Send the message via the output socket
 }

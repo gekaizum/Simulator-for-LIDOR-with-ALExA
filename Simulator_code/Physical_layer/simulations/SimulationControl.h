@@ -33,7 +33,7 @@ class SimulationControl : public cSimpleModule {
     virtual void finish();
   public:
     std::vector<DroneControl*> drone_data; //List of drones needed for "drone_positions_c"
-    double height_checker(double x_pos, double y_pos);
+    void height_checker(double x_pos, double y_pos, double &z_val);
 };
 
 Define_Module(SimulationControl);
