@@ -18,5 +18,5 @@ package User_layer;
 simple UserLayer
 {
     gates:
-        input in;  // Only an input gate to receive cMessages
+        input in[];  // Only an input gate to receive cMessages
 }
