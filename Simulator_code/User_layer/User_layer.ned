@@ -18,6 +18,6 @@ package User_layer;
 simple UserLayer
 {
     gates:
-        input droneIn[];  // Only an input gate to receive cMessages
-        input baseStationIn[];
+        input DronesIn[];  // Only an input gate to receive cMessages
+		input BaseStationsIn[];
 }
