@@ -22,7 +22,7 @@ void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
             basicProtocolModule->powerOn_drone(2, 0, 0, 0);
             basicProtocolModule->powerOn_drone(3, 0, 0, 0);
             basicProtocolModule->set_velocity(1, 1, 0, 0, 10); // set Drone1 velocity
-            //add acceleration ****
+            basicProtocolModule->set_acceleration(1, 1, 0, 0, 5); //set Drone1 acceleration
             basicProtocolModule->take_off(1, 1, 0, 0, 300); // Drone1 takes off to 300m altitude
             cout << "Drone 1 took off and started moving...\n";
 
@@ -36,9 +36,8 @@ void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
 
             if(pos_array_1[0] == 0 && pos_array_1[1] == 0 && pos_array_1[2] == 300){ //check if Drone1 is at z = 300m to start moving forward
                 basicProtocolModule->set_velocity(1, 1, 5, 0, 0);
-                //add acceleration ****
+                basicProtocolModule->set_acceleration(1, 1, 5, 0, 0); //set Drone1 acceleration
                 basicProtocolModule->move_to(1, 1, 1000, 0, 300);   // Drone 1 start moving to the destination
-                scheduleAt(simTime()+1, simMsg);
             }
             if (pos_array_1[0] >= 250 && pos_array_3[0] == 0) { // Check if Drone 3 should take off as a relay
                 basicProtocolModule->sendMsgTCP(1, 3); // TCP command message to drone 3 to start moving to {500,0,300}
@@ -50,8 +49,8 @@ void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
 
             }
             if(pos_array_3[2] == 300 && relayFlag == true){
-                basicProtocolModule->set_velocity(1, 3, 10, 0, 0);
-                //add acceleration ****
+                basicProtocolModule->set_velocity(1, 3, 10, 0, 0); //set Drone3 velocity
+                basicProtocolModule->set_acceleration(1, 3, 5, 0, 0); //set Drone3 acceleration
                 basicProtocolModule->move_to(1, 3, 500, 0, 300);
                 relayFlag = false;
                 scheduleAt(simTime()+1, simMsg);
@@ -67,7 +66,7 @@ void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
         }
         if(strcmp(msg->par("Drone3Msg").stringValue(), "Drone3Msg") == 0){ //handles cMessages form drone3
             basicProtocolModule->set_velocity(1, 3, 0, 0, 10); // set Drone3 velocity
-            //add acceleration ****
+            basicProtocolModule->set_acceleration(1, 3, 0, 0, 5); //set Drone3 acceleration
             basicProtocolModule->take_off(1, 3, 0, 0, 300); // Drone3 takes off to 300m altitude
             cout << "Drone3 took off as a relay\n";
         }
