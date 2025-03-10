@@ -19,5 +19,5 @@ simple UserLayer
 {
     gates:
         input DronesIn[];  // Only an input gate to receive cMessages
-		input BaseStationsIn[];
+	input BaseStationsIn[];
 }
