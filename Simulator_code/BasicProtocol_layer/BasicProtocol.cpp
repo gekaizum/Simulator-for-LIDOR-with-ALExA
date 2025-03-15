@@ -330,11 +330,13 @@ bool BasicProtocol::sendMsgTCP(int drone_id_sender, int drone_id_receiver){
     cMessage *tcpRequest = new cMessage("tcpConnect");
     //tcpRequest->addPar("targetAddress") = destAddr;
     tcpRequest->addPar("targetAddress").setStringValue(destAddr.str().c_str());
-    tcpRequest->addPar("targetPort") = 5000;
+    tcpRequest->addPar("targetPort") = 1235;
     BPLogger->logFile << "L3Adress is:" << tcpRequest->par("targetAddress") << " of drone " << std::to_string(drone_id_receiver) << endl;
     //controlModule->drone_data[drone_id_sender-1]->socketTcp.connect(destAddr, 1000);
     //Packet *packet = new Packet("CustomPacket");
     //controlModule->drone_data[drone_id_sender-1]->socketTcp.send(packet);
     controlModule->drone_data[drone_id_sender-1]->handleSendTcp(tcpRequest);
+    cMessage *tcpRequest2 = tcpRequest->dup();
+    //controlModule->drone_data[2]->handleSendTcp(tcpRequest2);
     return true;
 }

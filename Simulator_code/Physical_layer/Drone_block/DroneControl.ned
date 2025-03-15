@@ -33,7 +33,7 @@ simple DroneControl {
         output socketOut;
         inout socketControl;
         inout basicProtocolSocket;
-        //output tcpApp;
+        output tcpApp;
         //input in[];
         //output out[];
         input in;    // Incoming messages

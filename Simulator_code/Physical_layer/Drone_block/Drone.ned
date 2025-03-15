@@ -5,6 +5,7 @@ package simulations;
 import inet.node.inet.WirelessHost;
 import Physical_layer.Drone_block.DroneControl;
 import inet.routing.aodv.Aodv;
+import inet.networklayer.ipv4.Ipv4RoutingTable;
 //import inet.applications.tcpapp.*;
 
 module Drone extends WirelessHost
@@ -17,14 +18,19 @@ module Drone extends WirelessHost
         mobility.initialZ = default(0m);
         mobility.initFromDisplayString = false;
         mobility.updateFromDisplayString = false;
-        @display("i=device/satellite");
+        @display("i=device/satellite;bgb=2170,1130");
 
         bool useAODV = default(true);  // Determines if AODV should be created
         bool useAdhocHost = default(true);  // Determines if AODV should be created
         // Conditional parameter assignment
-        wlan[*].mgmt.typename = default(useAODV ? "Ieee80211MgmtAdhoc" : "Ieee80211RadioMedium");  // Higher overhead if using AODV
-        wlan[*].agent.typename = default(useAdhocHost ? "" : ""); // Higher consumption for AODV
-        forwarding = default(useAdhocHost ? true : true);
+        wlan[*].mgmt.typename = "Ieee80211MgmtAdhoc";  // Higher overhead if using AODV
+        wlan[*].agent.typename = ""; // Higher consumption for AODV
+        forwarding = true;
+
+        numApps = 2;
+        app[0].typename = "DroneTcpApp";
+        app[1].typename = "DroneTcpClient";
+        //app[1].Drone_ID = parent.Drone_ID;
 
     gates:
         input socketIn;
@@ -36,16 +42,21 @@ module Drone extends WirelessHost
         //output out[];
         input droneControlIn;
         output droneControlOut;
+        //input app[0].customIn;
     submodules:
         droneControl: DroneControl {
             Drone_ID = parent.Drone_ID;
             //@display("p=920,670");
-            @display("p=1080,80");
+            @display("p=1090,60");
         }
         aodv: Aodv if useAODV {
             parameters:
                 @display("p=890,220");
         }
+        
+        //routingTable: Ipv4RoutingTable {
+        //    @display("p=120,930");
+        //}
     connections allowunconnected:
         droneControl.out --> droneControlOut;  // Connect submodule's output to Drone's output
         droneControlIn --> droneControl.in;    // Connect Drone's input to submodule's input

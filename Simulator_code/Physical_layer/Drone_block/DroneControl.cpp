@@ -64,6 +64,18 @@ void DroneControl::initialize(int stage) {
         this->hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
         droneLogFile << "Drone " << Drone_ID << " starting with: "<< mass_of_drone+additional_mass << " - total mass, " << motor_efficiency << " motor efficiency" << endl;
         droneLogFile << "Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
+        //cModule *tcpAppModule = getParentModule()->getSubmodule("app", 0)->getSubmodule("droneTcpAppControl");  // or however you locate it
+        //cGate *tcpAppInGate = tcpAppModule->gate("tcpAppIn");
+        //cGate *tcpAppOutGate = tcpAppModule->gate("tcpAppOut");
+
+        //cModule *droneControlModule = getSubmodule("droneControl");
+        //cGate *ctrlOutGate = gate("tcpApp");
+        //cGate *ctrlInGate = droneControlModule->gate("in");
+
+        // Connect droneControl.out --> tcpAppIn
+        //ctrlOutGate->connectTo(tcpAppInGate);
+        //registerInterface();
+
     }
     else if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
         EV << "Drone: Application initialization" << endl;
@@ -272,10 +284,9 @@ void DroneControl::broadcast(const std::string& message) {
 }
 
 void DroneControl::handleSendTcp(cMessage *msg) {
-    //droneLogFile << "Drone " << Drone_ID << " sending message to Drone " << target_id << ": " << message << endl;
     Enter_Method("handleSendTcp");
     take(msg);
-    cModule *tcpApp = getParentModule()->getSubmodule("app", 0);
+    /*cModule *tcpApp = getParentModule()->getSubmodule("app", 0);
     if (!tcpApp) {
         droneLogFile << "Could not find app[0] module." <<endl;
         delete msg;
@@ -287,8 +298,37 @@ void DroneControl::handleSendTcp(cMessage *msg) {
         delete msg;
         return;
     }
-    droneLogFile << "Sending message to:" << tcpApp << " gate: " << inGate <<endl;
+    droneLogFile << "Sending message to:" << tcpApp << " gate: " << inGate <<endl;*/
     //sendDirect(msg, tcpApp, "socketIn");
-    sendDirect(msg, inGate);
-    //send(msg, "socketOut");                                 // Send the message via the output socket
+    /*droneLogFile << "Received a cMessage. Converting to inet::Message..." << endl;
+
+    // Create a new inet::Message based on the original cMessage
+    inet::Message *inetMsg = new inet::Message(msg->getName());
+
+    // Copy metadata (optional)
+    inetMsg->setKind(msg->getKind());
+    inetMsg->setTimestamp(msg->getCreationTime());
+    inetMsg->addPar("targetAddress") = msg->par("targetAddress");
+    inetMsg->addPar("targetPort") = msg->par("targetPort");
+    // Cleanup old message
+    delete msg;
+    inetMsg->setKind(0);
+    int destinationGateIndex = inetMsg->getKind();*/
+    /*EV << "Message is not an inet::Packet. Converting...\n";
+
+    // Create a new Packet and encapsulate the original cMessage
+    pkt = new inet::Packet(msg->getName());
+    pkt->encapsulate(msg);
+    pkt->setKind(0);
+    int destinationGateIndex = pkt->getKind(); // Determine routing
+
+    if (destinationGateIndex >= gateSize("out")) {
+        EV << "Invalid destination! Dropping message.\n";
+        delete pkt;
+        return;
+    }*/
+    cModule *appModule = getParentModule()->getSubmodule("app", 0)->getSubmodule("listener");
+    //send(pkt, "socketOut",destinationGateIndex);*/
+    //sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
+    droneLogFile << "Drone " << Drone_ID << " sent message to DroneTcpApp: " << msg << endl;
 }

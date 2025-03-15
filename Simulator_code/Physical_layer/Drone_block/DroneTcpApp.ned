@@ -14,21 +14,43 @@
 // 
 
 package Physical_layer.Drone_block;
+//package inet.applications.tcpapp;
 
+import inet.applications.contract.IApp;
+import inet.common.MessageDispatcher;
 //import inet.applications.base.ApplicationBase;
 //import inet.transportlayer.contract.tcp.TcpSocket;
-import inet.applications.tcpapp.TcpServerApp;
+//import inet.applications.tcpapp.TcpServerApp;
+import Physical_layer.Drone_block.MyTcpAppListener;
 
-module DroneTcpApp extends TcpServerApp
+module DroneTcpApp like IApp
 {
     parameters:
-        //string connectAddress = default("");
-        //int connectPort = default(5000);
-        //int messageLength = default(512B);
+        string interfaceTableModule; // Relative module path of the interface table
+        *.interfaceTableModule = default(this.interfaceTableModule);
+        @display("i=block/app");
     gates:
-        //input socketIn;
-        //output socketOut;
-        input tcpAppIn@directIn;  // External control input gate @directIn
-    connections allowunconnected:
+        input socketIn;
+        output socketOut;
+    submodules:
+        listener: MyTcpAppListener {
+            parameters:
+                //        input listener.tcpAppIn@directIn;  // External control input gate @directIn
+                @display("p=100,100");
+        }
+        connection[0]: <default(listener.serverConnectionModuleType)> like IApp {
+            parameters:
+                @display("p=200,100,row,50");
+        }
+        ta: MessageDispatcher {
+            parameters:
+                @display("p=100,200");
+        }
+    connections:
+        //listener.socketIn --> { serviceMapping = [{ protocol = "tcp", gate = "socketOut" }]; };
+        ta.out++ --> listener.socketIn;
+        listener.socketOut --> ta.in++;
+        ta.out++ --> { @display("m=s"); } --> socketOut;
+        socketIn --> { @display("m=s"); } --> ta.in++;
 }
 

@@ -8,7 +8,7 @@ import BasicProtocol_layer.BasicProtocol;
 import User_layer.UserLayer;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
-
+import inet.networklayer.ipv4.RoutingTableRecorder;
 //channel DataLinkChannel extends ned.DatarateChannel {
 //    datarate = 54Mbps;  // Default to WiFi speed
 //    delay = 2ms;
@@ -19,7 +19,7 @@ network DroneNetwork
     parameters:
         int numChargeStation = default(2);
         int numDrones = default(3);
-        @display("bgb=860,460");
+        @display("bgb=1090,540");
     submodules:
         radioMedium: Ieee80211RadioMedium {
             @display("p=810,20");
@@ -54,7 +54,11 @@ network DroneNetwork
             @display("p=810,310");
         }
         userLayer: UserLayer {
-            
+            @display("p=210,50");
+        }
+        routingTableRecorder: RoutingTableRecorder {
+            parameters:
+                @display("p=560,20;is=s");
         }
     connections allowunconnected:
         //connection for cMessages between drone's submodules
@@ -75,6 +79,6 @@ network DroneNetwork
             basicProtocol.chargingStationSocket[i] <--> ChargingStation[i].basicProtocolSocket;
         }
         basicProtocol.controlSocket <--> simControl.basicProtocolSocket;
-        
+
 }
 
