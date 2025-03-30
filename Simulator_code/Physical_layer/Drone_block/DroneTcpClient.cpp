@@ -96,8 +96,8 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
         //Drone_ID = getParentModule()->getParentModule()->par("Drone_ID");
     }
     else {
-        //socket.processMessage(msg);
-        delete(msg);
+        socket.processMessage(msg);
+        //delete(msg);
     }
 }
 
