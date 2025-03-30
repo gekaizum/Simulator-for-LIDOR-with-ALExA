@@ -8,7 +8,7 @@
 #include "inet/common/ModuleAccess.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 
-//simsignal_t TcpAppBase::connectSignal = registerSignal("connect");
+simsignal_t DroneTcpClient::connectSignal = registerSignal("connect");
 
 void DroneTcpClient::initialize(int stage) {
     ApplicationBase::initialize(stage);
@@ -32,23 +32,28 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
     if (msg == sendMessageEvent) {
         if(Drone_ID == 2 ){
             L3Address destAddr = L3AddressResolver().resolve("drones[0]");
-            droneLogFile << "targetPort is:" << 1234 << endl;
-            droneLogFile << "targetAddress is:" << destAddr << endl;
+            droneLogFile << "targetPort is: " << 1234 << endl;
+            droneLogFile << "targetAddress is: " << destAddr << endl;
             socket.renewSocket();
-
+            //socket.setOutputGate(gate("socketOut"));
+            //socket.setCallback(this);
             //const char *localAddress = par("localAddress");
             int localPort = 1235;
             L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
             socket.bind(myIP, localPort);
+            droneLogFile << "bindport is: " << localPort << endl;
+            droneLogFile << "bindAddress is: " << myIP << endl;
+
+
 
             /*int timeToLive = par("timeToLive");
             if (timeToLive != -1)
                 socket.setTimeToLive(timeToLive);*/
 
             //int dscp = par("dscp");
-            int dscp = 0;
-            if (dscp != -1)
-                socket.setDscp(dscp);
+            //int dscp = 0;
+            //if (dscp != -1)
+                //socket.setDscp(dscp);
 
             //int tos = par("tos");
             //int tos = 0;
@@ -65,13 +70,13 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
                 EV_ERROR << "Connecting to " << connectAddress << " port=" << connectPort << ": cannot resolve destination address" << endl;
             }
             else {
-                EV_INFO << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
+                droneLogFile << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
 
                 socket.setAutoRead(par("autoRead"));
                 socket.connect(destination, connectPort);
 
                 //numSessions++;
-                //emit(connectSignal, 1L);
+                emit(connectSignal, 1L);
             }
             //socket.connect(destAddr, 1234);
             droneLogFile << "Socket connected" << endl;
@@ -96,7 +101,10 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
         //Drone_ID = getParentModule()->getParentModule()->par("Drone_ID");
     }
     else {
+        droneLogFile << "Received tcp msg: " << msg << endl;
+
         socket.processMessage(msg);
+
         //delete(msg);
     }
 }
@@ -116,7 +124,7 @@ void DroneTcpClient::socketClosed(TcpSocket *socket) {
 }
 
 void DroneTcpClient::sendRequest() {
-    droneLogFile << "Sending request to server." << endl;
+    droneLogFile << "Sending data to server." << endl;
     auto packet = new Packet("DroneData");
     auto payload = makeShared<ByteCountChunk>();
     payload->setLength(B(100));  // Set non-empty payload

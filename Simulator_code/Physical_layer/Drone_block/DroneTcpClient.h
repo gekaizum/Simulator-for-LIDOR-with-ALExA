@@ -30,7 +30,7 @@ protected:
     //int bytesRcvd;
 
     // statistics:
-    //static simsignal_t connectSignal;
+    static simsignal_t connectSignal;
 
     cMessage *sendMessageEvent = nullptr;
     cMessage *trigger2 = nullptr;

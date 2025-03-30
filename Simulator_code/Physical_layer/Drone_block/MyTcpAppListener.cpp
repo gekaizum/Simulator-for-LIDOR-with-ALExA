@@ -17,7 +17,7 @@ void MyTcpAppListener::initialize(int stage)
     ApplicationBase::initialize(stage);
     //LifecycleOperation *operation = nullptr;
     //TcpServerListener::handleStartOperation(operation);
-    if (stage == INITSTAGE_LOCAL) {
+    if (stage == INITSTAGE_APPLICATION_LAYER) {
         //getParentModule()->Drone_ID;                         // Get the drone's ID from parameters
         int id = getParentModule()->getParentModule()->par("Drone_ID");
         fileName = "Drone_logs/Drone_" + std::to_string(id) + "_TcpAppLogFile.log";
@@ -63,16 +63,19 @@ void MyTcpAppListener::handleMessageWhenUp(cMessage *msg)
         droneLogFile << "Packet sent" << endl;
     }
     else{
+        droneLogFile << "TCP message arrived at: "<< simTime() << " , message is: " << msg->getControlInfo() << endl;
         //TcpServerListener::handleMessageWhenUp(msg);
-        serverSocket.processMessage(msg);
-        if (serverSocket.belongsToSocket(msg))
+        //serverSocket.processMessage(msg);
+        if (serverSocket.belongsToSocket(msg)) {
+            droneLogFile << "TCP message arrived at: "<< simTime() << " belongs to this socket" << endl;
             serverSocket.processMessage(msg);
-        else
+        }
+        else {
             throw cRuntimeError("Unknown incoming message: '%s'", msg->getName());
-
+        }
     }
 
-    delete msg;
+    //delete msg;
 }
 /*
 void MyTcpAppListener::establishTcpConnection(const std::string &targetAddress, int targetPort)
@@ -153,6 +156,7 @@ void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *avai
     int submoduleIndex = parentModule->getSubmoduleVectorSize(submoduleVectorName);
     parentModule->setSubmoduleVectorSize(submoduleVectorName, submoduleIndex + 1);
     auto connection = moduleType->create(submoduleVectorName, parentModule, submoduleIndex);
+    //EV << "We are creating: " << connection << endl;
     connection->finalizeParameters();
     connection->buildInside();
     connection->callInitialize();

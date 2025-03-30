@@ -14,16 +14,19 @@
 // 
 
 package Physical_layer.Drone_block;
-//import inet.applications.contract.IApp;
+import inet.applications.contract.IApp;
 //import inet.applications.tcpapp.TcpServerListener;
+//import inet.transportlayer.contract.ITcp;
 //import Physical_layer.Drone_block.MyTcpAppListener;
 
-simple MyTcpAppListener
+simple MyTcpAppListener like IApp
 {
     parameters:
         string localAddress = default(""); // May be left empty ("")
         int localPort = default(1234); // Port number to listen on
-        string serverConnectionModuleType = default("inet.applications.tcpapp.TcpServerConnection"); // Module type of "connection" module to launch on incoming connections
+        string serverConnectionModuleType = default("inet.applications.tcpapp.TcpServerSocketIo"); // Module type of "connection" module to launch on incoming connections
+        //string serverConnectionModuleType = default("inet.applications.tcpapp.TcpRequestResponseApp");
+        //string serverConnectionModuleType = default("inet.applications.tcpapp.TcpGenericServerApp");
         bool autoRead = default(true); // Defines the autoRead setting for connection handling modules
         @display("i=block/server");
     gates:

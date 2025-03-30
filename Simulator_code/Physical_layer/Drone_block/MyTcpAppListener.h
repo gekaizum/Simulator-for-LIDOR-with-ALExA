@@ -13,6 +13,10 @@
 #include <inet/applications/tcpapp/TcpAppBase.h>
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include <inet/applications/tcpapp/TcpServerListener.h>
+#include <inet/applications/tcpapp/TcpGenericServerApp.h>
+
+//#include <inet/applications/tcpapp/TcpClientSocketIo.h>
+//TcpClientSocketIo
 #include <fstream>
 using namespace omnetpp;
 using namespace inet;
