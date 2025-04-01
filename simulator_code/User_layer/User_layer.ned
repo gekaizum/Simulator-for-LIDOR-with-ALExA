@@ -18,8 +18,8 @@ package User_layer;
 simple UserLayer
 {
     parameters:
-        int numOfdronesSockets;
-        int numOfchargeStationSockets;
+        int numOfdronesSockets = default(3);
+        int numOfchargeStationSockets = default(2);
     gates:
         inout controlSocket;
         inout dronesSocket[numOfdronesSockets];

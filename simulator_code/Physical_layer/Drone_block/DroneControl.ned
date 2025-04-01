@@ -29,11 +29,14 @@ simple DroneControl {
     	double y_velocity @unit(ms) = default(0ms);
     	double z_velocity @unit(ms) = default(0ms);
     gates:
-        //input socketIn;
-        //output socketOut;
+        input socketIn;
+        output socketOut;
         inout socketControl;
+        inout basicProtocolSocket;
+        output tcpApp;
         //input in[];
         //output out[];
         input in;    // Incoming messages
         output out;  // Outgoing messages
+        input tcpAppIn@directIn; //direct in for incoming tcp messages
 }

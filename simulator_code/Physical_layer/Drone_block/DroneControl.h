@@ -17,6 +17,9 @@
 #include "../Calculation_block/BatteryConsumption.h"
 #include "../Calculation_block/SignalStrengthCalculation.h"
 
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/transportlayer/contract/tcp/TcpSocket.h"
+
 using namespace omnetpp;
 using namespace inet;
 
@@ -64,6 +67,11 @@ class DroneControl : public ApplicationBase {
     void handleReturningToBase(cMessage *msg);
     void handleNonOperational(cMessage *msg);
 
+    void handleSetAcceleration(cMessage *msg);
+    void handleSetVelocity(cMessage *msg);
+    void handleMove(cMessage *msg);
+    void handleSetBase(cMessage *msg);
+    //void handleSendTcp(cMessage *msg);
     // Helper functions
 	void batteryCheckHelper(int time_step);
 	void batteryCheckHelper_forMove();
@@ -78,6 +86,8 @@ class DroneControl : public ApplicationBase {
     virtual void handleStopOperation(inet::LifecycleOperation *operation) override;
     virtual void handleCrashOperation(inet::LifecycleOperation *operation) override;
 	virtual void finish();
+
+
   public:
 	int Drone_ID;				// Unique identifier for the drone
 	double battery_remain;                  // Remaining battery capacity in mAh
@@ -94,8 +104,11 @@ class DroneControl : public ApplicationBase {
     double Current_Position[3]; // Drone's position as [x,y,z] coordinates
     uint8_t Next_Move;
     double ChargeStationCoord[3];
+
+    //TcpSocket socketTcp;
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
-    void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
+    void handleSendTcp(cMessage *msg);
+    void sendTo(int target_id, const std::string& message){}  // Sends a message to a specific drone
     //void updateNetworkLinks(Drone* linkDrone, bool connected, std::string selectedProtocol);
     //void establishLink(Drone *otherDrone, std::string protocol);
     //void disconnect(Drone *otherDrone);

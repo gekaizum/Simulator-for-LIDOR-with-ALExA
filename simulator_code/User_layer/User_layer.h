@@ -20,7 +20,6 @@ class UserLayer : public cSimpleModule {
 
       //UserLayerLogger* UserLayer_Logger = nullptr;
       BasicProtocol *basicProtocolModule;
-      SimulationControl *controlModule;
       bool Start_Flag = true;
       double pos_array[3] = {0,0,0}; //  double [x_position, y_position, z_position]
       double drone1_x = 0;
@@ -29,11 +28,11 @@ class UserLayer : public cSimpleModule {
 
     protected:
       virtual void initialize(); // Initializes the drone module
-      virtual void algorithm(cMessage *msg); // The algorithm
+      virtual void handleMessage(cMessage *msg); // The algorithm
  //     virtual void finish();
     public:
 };
-
+Define_Module(UserLayer);
 #endif /* USER_LAYER_USER_LAYER_H_ */
 
 
