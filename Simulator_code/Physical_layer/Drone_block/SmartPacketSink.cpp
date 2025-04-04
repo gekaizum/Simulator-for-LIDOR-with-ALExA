@@ -192,7 +192,7 @@ void SmartPacketSink::consumePacket(Packet *packet)
         string path = "DroneNetwork.drones[" + std::to_string(droneIndex) + "].droneControl";
         cModule *droneControl = getModuleByPath(path.c_str());
 
-        sendDirect(msg, droneControl, "directIn");
+        sendDirect(msg, droneControl, "tcpAppIn");
         dropPacket(packet, OTHER_PACKET_DROP);
     }
 }
