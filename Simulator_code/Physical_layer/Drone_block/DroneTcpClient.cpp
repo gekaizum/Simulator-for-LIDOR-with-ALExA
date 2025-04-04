@@ -127,9 +127,18 @@ void DroneTcpClient::socketClosed(TcpSocket *socket) {
 
 void DroneTcpClient::sendRequest() {
     droneLogFile << "Sending data to server." << endl;
+/*
     auto packet = new Packet("DroneData");
     auto payload = makeShared<ByteCountChunk>();
     payload->setLength(B(100));  // Set non-empty payload
+*/
+
+    // Create payload with "start"
+    const char *data = "moveTo 100 200 50";
+    auto payload = makeShared<BytesChunk>(std::vector<uint8_t>(data, data + strlen(data)));
+
+    // Create and send packet
+    auto packet = new Packet("cmdPacket");
 
     packet->insertAtBack(payload);  // Attach payload to the packet
     socket.send(packet);
