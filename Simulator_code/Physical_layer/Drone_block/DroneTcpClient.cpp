@@ -15,14 +15,19 @@ void DroneTcpClient::initialize(int stage) {
     if (stage == INITSTAGE_APPLICATION_LAYER) {
         localAddress = par("localAddress");
         localPort = par("localPort");
-        autoRead = par("autoRead");
+        //autoRead = par("autoRead");
         socket.setOutputGate(gate("socketOut"));
         socket.setCallback(this);
-        cMessage *trigger = new cMessage("myTrigger");
-        scheduleAt(simTime() + 1.0, trigger);
+        int localPort = par("localPort");
+        L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
+        socket.bind(myIP, localPort);
+        sendMessageEvent = new cMessage("myTrigger");
+        scheduleAt(simTime() + 5.0, sendMessageEvent);
         Drone_ID = getParentModule()->par("Drone_ID");
         fileName = "Drone_logs/Drone_" + std::to_string(Drone_ID) + "_TcpClientLogFile.log";
         droneLogFile.open(fileName, std::ios::out);  // Create/open log file
+        droneLogFile << "Bindport is: " << localPort << endl;
+        droneLogFile << "BindAddress is: " << myIP << endl;
 
     }
 }
@@ -32,20 +37,19 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
     if (msg == sendMessageEvent) {
         if(Drone_ID == 2 ){
             L3Address destAddr = L3AddressResolver().resolve("drones[0]");
-            droneLogFile << "targetPort is: " << 1234 << endl;
-            droneLogFile << "targetAddress is: " << destAddr << endl;
-            socket.renewSocket();
-            //socket.setOutputGate(gate("socketOut"));
-            //socket.setCallback(this);
-            //const char *localAddress = par("localAddress");
-            int localPort = 1235;
-            L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
-            socket.bind(myIP, localPort);
-            droneLogFile << "bindport is: " << localPort << endl;
-            droneLogFile << "bindAddress is: " << myIP << endl;
-
-
-
+            int connectPort = 1234;
+            droneLogFile << "TargetPort is: " << 1234 << " .Time: " << simTime() << endl;
+            droneLogFile << "TargetAddress is: " << destAddr << " .Time: " << simTime() << endl;
+            if (destAddr.isUnspecified()) {
+                EV_ERROR << "Connecting to " << destAddr << " port=" << connectPort << ": cannot resolve destination address" << endl;
+            }
+            else {
+                droneLogFile << "Connecting to " << destAddr << " port=" << connectPort << endl;
+                socket.connect(destAddr, connectPort);
+                //numSessions++;
+                emit(connectSignal, 1L);
+            }
+            droneLogFile << "Socket connecting processes started at "<< simTime() << endl;
             /*int timeToLive = par("timeToLive");
             if (timeToLive != -1)
                 socket.setTimeToLive(timeToLive);*/
@@ -61,7 +65,7 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
             //    socket.setTos(tos);
 
             // connect
-            const char *connectAddress = "10.0.0.1";
+            /*const char *connectAddress = "10.0.0.1";
             int connectPort = 1234;
 
             L3Address destination;
@@ -72,7 +76,7 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
             else {
                 droneLogFile << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
 
-                socket.setAutoRead(par("autoRead"));
+                //socket.setAutoRead(par("autoRead"));
                 socket.connect(destination, connectPort);
 
                 //numSessions++;
@@ -81,12 +85,12 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
             //socket.connect(destAddr, 1234);
             droneLogFile << "Socket connected" << endl;
             trigger2 = new cMessage("myTrigger");
-            scheduleAt(simTime() + 2.0, trigger2);
+            scheduleAt(simTime() + 2.0, trigger2);*/
 
         }
 
     }
-    else if (msg == trigger2) {
+    /*else if (msg == trigger2) {
         droneLogFile << "Sending packet" << endl;
         sendRequest();
     }
@@ -99,19 +103,17 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
         sendMessageEvent = new cMessage("sendMessage");
         scheduleAt(simTime() + 10.0, sendMessageEvent);
         //Drone_ID = getParentModule()->getParentModule()->par("Drone_ID");
-    }
+    }*/
     else {
         droneLogFile << "Received tcp msg: " << msg << endl;
-
         socket.processMessage(msg);
-
-        //delete(msg);
     }
 }
 
 void DroneTcpClient::socketEstablished(TcpSocket *socket) {
     EV << "TCP connection established, ready to send data." << endl;
-    scheduleAt(simTime() + 1, sendMessageEvent);
+    sendRequest();
+    droneLogFile << "Sending packet at "<< simTime() << endl;
 }
 
 void DroneTcpClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {

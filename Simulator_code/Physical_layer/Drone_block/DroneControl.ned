@@ -38,4 +38,5 @@ simple DroneControl {
         //output out[];
         input in;    // Incoming messages
         output out;  // Outgoing messages
+        input tcpAppIn@directIn; //direct in for incoming tcp messages
 }

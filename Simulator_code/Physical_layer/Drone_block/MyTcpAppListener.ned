@@ -24,10 +24,10 @@ simple MyTcpAppListener like IApp
     parameters:
         string localAddress = default(""); // May be left empty ("")
         int localPort = default(1234); // Port number to listen on
-        string serverConnectionModuleType = default("inet.applications.tcpapp.TcpServerSocketIo"); // Module type of "connection" module to launch on incoming connections
+        string serverConnectionModuleType = default("Physical_layer.Drone_block.CustomTcpServerConnection"); // Module type of "connection" module to launch on incoming connections
         //string serverConnectionModuleType = default("inet.applications.tcpapp.TcpRequestResponseApp");
         //string serverConnectionModuleType = default("inet.applications.tcpapp.TcpGenericServerApp");
-        bool autoRead = default(true); // Defines the autoRead setting for connection handling modules
+        //bool autoRead = default(true); // Defines the autoRead setting for connection handling modules
         @display("i=block/server");
     gates:
         input socketIn;

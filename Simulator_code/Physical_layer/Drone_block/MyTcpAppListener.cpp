@@ -31,7 +31,7 @@ void MyTcpAppListener::initialize(int stage)
 
         localAddress = par("localAddress");
         localPort = par("localPort");
-        serverSocket.setAutoRead(par("autoRead"));
+        //serverSocket.setAutoRead(par("autoRead"));
         serverSocket.setOutputGate(gate("socketOut"));
         serverSocket.setCallback(this);
         cMessage *temp = new cMessage("socketSetup");
@@ -166,6 +166,11 @@ void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *avai
     connection->gate("socketOut")->connectTo(dispatcher->gate("in", dispatcher->gateSize("in") - 1));
     dispatcher->gate("out", dispatcher->gateSize("out") - 1)->connectTo(connection->gate("socketIn"));
     auto serverSocketIo = check_and_cast<TcpServerSocketIo *>(connection->gate("socketIn")->getPathEndGate()->getOwnerModule());
+
+    //connection->setGateSize("trafficOut", 1);
+    //dispatcher->setGateSize("trafficIn", dispatcher->gateSize("trafficIn") + 1);
+    //connection->gate("trafficOut")->connectTo(dispatcher->gate("trafficIn", dispatcher->gateSize("trafficIn") - 1));
+
     serverSocketIo->acceptSocket(availableInfo);
     connectionSet.insert(serverSocketIo);
 }

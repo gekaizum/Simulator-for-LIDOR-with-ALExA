@@ -27,9 +27,10 @@ module Drone extends WirelessHost
         wlan[*].agent.typename = ""; // Higher consumption for AODV
         forwarding = true;
 
-        numApps = 2;
+        numApps = 3;
         app[0].typename = "DroneTcpApp";
         app[1].typename = "DroneTcpClient";
+        app[2].typename = "DroneUdpApp";
         //app[1].Drone_ID = parent.Drone_ID;
 
     gates:
