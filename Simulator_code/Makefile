@@ -1,13 +1,13 @@
 #
-# OMNeT++/OMNEST Makefile for Simulator_code_mark_3
+# OMNeT++/OMNEST Makefile for Simulator_code_mark_4
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep -O out -I.
+#  opp_makemake -f --deep -O out -KINET_PROJ=../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
 #
 
 # Name of target to be created (-o option)
 TARGET_DIR = .
-TARGET_NAME = Simulator_code_mark_3$(D)
+TARGET_NAME = Simulator_code_mark_4$(D)
 TARGET = $(TARGET_NAME)$(EXE_SUFFIX)
 TARGET_IMPLIB = $(TARGET_NAME)$(IMPLIB_SUFFIX)
 TARGET_IMPDEF = $(TARGET_NAME)$(IMPDEF_SUFFIX)
@@ -19,13 +19,13 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(QTENV_LIBS) $(CMDENV_LIBS)
 #USERIF_LIBS = $(QTENV_LIBS)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I.
+INCLUDE_PATH = -I. -I$(INET_PROJ)/src
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS =
+LIBS = $(LDFLAG_LIBPATH)$(INET_PROJ)/src  -lINET$(D)
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -34,21 +34,28 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cpp, .msg and .sm files
 OBJS = \
+    $O/BasicProtocol_layer/BasicProtocol.o \
+    $O/BasicProtocol_layer/BasicProtocolLogger.o \
     $O/Physical_layer/Calculation_block/BatteryConsumption.o \
     $O/Physical_layer/Calculation_block/SignalStrengthCalculation.o \
     $O/Physical_layer/Drone_block/ChargingStation.o \
-    $O/Physical_layer/Drone_block/Drone.o \
     $O/Physical_layer/Drone_block/drone_positions_c.o \
+    $O/Physical_layer/Drone_block/DroneControl.o \
+    $O/Physical_layer/Drone_block/DroneTcpApp.o \
     $O/Physical_layer/Map_block/ChargingStationManager.o \
     $O/Physical_layer/Map_block/HeightMapLoader.o \
     $O/Physical_layer/simulations/SimulationControl.o \
-    $O/Physical_layer/simulations/SimulationControlLogger.o
+    $O/Physical_layer/simulations/SimulationControlLogger.o \
+    $O/User_layer/User_layer.o
 
 # Message files
 MSGFILES =
 
 # SM files
 SMFILES =
+
+# Other makefile variables (-K)
+INET_PROJ=../inet
 
 #------------------------------------------------------------------------------
 
@@ -68,8 +75,11 @@ include $(CONFIGFILE)
 
 # Simulation kernel and user interface libraries
 OMNETPP_LIBS = $(OPPMAIN_LIB) $(USERIF_LIBS) $(KERNEL_LIBS) $(SYS_LIBS)
+ifneq ($(PLATFORM),win32)
+LIBS += -Wl,-rpath,$(abspath $(INET_PROJ)/src)
+endif
 
-COPTS = $(CFLAGS) $(IMPORT_DEFINES)  $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
+COPTS = $(CFLAGS) $(IMPORT_DEFINES) -DINET_IMPORT $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 MSGCOPTS = $(INCLUDE_PATH)
 SMCOPTS =
 

@@ -1,9 +1,6 @@
-/*
- * SignalStrengthCalculation.h
- *
- *  Created on: Jan 27, 2025
- *      Author: gekaizum
- */
+//This file and corresponding .cpp file contains functions needed to calculate signal strength.
+//All functions for different propagation models will be here.
+//If you want to add new propagation model, add also enum class, it is used in main function "calculateSignalLoss" to choose which model will be used
 
 #ifndef PHYSICAL_LAYER_CALCULATION_BLOCK_SIGNALSTRENGTHCALCULATION_H_
 #define PHYSICAL_LAYER_CALCULATION_BLOCK_SIGNALSTRENGTHCALCULATION_H_
@@ -12,8 +9,8 @@
 #include <cmath>
 #include <iostream>
 
-const double SPEED_OF_LIGHT = 3e8;  // Speed of light in m/s
-const double PI = 3.141592653589793;
+const double SPEED_OF_LIGHT_MINE = 3e8;  // Speed of light in m/s
+const double PI = 3.141592653589793; //Pi
 
 // Enum for selecting the propagation model
 enum class PropagationModel {

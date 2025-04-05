@@ -14,4 +14,5 @@ simple ChargingStation
         input socketIn[numOfSockets]; // used by drones
         output socketOut[numOfSockets]; // used by drones
         inout socketControl; //used by simulation control
+        inout basicProtocolSocket;
 }

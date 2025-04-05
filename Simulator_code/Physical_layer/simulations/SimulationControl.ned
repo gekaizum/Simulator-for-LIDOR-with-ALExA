@@ -9,5 +9,6 @@ simple SimulationControl
         int numOfChargeStation;
         int nextStationId;
     gates:
-        inout controlSocket[numOfSockets];  
+        inout controlSocket[numOfSockets];
+        inout basicProtocolSocket;
 }

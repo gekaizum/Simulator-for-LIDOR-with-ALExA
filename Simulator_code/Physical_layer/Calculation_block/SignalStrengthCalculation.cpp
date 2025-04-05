@@ -1,25 +1,18 @@
-//#include <omnetpp.h>
-//#include <cmath>
-//#include <iostream>
-//#include <vector>
-//#include <string>
-//#include <sstream>
+//This file and corresponding .h file contains functions needed to calculate signal strength.
+//All functions for different propagation models will be here.
+/*
+ * It computes signal strength based on various propagation models,
+ * including Free-Space Path Loss, Two-Ray Ground Reflection, and Knife-Edge Diffraction. It also
+ * accounts for terrain data to calculate effective obstacle heights for the Knife-Edge model.
+ */
+
 #include "SignalStrengthCalculation.h"
 
 using namespace omnetpp;
 
-/*
- * The SignalStrengthCalculation class computes signal strength based on various propagation models,
- * including Free-Space Path Loss, Two-Ray Ground Reflection, and Knife-Edge Diffraction. It also
- * accounts for terrain data to calculate effective obstacle heights for the Knife-Edge model.
- */
+// First you need to calculate signal loss using calculateSignalLoss()
+// Then received power in dBm using receivedPower()
  
- 
- // First you need to calculate signal loss using calculateSignalLoss()
- // Then received power in dBm using receivedPower()
- 
-
-
 // Function to compute received power in dBm
 double receivedPower(double transmittedPower, double gainTx, double gainRx, double pathLoss) {
     return transmittedPower + gainTx + gainRx - pathLoss;
@@ -28,7 +21,7 @@ double receivedPower(double transmittedPower, double gainTx, double gainRx, doub
 // Function to calculate Free-Space Path Loss (FSPL)
 double calculateFreeSpacePathLoss(double frequencyHz, double distanceMeters) {
     if (distanceMeters <= 0) return 0;
-    double wavelength = SPEED_OF_LIGHT / frequencyHz;
+    double wavelength = SPEED_OF_LIGHT_MINE / frequencyHz;
     return 20 * log10(distanceMeters) + 20 * log10(frequencyHz) - 147.55;  // dB
 }
 
@@ -42,7 +35,7 @@ double calculateTwoRayGroundReflection(double txHeight, double rxHeight, double 
 
 // Function to calculate Knife-Edge Diffraction
 double calculateKnifeEdgeDiffraction(double obstacleHeight, double t_to_obst, double r_to_obst, double frequencyHz) {
-	double wavelength = SPEED_OF_LIGHT/frequencyHz;
+	double wavelength = SPEED_OF_LIGHT_MINE/frequencyHz;
 	// Calculate the diffraction parameter v
     double v = (sqrt(2) * obstacleHeight) / sqrt((wavelength * (t_to_obst + r_to_obst)) / (t_to_obst * r_to_obst));
     if (v <= -0.78) return 0;   // If v <= -0.78, there is no significant attenuation

@@ -1,8 +1,12 @@
+/*
+ * This file defines function for position tracking and execution of drone movements including collision detection
+ */
+
 #include "drone_positions_c.h"
 
 // Function to update drone movement
 // Function will be used when movement command is received to update parameters only
-void update_drone_position(std::vector<Drone*>& drone_data, int drone_id, float* new_endpoint) {
+void update_drone_position(std::vector<DroneControl*>& drone_data, int drone_id, float* new_endpoint) {
 	drone_data[drone_id-1]->Destination[0] = new_endpoint[0];
 	drone_data[drone_id-1]->Destination[1] = new_endpoint[1];
 	drone_data[drone_id-1]->Destination[2] = new_endpoint[2];
@@ -13,7 +17,7 @@ void update_drone_position(std::vector<Drone*>& drone_data, int drone_id, float*
 }
 
 // Function will check and do all drones moves
-void current_drone_move(std::vector<Drone*>& drone_objects, float time_step, HeightMapLoader* Current_Map, SimulationControlLogger *SimControlLogger) {
+void current_drone_move(std::vector<DroneControl*>& drone_objects, float time_step, HeightMapLoader* Current_Map, SimulationControlLogger *SimControlLogger) {
     //SimControlLogger->logFile << "Checking the drone moves"<< endl;
     for (auto& drone : drone_objects) {//Check all existing drone objects
         if (drone->Is_Moving) {//Check only of drone is in motion
@@ -22,7 +26,7 @@ void current_drone_move(std::vector<Drone*>& drone_objects, float time_step, Hei
             if (drone->Next_Move == 1 && drone->Destination[0] != drone->Current_Position[0]) {// Motion in x axis if is isn't reached it's destination
                 SimControlLogger->logFile << "Drone " << drone->Drone_ID <<" move in x direction"<< endl;
                 float x_move = drone_objects[drone->Drone_ID-1]->x_velocity * time_step*drone->Idle_Steps[0];//distance passed during the timestep*number_of_idle_time_steps
-                if (x_move > 0.1) { //Move musr be greater than 10 cm
+                if (x_move > 0.1) { //Move must be greater than 10 cm
                     drone->Current_Position[0] += x_move;//update current position of drone
                     if(drone->x_velocity>0){ //Motion in x+ direction
                         if (drone->Current_Position[0]>drone_objects[drone->Drone_ID-1]->Destination[0]){//Drone must stop at its destination
