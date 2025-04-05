@@ -28,7 +28,7 @@ module CustomTcpServerConnection //like TcpServerConnection
         //        @display("p=200,450");
         //}
         //sink: <default("CustomPacketSink")> like IPassivePacketSink if typename != "" {
-        sink: <default("PassivePacketSink")> like IPassivePacketSink if typename != "" {
+        sink: <default("SmartPacketSink")> like IPassivePacketSink if typename != "" {
             parameters:
                 @display("p=500,150");
         }

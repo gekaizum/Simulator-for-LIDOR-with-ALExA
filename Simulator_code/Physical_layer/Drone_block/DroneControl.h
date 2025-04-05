@@ -81,11 +81,11 @@ class DroneControl : public ApplicationBase {
   protected:
     virtual void initialize(int stage) override; // Initializes the drone module
     virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
+    virtual void finish();
     // Required lifecycle methods
-    virtual void handleStartOperation(inet::LifecycleOperation *operation) override;
-    virtual void handleStopOperation(inet::LifecycleOperation *operation) override;
-    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override;
-	virtual void finish();
+    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Start operation" << endl;}
+    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Stop operation" << endl;}
+    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Crash operation" << endl;}
 
 
   public:
@@ -107,7 +107,7 @@ class DroneControl : public ApplicationBase {
 
     //TcpSocket socketTcp;
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
-    void handleSendTcp(cMessage *msg);
+    //void handleSendTcp(cMessage *msg);
     void sendTo(int target_id, const std::string& message){}  // Sends a message to a specific drone
     //void updateNetworkLinks(Drone* linkDrone, bool connected, std::string selectedProtocol);
     //void establishLink(Drone *otherDrone, std::string protocol);

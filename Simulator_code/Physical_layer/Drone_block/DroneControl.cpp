@@ -25,10 +25,10 @@ void DroneControl::initialize(int stage) {
         if (!droneLogFile.is_open()) {
             EV << "Error: Could not open log file!" << endl;
         } else {
-            droneLogFile << "Simulation started at: " << simTime() << "\n";
+            droneLogFile << simTime() << ": Simulation start" << "\n";
             droneLogFile.flush();
         }
-        droneLogFile << "Drone: Local initialization" << endl;
+        droneLogFile << simTime() << ": Drone: Local initialization" << endl;
         state = INITSTAGE_LOCAL_DRONE;                            // Set initial state
         //collision_detection_mode = true;                  // Enable collision detection
         Current_Position[0] = 0;                            // Set default position to (0, 0, 0)
@@ -57,13 +57,11 @@ void DroneControl::initialize(int stage) {
         y_velocity = par("y_velocity");
         z_velocity = par("z_velocity");
 
-        //socketTcp.setOutputGate(gate("socketOut"));
-        //socketTcp.bind(1000);
 
-        droneLogFile << "Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " initialized in INITSTAGE_LOCAL state with position (0, 0, 0)." << endl;
         this->hoveringCurrent = calculateHoveringPower(mass_of_drone+additional_mass, motor_efficiency);
-        droneLogFile << "Drone " << Drone_ID << " starting with: "<< mass_of_drone+additional_mass << " - total mass, " << motor_efficiency << " motor efficiency" << endl;
-        droneLogFile << "Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " starting with: "<< mass_of_drone+additional_mass << " - total mass, " << motor_efficiency << " motor efficiency" << endl;
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " power consumption for hovering: "<< hoveringCurrent << endl;
         //cModule *tcpAppModule = getParentModule()->getSubmodule("app", 0)->getSubmodule("droneTcpAppControl");  // or however you locate it
         //cGate *tcpAppInGate = tcpAppModule->gate("tcpAppIn");
         //cGate *tcpAppOutGate = tcpAppModule->gate("tcpAppOut");
@@ -78,7 +76,7 @@ void DroneControl::initialize(int stage) {
 
     }
     else if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-        EV << "Drone: Application initialization" << endl;
+        droneLogFile << simTime() << ": Drone: Application initialization" << endl;
         // Set up UDP/TCP sockets, start timers, etc.
     }
 }
@@ -105,14 +103,14 @@ void DroneControl::handleMessageWhenUp(cMessage *msg) {
 		}
 	}
 	else if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
-	    droneLogFile << "Drone " << getName() << " received POWER_ON command at t=" << simTime() << endl;
+	    droneLogFile << simTime() << ": Drone " << getName() << " received POWER_ON command" << endl;
         Current_Position[0] = msg->par("x").doubleValue();
         Current_Position[1] = msg->par("y").doubleValue();
         Current_Position[2] = msg->par("z").doubleValue();
         Destination[0] = Current_Position[0];
         Destination[1] = Current_Position[1];
         Destination[2] = Current_Position[2];
-        droneLogFile << "Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
         ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
         state = POWER_ON;
         power_on=true;
@@ -122,7 +120,7 @@ void DroneControl::handleMessageWhenUp(cMessage *msg) {
 }
 
 void DroneControl::handlePowerOn() {
-    droneLogFile << "Drone is powering on and waiting for TAKEOFF sequence." << endl;
+    droneLogFile << simTime() << ": Drone is powering on and waiting for TAKEOFF sequence." << endl;
     state = WAITING_FOR_TAKEOFF; // Transition to WAITING_FOR_TAKEOFF state
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
 	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
@@ -137,8 +135,16 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
         batteryCheckHelper(time_step);
         scheduleAt(simTime() + 10.0, msg); // Repeat
     }
+    else if(msg->getArrivalGate() == gate("tcpRequestIn")){
+        cModule *appModule = getParentModule()->getSubmodule("app", 1);
+        sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneTcpApp: " << msg << endl;
+    }
+    //else if(msg->getArrivalGate() == gate("tcpAppIn")){
+    //    droneLogFile << simTime() << ": Drone " << Drone_ID << " received new message via TCP: " << msg << endl;
+    //}
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
-        droneLogFile << "TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
+        droneLogFile << simTime() << ": TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
         handleMove(msg);
         batteryCheckHelper_forMove();
         in_air=true;
@@ -148,15 +154,15 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
 
     }
     else if (strcmp(msg->par("State").stringValue(), "SETACCEL") == 0){
-        droneLogFile << "SETACCEL signal received. Acceleration parameters changed." << endl;
+        droneLogFile << simTime() << ": SETACCEL signal received. Acceleration parameters changed." << endl;
         handleSetAcceleration(msg);
     }
     else if (strcmp(msg->par("State").stringValue(), "SETVEL") == 0){
-        droneLogFile << "SETVEL signal received. Velocity parameters changed." << endl;
+        droneLogFile << simTime() << ": SETVEL signal received. Velocity parameters changed." << endl;
         handleSetVelocity(msg);
     }
 	else {
-	    droneLogFile << "Wrong command. Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
+	    droneLogFile << simTime() << ": Wrong command. Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
     }
 }
 
@@ -166,6 +172,11 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 		batteryCheckHelper(time_step);
 		scheduleAt(simTime() + 10.0, msg); // Repeat
 	}
+	else if(msg->getArrivalGate() == gate("tcpRequestIn")){
+        cModule *appModule = getParentModule()->getSubmodule("app", 1);
+        sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneTcpApp: " << msg << endl;
+    }
     else if (strcmp(msg->par("State").stringValue(), "MOVE") == 0) {
         handleMove(msg);
 		Is_Moving = true;
@@ -184,29 +195,26 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
         Destination[0] = Current_Position[0];
         Destination[1] = Current_Position[1];
         Destination[2] = Current_Position[2];
-        droneLogFile << "Drone " << Drone_ID << " was stoped at: x=" << Current_Position[0] <<
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " was stoped at: x=" << Current_Position[0] <<
                 ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
     }
 	else if (strcmp(msg->par("State").stringValue(), "SETBASE") == 0){
 	    handleSetBase(msg);
     }
-	else if (strcmp(msg->par("State").stringValue(), "sendTcp") == 0){
-	    handleSendTcp(msg);
-    }
 	else {
-	    droneLogFile << "Unknown command received: " << msg << endl;
+	    droneLogFile << simTime() << ": Unknown command received: " << msg << endl;
     }
 }
 
 void DroneControl::handleReturningToBase(cMessage *msg) {
-    droneLogFile << "Drone is returning to base station." << endl;
+    droneLogFile << simTime() << ": Drone is returning to base station." << endl;
     state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
 }
 
 void DroneControl::handleNonOperational(cMessage *msg) {
-    droneLogFile << "Drone is non-operational due to collision." << endl;
-    droneLogFile << "Drone " << Drone_ID << " is non-operational due to collision. New message received and ignored." << endl;
-    droneLogFile << "Message: " << msg->getName() << endl;
+    droneLogFile << simTime() << ": Drone is non-operational due to collision." << endl;
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " is non-operational due to collision. New message received and ignored." << endl;
+    droneLogFile << simTime() << ": Message: " << msg->getName() << endl;
 }
 
 void DroneControl::finish() {
@@ -216,12 +224,12 @@ void DroneControl::finish() {
 
 /////////////additional functions///////////////////////////////////////////////////////////////////
 void DroneControl::batteryCheckHelper(int time_step){
-    droneLogFile << "Battery check event at " << simTime() << " sec." << endl;
+    droneLogFile << simTime() << ": Battery check event" << endl;
 	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
 	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
 								additional_power, hoveringCurrent, time_step); // in Joules
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
-	droneLogFile << "Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
+	droneLogFile << simTime() << ": Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
 	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
 }
 
@@ -232,57 +240,46 @@ void DroneControl::batteryCheckHelper_forMove(){
         double energyConsumption = calculateTotalCurrent(mass_of_drone+additional_mass, acceleration, total_velocity, distance); // Energy needs for move
         double remainingCapacity = updateBatteryCapacity(battery_remain_joules, energyConsumption, false, 0, 0, 0, total_velocity/acceleration); // in Joules
         battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
-        droneLogFile << "Drone " << Drone_ID << " remaining power after move: " << battery_remain << " mAh, "
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " remaining power after move: " << battery_remain << " mAh, "
             << (battery_remain/battery_capacity)*100 << "%" <<endl;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void DroneControl::handleStartOperation(inet::LifecycleOperation *operation) {
-    EV << "Drone: Start operation" << endl;
-}
-
-void DroneControl::handleStopOperation(inet::LifecycleOperation *operation) {
-    EV << "Drone: Stop operation" << endl;
-}
-
-void DroneControl::handleCrashOperation(inet::LifecycleOperation *operation) {
-    EV << "Drone: Crash operation" << endl;
-}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void DroneControl::handleSetAcceleration(cMessage *msg){
     acceleration = msg->par("acceleration").doubleValue();
-    droneLogFile << "Drone " << Drone_ID << " acceleration set to: " << acceleration << " m/sec" << endl;
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " acceleration set to: " << acceleration << " m/sec" << endl;
 }
 void DroneControl::handleSetVelocity(cMessage *msg){
     x_velocity = msg->par("x_vel").doubleValue();
     y_velocity = msg->par("y_vel").doubleValue();
     z_velocity = msg->par("z_vel").doubleValue();
-    droneLogFile << "Drone " << Drone_ID << " velocity values updated: x_velocity=" << x_velocity <<
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " velocity values updated: x_velocity=" << x_velocity <<
         ", y_velocity=" << y_velocity << ", z_velocity=" << z_velocity << endl;
 }
 void DroneControl::handleMove(cMessage *msg){
     Destination[0] = msg->par("x").doubleValue();
     Destination[1] = msg->par("y").doubleValue();
     Destination[2] = msg->par("z").doubleValue();
-    droneLogFile << "Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
     ", y=" << Destination[1] << ", z=" << Destination[2] << endl;
 }
 void DroneControl::handleSetBase(cMessage *msg){
     ChargeStationCoord[0] = msg->par("x").doubleValue();
     ChargeStationCoord[1] = msg->par("y").doubleValue();
     ChargeStationCoord[2] = msg->par("z").doubleValue();
-    droneLogFile << "Drone " << Drone_ID << " base station coordinates updated: x=" << ChargeStationCoord[0] <<
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " base station coordinates updated: x=" << ChargeStationCoord[0] <<
     ", y=" << ChargeStationCoord[1] << ", z=" << ChargeStationCoord[2] << endl;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 void DroneControl::broadcast(const std::string& message) {
-    droneLogFile << "Drone " << Drone_ID << " broadcasting message: " << message << endl;
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " broadcasting message: " << message << endl;
 
     cMessage *msg = new cMessage(message.c_str());           // Create a new message for broadcasting
     send(msg, "socketOut");                                 // Send the message via the output socket
 }
-
+/*
 void DroneControl::handleSendTcp(cMessage *msg) {
     Enter_Method("handleSendTcp");
     take(msg);
@@ -326,9 +323,9 @@ void DroneControl::handleSendTcp(cMessage *msg) {
         EV << "Invalid destination! Dropping message.\n";
         delete pkt;
         return;
-    }*/
+    }
     cModule *appModule = getParentModule()->getSubmodule("app", 0)->getSubmodule("listener");
-    //send(pkt, "socketOut",destinationGateIndex);*/
+    //send(pkt, "socketOut",destinationGateIndex);
     //sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
     droneLogFile << "Drone " << Drone_ID << " sent message to DroneTcpApp: " << msg << endl;
-}
+}*/

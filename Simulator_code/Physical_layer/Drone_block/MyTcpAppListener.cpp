@@ -56,14 +56,10 @@ void MyTcpAppListener::handleMessageWhenUp(cMessage *msg)
         droneLogFile << "Socket setup completed" << endl;
     }
     else if (msg->arrivedOn("tcpAppIn")) {
-        // External request to establish a new TCP connection
-        droneLogFile << "Control asks to open new connection" << endl;
-        //sendTcpMessage(msg);
-        // if (strcmp(msg->getName(), "sendTCP") == 0)
-        droneLogFile << "Packet sent" << endl;
+
     }
     else{
-        droneLogFile << "TCP message arrived at: "<< simTime() << " , message is: " << msg->getControlInfo() << endl;
+        droneLogFile << "TCP message arrived at: "<< simTime() << " , message is: " << msg << endl;
         //TcpServerListener::handleMessageWhenUp(msg);
         //serverSocket.processMessage(msg);
         if (serverSocket.belongsToSocket(msg)) {

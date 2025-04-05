@@ -98,7 +98,7 @@ void SmartPacketSink::consumePacket(Packet *packet)
 
     cMessage *msg = nullptr;
 
-    if (command == "setBase") {
+    if (command == "SETBASE") {
         double x, y, z;
         istringstream(paramLine) >> x >> y >> z;
         msg = new cMessage("setBase");
@@ -107,7 +107,7 @@ void SmartPacketSink::consumePacket(Packet *packet)
         msg->addPar("y") = y;
         msg->addPar("z") = z;
     }
-    else if (command == "takeOff") {
+    else if (command == "TAKEOFF") {
         double x, y, z;
         istringstream(paramLine) >> x >> y >> z;
         msg = new cMessage("takeOff");
@@ -116,11 +116,11 @@ void SmartPacketSink::consumePacket(Packet *packet)
         msg->addPar("y") = y;
         msg->addPar("z") = z;
     }
-    else if (command == "landDrone") {
+    else if (command == "LANDING") {
         msg = new cMessage("landDrone");
         msg->addPar("State") = "LANDING";
     }
-    else if (command == "moveTo") {
+    else if (command == "MOVE") {
         double x, y, z;
         istringstream(paramLine) >> x >> y >> z;
         msg = new cMessage("moveTo");
@@ -129,7 +129,7 @@ void SmartPacketSink::consumePacket(Packet *packet)
         msg->addPar("y") = y;
         msg->addPar("z") = z;
     }
-    else if (command == "setVelocity") {
+    else if (command == "SETVEL") {
         double vx, vy, vz;
         istringstream(paramLine) >> vx >> vy >> vz;
         msg = new cMessage("setVelocity");
@@ -138,18 +138,18 @@ void SmartPacketSink::consumePacket(Packet *packet)
         msg->addPar("y_vel") = vy;
         msg->addPar("z_vel") = vz;
     }
-    else if (command == "setAcceleration") {
+    else if (command == "SETACCEL") {
         double accel;
         istringstream(paramLine) >> accel;
         msg = new cMessage("setAcceleration");
         msg->addPar("State") = "SETACCEL";
         msg->addPar("acceleration") = accel;
     }
-    else if (command == "stopDrone") {
+    else if (command == "STOP") {
         msg = new cMessage("stopDrone");
         msg->addPar("State") = "STOP";
     }
-    else if (command == "powerOnDrone") {
+    else if (command == "POWER_ON") {
         double x, y, z;
         istringstream(paramLine) >> x >> y >> z;
         msg = new cMessage("powerOnDrone");
@@ -158,23 +158,23 @@ void SmartPacketSink::consumePacket(Packet *packet)
         msg->addPar("y") = y;
         msg->addPar("z") = z;
     }
-    else if (command == "powerOffDrone") {
+    else if (command == "POWER_OFF") {
         msg = new cMessage("powerOffDrone");
         msg->addPar("State") = "POWER_OFF";
     }
-    else if (command == "getStatusDrone") {
+    else if (command == "SEND_STAT") {
         msg = new cMessage("getStatusDrone");
         msg->addPar("State") = "SEND_STAT";
     }
-    else if (command == "getPositionDrone") {
+    else if (command == "SEND_POS") {
         msg = new cMessage("getPositionDrone");
         msg->addPar("State") = "SEND_POS";
     }
-    else if (command == "getAltitudeDrone") {
+    else if (command == "SEND_ALT") {
         msg = new cMessage("getAltitudeDrone");
         msg->addPar("State") = "SEND_ALT";
     }
-    else if (command == "getBatteryDrone") {
+    else if (command == "SEND_BATT") {
         msg = new cMessage("getBatteryDrone");
         msg->addPar("State") = "SEND_BATT";
     }
@@ -196,4 +196,3 @@ void SmartPacketSink::consumePacket(Packet *packet)
         dropPacket(packet, OTHER_PACKET_DROP);
     }
 }
-

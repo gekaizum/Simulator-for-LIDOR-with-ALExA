@@ -38,18 +38,19 @@ protected:
     int localPort;
     int Drone_ID;
 
-    virtual void handleStartOperation(LifecycleOperation *operation) override {}
-    virtual void handleStopOperation(LifecycleOperation *operation) override {}
-    virtual void handleCrashOperation(LifecycleOperation *operation) override {}
-    virtual void handleTimer(omnetpp::cMessage*) {}
+    virtual void handleStartOperation(LifecycleOperation *operation) override {} //not in use, but must be implemented
+    virtual void handleStopOperation(LifecycleOperation *operation) override {} //not in use, but must be implemented
+    virtual void handleCrashOperation(LifecycleOperation *operation) override {} //not in use, but must be implemented
+    virtual void handleTimer(omnetpp::cMessage*) {} //not in use, but must be implemented
 
     virtual void initialize(int stage) override;
+    virtual void finish() override;
 
     virtual void handleMessageWhenUp(cMessage *msg) override;
     virtual void socketEstablished(TcpSocket *socket) override;
     virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
     virtual void socketClosed(TcpSocket *socket) override;
-    virtual void sendRequest();
+    //virtual void sendRequest();
 
     virtual void refreshDisplay() const override;
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }

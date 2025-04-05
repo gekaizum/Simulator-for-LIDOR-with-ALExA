@@ -39,4 +39,5 @@ simple DroneControl {
         input in;    // Incoming messages
         output out;  // Outgoing messages
         input tcpAppIn@directIn; //direct in for incoming tcp messages
+        input tcpRequestIn@directIn; //direct in for request to send message via TCP
 }
