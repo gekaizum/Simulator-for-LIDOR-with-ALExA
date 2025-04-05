@@ -177,7 +177,16 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
         sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
         droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneTcpApp: " << msg << endl;
     }
+	else if (strcmp(msg->par("State").stringValue(), "SETACCEL") == 0){
+        droneLogFile << simTime() << ": SETACCEL signal received. Acceleration parameters changed." << endl;
+        handleSetAcceleration(msg);
+    }
+    else if (strcmp(msg->par("State").stringValue(), "SETVEL") == 0){
+        droneLogFile << simTime() << ": SETVEL signal received. Velocity parameters changed." << endl;
+        handleSetVelocity(msg);
+    }
     else if (strcmp(msg->par("State").stringValue(), "MOVE") == 0) {
+        Is_Moving = false;
         handleMove(msg);
 		Is_Moving = true;
 		Next_Move = 1;
@@ -219,6 +228,9 @@ void DroneControl::handleNonOperational(cMessage *msg) {
 
 void DroneControl::finish() {
 	//cancelAndDelete(batteryCheckEvent);
+    droneLogFile << simTime() << ": Finish function was called." << endl;
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " current position: x=" << Current_Position[0] <<
+                    ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
     droneLogFile.close();
 }
 

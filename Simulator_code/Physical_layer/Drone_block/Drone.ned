@@ -17,7 +17,7 @@ module Drone extends WirelessHost
         mobility.initialY = default(200m);               // Read Y from display
         mobility.initialZ = default(0m);
         mobility.initFromDisplayString = false;
-        mobility.updateFromDisplayString = false;
+        mobility.updateFromDisplayString = true;
         @display("i=device/satellite;bgb=2170,1130");
 
         bool useAODV = default(true);  // Determines if AODV should be created
