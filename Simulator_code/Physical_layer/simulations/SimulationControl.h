@@ -18,22 +18,21 @@ using namespace omnetpp;
 
 class SimulationControl : public cSimpleModule {
   private:
-    std::string heightMapFile = "heightmap.txt"; //Map will be stored here
+    std::string heightMapFile; //Map will be stored here
     int blockSize;
     int numOfChargeStation;
     int nextStationId;
     cMessage *moveEventChecker;
-    HeightMapLoader* Current_map = nullptr;
-    SimulationControlLogger* SimControlLogger = nullptr;
-    ChargingStationManager* ChargStationManager = nullptr;
-    void simControl_mainFunc();
+    HeightMapLoader* Current_map = nullptr; // pointer to map object
+    SimulationControlLogger* SimControlLogger = nullptr; // pointer to logger object
+    ChargingStationManager* ChargStationManager = nullptr; // pointer to charging stations manager object
   protected:
     virtual void initialize(); // Initializes the drone module
     virtual void handleMessage(cMessage *msg); // Handles incoming messages
     virtual void finish();
   public:
     std::vector<DroneControl*> drone_data; //List of drones needed for "drone_positions_c"
-    void height_checker(double x_pos, double y_pos, double &z_val);
+    void height_checker(double x_pos, double y_pos, double &z_val); // functions checks terrain height at point and stores it in z_val
 };
 
 Define_Module(SimulationControl);
