@@ -17,7 +17,11 @@ package User_layer;
 
 simple UserLayer
 {
+    parameters:
+        int numOfdronesSockets = default(3);
+        int numOfchargeStationSockets = default(2);
     gates:
-        input DronesIn[];  // Only an input gate to receive cMessages
-	input BaseStationsIn[];
+        inout controlSocket;
+        inout dronesSocket[numOfdronesSockets];
+        inout chargingStationSocket[numOfchargeStationSockets];   
 }
