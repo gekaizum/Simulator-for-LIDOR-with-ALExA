@@ -58,6 +58,7 @@ void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
            basicProtocolModule->set_velocity(1, 3,3, 1, 1, 1);
            basicProtocolModule->set_acceleration(1,3, 3, 1);
            basicProtocolModule->take_off(2, 1,3, 0, 0, z_val+50);      // Drone 1 takes off to 10m altitude
+           basicProtocolModule->set_base(2,2, 3,23, 23, 0);
            //delete(moveEV);
        }
         else{
