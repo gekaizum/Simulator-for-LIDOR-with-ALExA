@@ -29,9 +29,11 @@ class UserLayer : public cSimpleModule {
     protected:
       virtual void initialize(); // Initializes the drone module
       virtual void handleMessage(cMessage *msg); // The algorithm
+      virtual void finish();
  //     virtual void finish();
     public:
       cMessage *moveEV;
+      cMessage *moveEV2;
       cMessage *testMsg;
       cMessage *testMsg2;
       double z_val;

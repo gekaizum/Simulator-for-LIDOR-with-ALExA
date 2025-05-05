@@ -39,4 +39,6 @@ simple DroneControl {
         output out;  // Outgoing messages
         input tcpAppIn@directIn; //direct in for incoming tcp messages
         input tcpRequestIn@directIn; //direct in for request to send message via TCP
+        input udpRequestIn@directIn; //direct in for request to send message via UDP
+        input udpAppIn@directIn; //direct in for incoming udp messages
 }

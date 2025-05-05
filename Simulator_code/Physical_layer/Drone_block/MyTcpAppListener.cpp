@@ -7,141 +7,75 @@
 
 #include "MyTcpAppListener.h"
 #include "inet/common/ModuleAccess.h"
+#include "Physical_layer/Drone_block/CustomTcpServerSocketIo.h"
 Define_Module(MyTcpAppListener);
 
-//simsignal_t TcpAppBase::connectSignal = registerSignal("connect");
 const char *MyTcpAppListener::submoduleVectorName = "connection";
 
 void MyTcpAppListener::initialize(int stage)
 {
     ApplicationBase::initialize(stage);
-    //LifecycleOperation *operation = nullptr;
-    //TcpServerListener::handleStartOperation(operation);
     if (stage == INITSTAGE_APPLICATION_LAYER) {
-        //getParentModule()->Drone_ID;                         // Get the drone's ID from parameters
         int id = getParentModule()->getParentModule()->par("Drone_ID");
         fileName = "Drone_logs/Drone_" + std::to_string(id) + "_TcpAppLogFile.log";
         droneLogFile.open(fileName, std::ios::out);  // Create/open log file
         if (!droneLogFile.is_open()) {
             EV << "Error: Could not open log file!" << endl;
         } else {
-            droneLogFile << "Simulation started at: " << simTime() << "\n";
+            droneLogFile << simTime() << ": Simulation started" << "\n";
             droneLogFile.flush();
         }
 
         localAddress = par("localAddress");
         localPort = par("localPort");
-        //serverSocket.setAutoRead(par("autoRead"));
         serverSocket.setOutputGate(gate("socketOut"));
         serverSocket.setCallback(this);
-        cMessage *temp = new cMessage("socketSetup");
-        scheduleAt(simTime() + 1.0, temp);
         if (!getParentModule()->hasSubmoduleVector(submoduleVectorName))
             throw cRuntimeError("The submodule vector '%s' missing from %s", submoduleVectorName, getParentModule()->getFullPath().c_str());
-        droneLogFile << "Initial socket setup completed" << endl;
+        droneLogFile << simTime() << ": Initial socket setup completed" << endl;
+        cModule *host = getContainingNode(this);
+        L3Address myIP = L3AddressResolver().addressOf(host);
+        droneLogFile << simTime() << ": My IP is:" << myIP << endl;
+        serverSocket.bind(myIP, localPort); // Use ephemeral port
+        serverSocket.listen();
+        droneLogFile << simTime() << ": Socket setup completed" << endl;
     }
 }
 
 void MyTcpAppListener::handleMessageWhenUp(cMessage *msg)
 {
-    droneLogFile << "Message arrived at: "<< simTime() << endl;
+    droneLogFile << simTime() << ": Message arrived" << endl;
     if (msg->isSelfMessage()){
-        cModule *host = getContainingNode(this);
-        L3Address myIP = L3AddressResolver().addressOf(host);
-        //L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
-        droneLogFile << "My IP is:" << myIP << endl;
-        serverSocket.bind(myIP, localPort); // Use ephemeral port
-        //serverSocket.bind(localAddress[0] ? L3Address(localAddress) : L3Address(), localPort);
-        serverSocket.listen();
-        droneLogFile << "Socket setup completed" << endl;
     }
     else if (msg->arrivedOn("tcpAppIn")) {
-
+        if (strcmp(msg->par("State").stringValue(), "connectionClosed") == 0){
+            auto *conn = static_cast<CustomTcpServerSocketIo *>(msg->getContextPointer());
+            connectionClosed(conn);
+            delete(msg);
+        }
     }
     else{
-        droneLogFile << "TCP message arrived at: "<< simTime() << " , message is: " << msg << endl;
-        //TcpServerListener::handleMessageWhenUp(msg);
-        //serverSocket.processMessage(msg);
+        droneLogFile << simTime() << ": TCP message arrived"<< ", message is: " << msg << endl;
         if (serverSocket.belongsToSocket(msg)) {
-            droneLogFile << "TCP message arrived at: "<< simTime() << " belongs to this socket" << endl;
+            //droneLogFile << "TCP message arrived at: "<< simTime() << " belongs to this socket" << endl; //need for debug
             serverSocket.processMessage(msg);
         }
         else {
             throw cRuntimeError("Unknown incoming message: '%s'", msg->getName());
         }
     }
-
-    //delete msg;
 }
-/*
-void MyTcpAppListener::establishTcpConnection(const std::string &targetAddress, int targetPort)
-{
-    if (targetAddress.empty()) {
-        droneLogFile << "No target address specified, skipping TCP connection." << endl;
-        return;
-    }
-
-    droneLogFile << "Attempting to establish TCP connection to " << targetAddress << ":" << targetPort << endl;
-    serverSocket.connect(L3AddressResolver().resolve(targetAddress.c_str()), targetPort);
-}
-
-void MyTcpAppListener::sendTcpMessage(cMessage *msg)
-{
-
-    /*if (!socket.isOpen()) {
-        EV << "Socket is not connected. Ignoring message send request.\n";
-        return;
-    }
-    //std::string addrStr = msg->par("targetAddress").stringValue();
-    //inet::L3Address targetAddress = inet::L3Address(addrStr.c_str());
-    std::string targetAddress=msg->par("targetAddress").stringValue();
-    int targetPort = msg->par("targetPort").doubleValue();
-    droneLogFile << "targetPort is:" << targetPort << endl;
-    droneLogFile << "targetAddress is:" << targetAddress << endl;
-    establishTcpConnection(targetAddress, targetPort);
-
-    int msgLen = 5;//par("messageLength").intValue();
-    auto packet = new Packet("TCPData");
-    // Create a byte vector of the correct length (filled with dummy data)
-    std::vector<uint8_t> byteData(msgLen, 0);
-
-    // Create a BytesChunk from the byte vector
-    const auto& payload = makeShared<BytesChunk>(byteData);
-    packet->insertAtBack(payload);
-    droneLogFile << "Sending TCP packet to " << serverSocket.getRemoteAddress() << endl;
-    serverSocket.send(packet);
-}
-*/
-/*
-void MyTcpAppListener::socketDataArrived(TcpSocket *socket, Packet *pkt, bool urgent)
-{
-    droneLogFile << "📩 Received TCP packet from " << socket->getRemoteAddress() << endl;
-
-    // Extract message payload safely
-    auto payload = pkt->peekDataAt<BytesChunk>(B(0), pkt->getDataLength());
-    std::string receivedData(reinterpret_cast<const char*>(payload->getBytes().data()), payload->getBytes().size());
-
-    droneLogFile << "📩 Message Content: " << receivedData << endl;
-
-    // Example: Responding back (Optional)
-    auto response = new Packet("TCPResponse");
-    auto responsePayload = makeShared<BytesChunk>();  // Correct way to instantiate BytesChunk
-    std::vector<uint8_t> responseData(512, 'A');  // Create a response with 512 'A' characters
-    responsePayload->setBytes(responseData);
-    response->insertAtBack(responsePayload);
-
-    droneLogFile << "📤 Sending Acknowledgment to " << socket->getRemoteAddress() << endl;
-    socket->send(response);
-
-    // Cleanup
-    delete pkt;
-}
-*/
 
 void MyTcpAppListener::finish()
 {
-    while (!connectionSet.empty())
+    droneLogFile << simTime() << ": finish() function was called" << endl;
+    while (!connectionSet.empty()){
+        droneLogFile << simTime() << ": Connection set is not empty yet" << endl;
         removeConnection(*connectionSet.begin());
+    }
+    droneLogFile << simTime() << ": Connection set is empty" << endl;
+    serverSocket.close();
+    droneLogFile.close();
 }
 
 void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *availableInfo)
@@ -152,7 +86,6 @@ void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *avai
     int submoduleIndex = parentModule->getSubmoduleVectorSize(submoduleVectorName);
     parentModule->setSubmoduleVectorSize(submoduleVectorName, submoduleIndex + 1);
     auto connection = moduleType->create(submoduleVectorName, parentModule, submoduleIndex);
-    //EV << "We are creating: " << connection << endl;
     connection->finalizeParameters();
     connection->buildInside();
     connection->callInitialize();
@@ -161,11 +94,7 @@ void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *avai
     dispatcher->setGateSize("out", dispatcher->gateSize("out") + 1);
     connection->gate("socketOut")->connectTo(dispatcher->gate("in", dispatcher->gateSize("in") - 1));
     dispatcher->gate("out", dispatcher->gateSize("out") - 1)->connectTo(connection->gate("socketIn"));
-    auto serverSocketIo = check_and_cast<TcpServerSocketIo *>(connection->gate("socketIn")->getPathEndGate()->getOwnerModule());
-
-    //connection->setGateSize("trafficOut", 1);
-    //dispatcher->setGateSize("trafficIn", dispatcher->gateSize("trafficIn") + 1);
-    //connection->gate("trafficOut")->connectTo(dispatcher->gate("trafficIn", dispatcher->gateSize("trafficIn") - 1));
+    auto serverSocketIo = check_and_cast<CustomTcpServerSocketIo *>(connection->gate("socketIn")->getPathEndGate()->getOwnerModule()); // @suppress("Function cannot be instantiated")
 
     serverSocketIo->acceptSocket(availableInfo);
     connectionSet.insert(serverSocketIo);
@@ -177,16 +106,22 @@ void MyTcpAppListener::socketClosed(TcpSocket *socket)
         startActiveOperationExtraTimeOrFinish(par("stopOperationExtraTime"));
 }
 
-void MyTcpAppListener::removeConnection(TcpServerSocketIo *connection)
+void MyTcpAppListener::removeConnection(CustomTcpServerSocketIo *connection)
 {
     connectionSet.erase(connection);
+    cModule *sinkModule = connection->getParentModule()->getSubmodule("sink");
+    sinkModule->callFinish();     // Clean up sink
+    sinkModule->deleteModule();
     connection->deleteModule();
 }
 
-void MyTcpAppListener::connectionClosed(TcpServerSocketIo *connection)
+void MyTcpAppListener::connectionClosed(CustomTcpServerSocketIo *connection)
 {
     connectionSet.erase(connection);
-    socketClosed(connection->getSocket());
+    //socketClosed(connection->getSocket());
+    cModule *sinkModule = connection->getParentModule()->getSubmodule("sink");
+    sinkModule->callFinish();     // Clean up sink
+    sinkModule->deleteModule();
     connection->deleteModule();
 }
 

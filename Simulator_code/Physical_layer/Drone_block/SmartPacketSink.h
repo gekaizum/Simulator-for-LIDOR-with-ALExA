@@ -52,6 +52,7 @@ class INET_API SmartPacketSink : public ClockUserModuleMixin<PassivePacketSinkBa
     virtual bool canPushPacket(Packet *packet, cGate *gate) const override;
 
     virtual void pushPacket(Packet *packet, cGate *gate) override;
+    virtual void finish(){};
 };
 
 

@@ -45,7 +45,6 @@ module Drone extends WirelessHost
             parameters:
                 @display("p=890,220");
         }
-
     connections allowunconnected:
         droneControl.out --> droneControlOut;  // Connect submodule's output to Drone's output
         droneControlIn --> droneControl.in;    // Connect Drone's input to submodule's input

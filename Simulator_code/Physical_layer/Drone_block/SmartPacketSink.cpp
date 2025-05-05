@@ -187,7 +187,8 @@ void SmartPacketSink::consumePacket(Packet *packet)
         EV_INFO << "Forwarding command [" << msg->getName() << "] to droneControl\n";
         EV_INFO << "Message object: " << msg->str() << "\n";
 
-        cModule *drone = getParentModule()->getParentModule()->getParentModule();
+        //cModule *drone = getParentModule()->getParentModule()->getParentModule();
+        cModule *drone = getContainingNode(this);
         int droneIndex = drone->getIndex();
         string path = "DroneNetwork.drones[" + std::to_string(droneIndex) + "].droneControl";
         cModule *droneControl = getModuleByPath(path.c_str());

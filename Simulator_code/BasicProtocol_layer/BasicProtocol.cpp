@@ -23,6 +23,13 @@ void BasicProtocol::finish(){
     delete(moveTo);
     delete(setVelocity);
     delete(setAcceleration);
+    delete(getStatusDrone);
+    delete(getPositionDrone);
+    delete(getAltitudeDrone);
+    delete(getBatteryDrone);
+    delete(stopDrone);
+    delete(powerOnDrone);
+    delete(powerOffDrone);
 }
 void BasicProtocol::message_init(){
     //movement cMessages
@@ -87,12 +94,20 @@ bool BasicProtocol::set_base(int protocol, int drone_id_sender, int drone_id_rec
     msg->addPar("z") = z_base;
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Base station coordinates sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Base station coordinates sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Base station coordinates sent from drone with ID: " << drone_id_sender <<
-                " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -105,7 +120,7 @@ bool BasicProtocol::set_base(int protocol, int drone_id_sender, int drone_id_rec
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Base station coordinates sent from drone with ID: " << drone_id_sender <<
-                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": set_base command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -126,6 +141,14 @@ bool BasicProtocol::take_off(int protocol,int drone_id_sender, int drone_id_rece
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDP message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Take off sequence sent from drone with ID: " << drone_id_sender <<
                         " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
@@ -152,12 +175,20 @@ bool BasicProtocol::land_drone(int protocol,int drone_id_sender, int drone_id_re
     cMessage *msg = landDrone->dup();
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Landing sequence sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Landing sequence sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Landing sequence sent from drone with ID: " << drone_id_sender <<
-                                " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                                " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -170,7 +201,7 @@ bool BasicProtocol::land_drone(int protocol,int drone_id_sender, int drone_id_re
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Landing sequence sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": land_drone command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -186,12 +217,20 @@ bool BasicProtocol::move_to(int protocol,int drone_id_sender, int drone_id_recei
     msg->addPar("z") = z_dest;
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Movement command sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Movement command sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Movement command sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -204,7 +243,7 @@ bool BasicProtocol::move_to(int protocol,int drone_id_sender, int drone_id_recei
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Movement command sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": move_to command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -221,12 +260,20 @@ bool BasicProtocol::set_velocity(int protocol,int drone_id_sender, int drone_id_
     msg->addPar("z_vel") = z_vel;
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Velocity values sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Velocity values sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Velocity values sent from drone with ID: " << drone_id_sender <<
-                                                " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                                                " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -239,7 +286,7 @@ bool BasicProtocol::set_velocity(int protocol,int drone_id_sender, int drone_id_
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Velocity values sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": set_velocity command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -252,12 +299,20 @@ bool BasicProtocol::set_acceleration(int protocol,int drone_id_sender, int drone
     msg->addPar("acceleration") = acceleration;
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Acceleration value sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Acceleration value sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Acceleration value sent from drone with ID: " << drone_id_sender <<
-                                                " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                                                " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -270,7 +325,7 @@ bool BasicProtocol::set_acceleration(int protocol,int drone_id_sender, int drone
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Acceleration value sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": set_acceleration command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -285,12 +340,20 @@ bool BasicProtocol::stop_drone(int protocol,int drone_id_sender, int drone_id_re
     cMessage *msg = stopDrone->dup();
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
-        BPLogger->logFile << simTime() << ": Stop command sent to drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
+        BPLogger->logFile << simTime() << ": Stop command sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Stop command sent from drone with ID: " << drone_id_sender <<
-                                                " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
+                                                " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
         return true;
     }
     else{//TCP
@@ -303,7 +366,7 @@ bool BasicProtocol::stop_drone(int protocol,int drone_id_sender, int drone_id_re
         msg->addPar("targetPort") = connectPort;
         sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
         BPLogger->logFile << simTime() << ": Stop command sent from drone with ID: " << drone_id_sender <<
-                                        " to drone with ID: "<< drone_id_receiver << "via TCP." << endl;
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
         return true;
     }
     BPLogger->logFile << simTime() << ": stop_drone command: message passing protocol unrecognized, received: " << protocol << endl;
@@ -320,21 +383,29 @@ bool BasicProtocol::powerOn_drone(int drone_id,double x_pos, double y_pos, doubl
     controlModule->height_checker(x_pos, y_pos,heightVal);
     z_pos += heightVal;
     msg->addPar("z") = z_pos;
-
     send(msg, "dronesSocket$o",drone_id-1);
-    BPLogger->logFile << "Power on drone with ID: "<< drone_id << "via cMessages." << endl;
+    BPLogger->logFile << "Power on drone with ID: "<< drone_id << " via cMessages." << endl;
     return true;
 }
 bool BasicProtocol::powerOff_drone(int protocol,int drone_id_sender, int drone_id_receiver){
     BPLogger->logFile << simTime() << ": powerOff_drone command received" << endl;
     Enter_Method("powerOff_drone");
     cMessage *msg = powerOffDrone->dup();
+    //delete(powerOffDrone);
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
         BPLogger->logFile << simTime() << ": Power off drone with ID: "<< drone_id_receiver << "via cMessages." << endl;
         return true;
     }
     else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDO message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
         BPLogger->logFile << simTime() << ": Power off drone command sent from drone with ID: " << drone_id_sender <<
                                                 " to drone with ID: "<< drone_id_receiver << "via UDP." << endl;
         return true;

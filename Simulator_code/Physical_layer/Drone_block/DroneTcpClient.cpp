@@ -15,19 +15,16 @@ void DroneTcpClient::initialize(int stage) {
     if (stage == INITSTAGE_APPLICATION_LAYER) {
         localAddress = par("localAddress");
         localPort = par("localPort");
-        //autoRead = par("autoRead");
+        nextUnusedLPort = localPort;
         socket.setOutputGate(gate("socketOut"));
         socket.setCallback(this);
-        int localPort = par("localPort");
         L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
         socket.bind(myIP, localPort);
-        //sendMessageEvent = new cMessage("myTrigger");
-        //scheduleAt(simTime() + 5.0, sendMessageEvent);
         Drone_ID = getParentModule()->par("Drone_ID");
         fileName = "Drone_logs/Drone_" + std::to_string(Drone_ID) + "_TcpClientLogFile.log";
         droneLogFile.open(fileName, std::ios::out);  // Create/open log file
-        droneLogFile << "Bindport is: " << localPort << endl;
-        droneLogFile << "BindAddress is: " << myIP << endl;
+        droneLogFile << simTime() << ": Bindport is: " << localPort << endl;
+        droneLogFile << simTime() << ": BindAddress is: " << myIP << endl;
 
     }
 }
@@ -42,12 +39,13 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
             EV_ERROR << "Connecting to " << msg->par("targetAddress") << " port=" << connectPort << ": cannot resolve destination address" << endl;
         }
         else {
-            droneLogFile << "Connecting to " << destination << "(" << destination << ") port=" << connectPort << endl;
+            droneLogFile << simTime() << ": Connecting to " << destination << "(" << destination << ") port=" << connectPort << endl;
             socket.connect(destination, connectPort);
             msg->removeObject("targetAddress");
             msg->removeObject("targetPort");
             sendMessageEvent = msg->dup();
         }
+        delete(msg);
     }
     else if (msg == sendMessageEvent){
         droneLogFile << simTime() << ": Sending data to server." << endl;
@@ -75,9 +73,8 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
         close();
         droneLogFile << simTime() << ": Sending packet"<< endl;
     }
-    //L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
     else {
-        droneLogFile << "Received tcp msg: " << msg << endl;
+        droneLogFile << simTime() << ": Received tcp msg: " << msg << endl;
         socket.processMessage(msg);
     }
 }
@@ -95,18 +92,7 @@ void DroneTcpClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
 void DroneTcpClient::socketClosed(TcpSocket *socket) {
     EV << "Connection closed by server." << endl;
 }
-/*
-void DroneTcpClient::sendRequest() {
-    droneLogFile << "Sending data to server." << endl;
-    auto packet = new Packet("DroneData");
-    auto payload = makeShared<ByteCountChunk>();
-    payload->setLength(B(100));  // Set non-empty payload
 
-    packet->insertAtBack(payload);  // Attach payload to the packet
-    socket.send(packet);
-    //scheduleAt(simTime() + uniform(1, 5), sendMessageEvent);
-}
-*/
 DroneTcpClient::~DroneTcpClient() {
     //cancelAndDelete(sendMessageEvent);
 }
@@ -116,9 +102,10 @@ void DroneTcpClient::connect()
 {
     // we need a new connId if this is not the first connection
     socket.renewSocket();
-    const char *localAddress = par("localAddress");
-    int localPort = par("localPort");
-    socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
+    //const char *localAddress = par("localAddress");
+    //int localPort = par("localPort");
+    socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), nextUnusedLPort);
+    nextUnusedLPort = nextUnusedLPort +1;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void DroneTcpClient::close() //Close the connection if not in use anymore
@@ -164,8 +151,10 @@ void DroneTcpClient::socketFailure(TcpSocket *, int code)
 
 void DroneTcpClient::finish()
 {
+    droneLogFile << simTime() << ": finish() function was called" << endl;
     std::string modulePath = getFullPath();
-
+    socket.close();
+    droneLogFile.close();
     //EV_INFO << modulePath << ": opened " << numSessions << " sessions\n";
     //EV_INFO << modulePath << ": sent " << bytesSent << " bytes in " << packetsSent << " packets\n";
     //EV_INFO << modulePath << ": received " << bytesRcvd << " bytes in " << packetsRcvd << " packets\n";

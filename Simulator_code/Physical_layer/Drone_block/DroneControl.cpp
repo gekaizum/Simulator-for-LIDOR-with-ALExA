@@ -111,9 +111,9 @@ void DroneControl::handlePowerOn() {
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
 	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
     scheduleAt(simTime() + 10.0, batteryCheckEvent);
-    nonOperationalEvent = new cMessage("nonOperationalEvent");
-    nonOperationalEvent->addPar("State") = "NON_OPERATIONAL";
-    scheduleAt(simTime() + 1.0, nonOperationalEvent);
+    //nonOperationalEvent = new cMessage("nonOperationalEvent");
+    //nonOperationalEvent->addPar("State") = "NON_OPERATIONAL";
+    //scheduleAt(simTime() + 1.0, nonOperationalEvent);
 }
 
 void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
@@ -126,6 +126,11 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
         cModule *appModule = getParentModule()->getSubmodule("app", 1);
         sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
         droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneTcpApp: " << msg << endl;
+    }
+    else if(msg->getArrivalGate() == gate("udpRequestIn")){
+        cModule *appModule = getParentModule()->getSubmodule("app", 2);
+        sendDirect(msg, appModule,"udpAppIn");                                 // Send the message via the output socket
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneUdpApp: " << msg << endl;
     }
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
         droneLogFile << simTime() << ": TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
@@ -163,6 +168,11 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
         cModule *appModule = getParentModule()->getSubmodule("app", 1);
         sendDirect(msg, appModule,"tcpAppIn");                                 // Send the message via the output socket
         droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneTcpApp: " << msg << endl;
+    }
+	else if(msg->getArrivalGate() == gate("udpRequestIn")){
+        cModule *appModule = getParentModule()->getSubmodule("app", 2);
+        sendDirect(msg, appModule,"udpAppIn");                                 // Send the message via the output socket
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " send message via DroneUdpApp: " << msg << endl;
     }
 	else if (strcmp(msg->par("State").stringValue(), "SETACCEL") == 0){
         droneLogFile << simTime() << ": SETACCEL signal received. Acceleration parameters changed." << endl;
@@ -214,7 +224,7 @@ void DroneControl::handleNonOperational(cMessage *msg) {
     if (non_operational == true && state != NON_OPERATIONAL) {
         state = NON_OPERATIONAL;
         droneLogFile << simTime() << ": Drone" << Drone_ID << " is non-operational due to collision. State was changed to: NON_OPERATIONAL" << endl;
-        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0) << endl;
+        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") << endl;
         for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getNumParams(); ++i) {
                 cPar& par = getParentModule()->getSubmodule("wlan",0)->par(i);
             droneLogFile << "Parameter: " << par.getFullName() << " = " << par.str() << endl;
