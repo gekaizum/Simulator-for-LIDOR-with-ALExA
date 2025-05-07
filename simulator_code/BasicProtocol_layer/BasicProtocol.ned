@@ -20,6 +20,9 @@ simple BasicProtocol
     parameters:
         int numOfdronesSockets;
         int numOfchargeStationSockets;
+        int localPort = default(1235); // Port number to listen on (TCP)
+        int connectPort = default(1234); // Port number to connect to (TCP)
+        int udpPort = default(5001); // Port number for UDP connections/bind
     gates:
         inout controlSocket;
         inout dronesSocket[numOfdronesSockets];

@@ -1,8 +1,15 @@
-Simulation started at: 0
-Drone: Local initialization
-Drone 3 initialized in INITSTAGE_LOCAL state with position (0, 0, 0).
-Drone 3 starting with: 1.5 - total mass, 0.6 motor efficiency
-Drone 3 power consumption for hovering: 24.525
-Drone droneControl received POWER_ON command at t=2
-Drone 3 initial coordinates updated: x=20, y=20, z=88
-Drone is powering on and waiting for TAKEOFF sequence.
+0: Simulation start
+0: Drone: Local initialization
+0: Drone 3 initialized in INITSTAGE_LOCAL state with position (0, 0, 0).
+0: Drone 3 starting with: 1.5 - total mass, 0.6 motor efficiency
+0: Drone 3 power consumption for hovering: 24.525
+Drone: Start operation
+0: Drone: Application initialization
+2: Drone droneControl received POWER_ON command
+2: Drone 3 initial coordinates updated: x=0, y=0, z=372
+2: Drone is powering on and waiting for TAKEOFF sequence.
+3: Wrong command. Waiting for TAKEOFF signal. Received: nonOperationalEvent
+12: Battery check event
+12: Drone 3 remaining power: 7995.29 mAh, 99.9411%
+21: Finish function was called.
+21: Drone 3 current position: x=0, y=0, z=372

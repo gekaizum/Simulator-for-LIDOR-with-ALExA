@@ -49,6 +49,7 @@ class BasicProtocol : public cSimpleModule {
     virtual void handleMessage(cMessage *msg); // Handles incoming messages
     virtual void finish();
   public:
+    int connectPort;
     // int protocol:
     /*
      *    1. None - command from user algorithm, will be done using cMessages
@@ -60,16 +61,16 @@ class BasicProtocol : public cSimpleModule {
     /////////////////////////////
     /**/
     //Updates the base station coordinates of chosen drone
-    bool set_base(int protocol,int drone_id,double x_base, double y_base, double z_base);
+    bool set_base(int protocol,int drone_id_sender, int drone_id_receiver,double x_base, double y_base, double z_base);
     /**/
     //Drone take off sequence. You need to set up velocity and acceleration before or default values will be used
-    bool take_off(int protocol,int drone_id,double x_dest, double y_dest, double z_dest);
+    bool take_off(int protocol,int drone_id_sender, int drone_id_receiver,double x_dest, double y_dest, double z_dest);
     /**/
     // Landing on ground - movement on z-direction, after landing TAKEOFF sequence need to bee implemented again
-    bool land_drone(int protocol,int drone_id);
+    bool land_drone(int protocol,int drone_id_sender, int drone_id_receiver);
     /**/
     //Drone movement command. You need to set up velocity and acceleration before or default values will be used
-    bool move_to(int protocol,int drone_id,double x_dest, double y_dest, double z_dest);
+    bool move_to(int protocol,int drone_id_sender, int drone_id_receiver,double x_dest, double y_dest, double z_dest);
     /**/
     //not in use in current simulator version
     bool hover();
@@ -78,10 +79,10 @@ class BasicProtocol : public cSimpleModule {
     bool rotate();
     /**/
     //Set velocity parameters for next move of drone
-    bool set_velocity(int protocol,int drone_id,double x_vel, double y_vel, double z_vel);
+    bool set_velocity(int protocol,int drone_id_sender, int drone_id_receiver,double x_vel, double y_vel, double z_vel);
     /**/
     //Set acceleration parameters for next move of drone
-    bool set_acceleration(int protocol,int drone_id,double acceleration);
+    bool set_acceleration(int protocol,int drone_id_sender, int drone_id_receiver,double acceleration);
     /**/
     //not in use in current simulator version
     bool return_to_base();//not in use in current simulator version
@@ -91,7 +92,7 @@ class BasicProtocol : public cSimpleModule {
     /////////////////////////////
     /**/
     // Stops any drone movements, drone continue hovering
-    bool stop_drone(int protocol,int drone_id);
+    bool stop_drone(int protocol,int drone_id_sender, int drone_id_receiver);
     /**/
     //not in use in current simulator version
     bool calibrate_drone();
@@ -103,7 +104,7 @@ class BasicProtocol : public cSimpleModule {
     bool powerOn_drone(int drone_id, double x_pos, double y_pos, double z_pos);
     /**/
     //Deactivates drone, cannot respond to any command except power on
-    bool powerOff_drone(int protocol,int drone_id);
+    bool powerOff_drone(int protocol,int drone_id_sender, int drone_id_receiver);
     /**/
     /////////////////////////////
     //Sensor, data and monitoring
@@ -129,11 +130,7 @@ class BasicProtocol : public cSimpleModule {
     //not in use in current simulator version
     bool getDrone_SensorData();
     /**/
-    /////////////////////////////
-    //Connection
-    /////////////////////////////
-    /**/
-    bool sendMsgTCP(int drone_id_sender, int drone_id_receiver);
+    void height_checker(double x_pos, double y_pos, double &z_val);
 };
 
 Define_Module(BasicProtocol);
