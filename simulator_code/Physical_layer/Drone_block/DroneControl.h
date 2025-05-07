@@ -12,13 +12,18 @@
 #include <cmath>
 #include <fstream>
 #include "inet/common/INETDefs.h"
-//#include "inet/mobility/static/StationaryMobility.h"
+
 #include "inet/applications/base/ApplicationBase.h"
 #include "../Calculation_block/BatteryConsumption.h"
 #include "../Calculation_block/SignalStrengthCalculation.h"
 
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
+
+#include "inet/networklayer/common/InterfaceTable.h"
+//#include "inet/networklayer/common/NetworkInterface.h"
+#include "inet/common/ModuleAccess.h"
+
 
 using namespace omnetpp;
 using namespace inet;
@@ -31,7 +36,6 @@ enum DroneState {
     RETURNING_TO_BASE,      // Drone is returning to its base station
     NON_OPERATIONAL,        // Drone is non-operational (e.g., due to collision)
     INITSTAGE_LOCAL_DRONE,	    // Init stage before POWER_ON
-    //TEMP_SEND_MSG         // Temporary for debug use only
 };
 
 class DroneControl : public ApplicationBase {
@@ -57,8 +61,8 @@ class DroneControl : public ApplicationBase {
     DroneState state;						// Current state of the drone for FSM
 
 	bool in_air = false;
-    //bool collision_detection_mode;		// Whether collision detection is active
 
+	double time_step; //frequency of battery check event
     // State handling functions
     void handlePowerOn();
     void handleWaitingForTakeoff(cMessage *msg);
@@ -71,26 +75,27 @@ class DroneControl : public ApplicationBase {
     void handleSetVelocity(cMessage *msg);
     void handleMove(cMessage *msg);
     void handleSetBase(cMessage *msg);
-    //void handleSendTcp(cMessage *msg);
+
     // Helper functions
 	void batteryCheckHelper(int time_step);
 	void batteryCheckHelper_forMove();
 
 	//Periodical events for drone
 	cMessage *batteryCheckEvent;
+	cMessage *nonOperationalEvent;
   protected:
     virtual void initialize(int stage) override; // Initializes the drone module
     virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
-    // Required lifecycle methods
-    virtual void handleStartOperation(inet::LifecycleOperation *operation) override;
-    virtual void handleStopOperation(inet::LifecycleOperation *operation) override;
-    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override;
-	virtual void finish();
+    virtual void finish();
+    // Required lifecycle methods - not in use, but need to be implemented
+    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Start operation" << endl;}
+    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Stop operation" << endl;}
+    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Crash operation" << endl;}
 
 
   public:
 	int Drone_ID;				// Unique identifier for the drone
-	double battery_remain;                  // Remaining battery capacity in mAh
+	double battery_remain;      // Remaining battery capacity in mAh
 	bool power_on = false;
 	double acceleration;
     double x_velocity;
@@ -105,13 +110,6 @@ class DroneControl : public ApplicationBase {
     uint8_t Next_Move;
     double ChargeStationCoord[3];
 
-    //TcpSocket socketTcp;
-    void broadcast(const std::string& message);              // Broadcasts a message to all drones
-    void handleSendTcp(cMessage *msg);
-    void sendTo(int target_id, const std::string& message){}  // Sends a message to a specific drone
-    //void updateNetworkLinks(Drone* linkDrone, bool connected, std::string selectedProtocol);
-    //void establishLink(Drone *otherDrone, std::string protocol);
-    //void disconnect(Drone *otherDrone);
     std::ofstream droneLogFile; // logger for drone
     std::string fileName;
 };

@@ -21,8 +21,8 @@ void DroneTcpClient::initialize(int stage) {
         int localPort = par("localPort");
         L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
         socket.bind(myIP, localPort);
-        sendMessageEvent = new cMessage("myTrigger");
-        scheduleAt(simTime() + 5.0, sendMessageEvent);
+        //sendMessageEvent = new cMessage("myTrigger");
+        //scheduleAt(simTime() + 5.0, sendMessageEvent);
         Drone_ID = getParentModule()->par("Drone_ID");
         fileName = "Drone_logs/Drone_" + std::to_string(Drone_ID) + "_TcpClientLogFile.log";
         droneLogFile.open(fileName, std::ios::out);  // Create/open log file
@@ -33,77 +33,49 @@ void DroneTcpClient::initialize(int stage) {
 }
 
 void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
-
-    if (msg == sendMessageEvent) {
-        if(Drone_ID == 2 ){
-            L3Address destAddr = L3AddressResolver().resolve("drones[0]");
-            int connectPort = 1234;
-            droneLogFile << "TargetPort is: " << 1234 << " .Time: " << simTime() << endl;
-            droneLogFile << "TargetAddress is: " << destAddr << " .Time: " << simTime() << endl;
-            if (destAddr.isUnspecified()) {
-                EV_ERROR << "Connecting to " << destAddr << " port=" << connectPort << ": cannot resolve destination address" << endl;
-            }
-            else {
-                droneLogFile << "Connecting to " << destAddr << " port=" << connectPort << endl;
-                socket.connect(destAddr, connectPort);
-                //numSessions++;
-                emit(connectSignal, 1L);
-            }
-            droneLogFile << "Socket connecting processes started at "<< simTime() << endl;
-            /*int timeToLive = par("timeToLive");
-            if (timeToLive != -1)
-                socket.setTimeToLive(timeToLive);*/
-
-            //int dscp = par("dscp");
-            //int dscp = 0;
-            //if (dscp != -1)
-                //socket.setDscp(dscp);
-
-            //int tos = par("tos");
-            //int tos = 0;
-            //if (tos != -1)
-            //    socket.setTos(tos);
-
-            // connect
-            /*const char *connectAddress = "10.0.0.1";
-            int connectPort = 1234;
-
-            L3Address destination;
-            L3AddressResolver().tryResolve(connectAddress, destination);
-            if (destination.isUnspecified()) {
-                EV_ERROR << "Connecting to " << connectAddress << " port=" << connectPort << ": cannot resolve destination address" << endl;
-            }
-            else {
-                droneLogFile << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
-
-                //socket.setAutoRead(par("autoRead"));
-                socket.connect(destination, connectPort);
-
-                //numSessions++;
-                emit(connectSignal, 1L);
-            }
-            //socket.connect(destAddr, 1234);
-            droneLogFile << "Socket connected" << endl;
-            trigger2 = new cMessage("myTrigger");
-            scheduleAt(simTime() + 2.0, trigger2);*/
-
+    if(msg->getArrivalGate() == gate("tcpAppIn")){
+        connect(); //renew socket
+        L3Address destination;
+        int connectPort = msg->par("targetPort");
+        L3AddressResolver().tryResolve(msg->par("targetAddress"), destination);
+        if (destination.isUnspecified()) {
+            EV_ERROR << "Connecting to " << msg->par("targetAddress") << " port=" << connectPort << ": cannot resolve destination address" << endl;
         }
+        else {
+            droneLogFile << "Connecting to " << destination << "(" << destination << ") port=" << connectPort << endl;
+            socket.connect(destination, connectPort);
+            msg->removeObject("targetAddress");
+            msg->removeObject("targetPort");
+            sendMessageEvent = msg->dup();
+        }
+    }
+    else if (msg == sendMessageEvent){
+        droneLogFile << simTime() << ": Sending data to server." << endl;
+        std::ostringstream oss;
 
+        int n = (msg->getParListPtr())->size();
+        for (int i = 0; i < n; ++i) {
+            auto param = msg->par(i);
+            switch (param.getType()) {
+                case cPar::BOOL:    oss << (param.boolValue() ? "true" : "false"); break;
+                case cPar::DOUBLE:  oss << param.doubleValue(); break;
+                case cPar::STRING:  oss << param.stringValue(); break;
+                default:            oss << "[unknown]"; break;
+            }
+            if (i != n - 1) oss << " ";
+        }
+        std::string strData = oss.str();              // standard string
+        const char* data = strdup(strData.c_str());   // C-style string (heap allocated)
+        droneLogFile << simTime() << ": Data is: " << data << endl;
+        auto payload = makeShared<BytesChunk>(std::vector<uint8_t>(data, data + strlen(data)));
+        auto packet = new Packet("DroneData");
+        packet->insertAtBack(payload);  // Attach payload to the packet
+        socket.send(packet);
+        cancelAndDelete(sendMessageEvent);
+        close();
+        droneLogFile << simTime() << ": Sending packet"<< endl;
     }
-    /*else if (msg == trigger2) {
-        droneLogFile << "Sending packet" << endl;
-        sendRequest();
-    }
-    else if (msg -> isSelfMessage()){
-        L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
-        droneLogFile << "My IP is:" << myIP << endl;
-        droneLogFile << "Tcp client port:" << localPort << endl;
-        socket.bind(myIP, localPort); // Use ephemeral port
-        delete(msg);
-        sendMessageEvent = new cMessage("sendMessage");
-        scheduleAt(simTime() + 10.0, sendMessageEvent);
-        //Drone_ID = getParentModule()->getParentModule()->par("Drone_ID");
-    }*/
+    //L3Address myIP = L3AddressResolver().resolve(getParentModule()->getFullPath().c_str());
     else {
         droneLogFile << "Received tcp msg: " << msg << endl;
         socket.processMessage(msg);
@@ -111,9 +83,8 @@ void DroneTcpClient::handleMessageWhenUp(cMessage *msg) {
 }
 
 void DroneTcpClient::socketEstablished(TcpSocket *socket) {
-    EV << "TCP connection established, ready to send data." << endl;
-    sendRequest();
-    droneLogFile << "Sending packet at "<< simTime() << endl;
+    droneLogFile << simTime() << ": TCP connection established, ready to send data." << endl;
+    scheduleAt(simTime(), sendMessageEvent);
 }
 
 void DroneTcpClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
@@ -124,7 +95,7 @@ void DroneTcpClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
 void DroneTcpClient::socketClosed(TcpSocket *socket) {
     EV << "Connection closed by server." << endl;
 }
-
+/*
 void DroneTcpClient::sendRequest() {
     droneLogFile << "Sending data to server." << endl;
     auto packet = new Packet("DroneData");
@@ -135,66 +106,33 @@ void DroneTcpClient::sendRequest() {
     socket.send(packet);
     //scheduleAt(simTime() + uniform(1, 5), sendMessageEvent);
 }
-
+*/
 DroneTcpClient::~DroneTcpClient() {
-    cancelAndDelete(sendMessageEvent);
+    //cancelAndDelete(sendMessageEvent);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//After each connection socket need to be "renewed" - so we will use inherited function connect() to do that
 void DroneTcpClient::connect()
 {
     // we need a new connId if this is not the first connection
-    /*socket.renewSocket();
-
+    socket.renewSocket();
     const char *localAddress = par("localAddress");
     int localPort = par("localPort");
     socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
-
-    int timeToLive = par("timeToLive");
-    if (timeToLive != -1)
-        socket.setTimeToLive(timeToLive);
-
-    int dscp = par("dscp");
-    if (dscp != -1)
-        socket.setDscp(dscp);
-
-    int tos = par("tos");
-    if (tos != -1)
-        socket.setTos(tos);
-
-    // connect
-    const char *connectAddress = par("connectAddress");
-    int connectPort = par("connectPort");
-
-    L3Address destination;
-    L3AddressResolver().tryResolve(connectAddress, destination);
-    if (destination.isUnspecified()) {
-        EV_ERROR << "Connecting to " << connectAddress << " port=" << connectPort << ": cannot resolve destination address\n";
-    }
-    else {
-        EV_INFO << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
-
-        socket.setAutoRead(par("autoRead"));
-        socket.connect(destination, connectPort);
-
-        //numSessions++;
-        //emit(connectSignal, 1L);
-    }*/
 }
-
-void DroneTcpClient::close()
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void DroneTcpClient::close() //Close the connection if not in use anymore
 {
     EV_INFO << "issuing CLOSE command\n";
     socket.close();
     //emit(connectSignal, -1L);
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void DroneTcpClient::sendPacket(Packet *msg)
 {
     int numBytes = msg->getByteLength();
     emit(packetSentSignal, msg);
     socket.send(msg);
-
     //packetsSent++;
     //bytesSent += numBytes;
 }
@@ -223,14 +161,14 @@ void DroneTcpClient::socketFailure(TcpSocket *, int code)
     //numBroken++;
 }
 
-/*
-void TcpAppBase::finish()
+
+void DroneTcpClient::finish()
 {
     std::string modulePath = getFullPath();
 
-    EV_INFO << modulePath << ": opened " << numSessions << " sessions\n";
-    EV_INFO << modulePath << ": sent " << bytesSent << " bytes in " << packetsSent << " packets\n";
-    EV_INFO << modulePath << ": received " << bytesRcvd << " bytes in " << packetsRcvd << " packets\n";
+    //EV_INFO << modulePath << ": opened " << numSessions << " sessions\n";
+    //EV_INFO << modulePath << ": sent " << bytesSent << " bytes in " << packetsSent << " packets\n";
+    //EV_INFO << modulePath << ": received " << bytesRcvd << " bytes in " << packetsRcvd << " packets\n";
 }
-*/
+
 

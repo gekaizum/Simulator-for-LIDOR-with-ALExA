@@ -9,12 +9,10 @@ simple DroneControl {
         
         int Drone_ID;
         
-        int number_of_rotors = 4;
+        int number_of_rotors = default(4);
         double motor_efficiency = default(0.6);
         double mass_of_drone @unit(kg) = default(1.5kg);
-        //double mass_of_drone = default(1.5);
         double additional_mass @unit(kg) = default(0kg);
-        //double additional_mass = default(0);
         double frequencyHz @unit(Hz) = default(24000Hz);
         double antena_power @unit(J) = default(0.5J);
         double sensor_power @unit(J) = default(0.7J);
@@ -28,6 +26,7 @@ simple DroneControl {
     	double x_velocity @unit(ms) = default(0ms);
     	double y_velocity @unit(ms) = default(0ms);
     	double z_velocity @unit(ms) = default(0ms);
+    	double time_step = default(10); //frequency of battery check event
     gates:
         input socketIn;
         output socketOut;
@@ -39,4 +38,5 @@ simple DroneControl {
         input in;    // Incoming messages
         output out;  // Outgoing messages
         input tcpAppIn@directIn; //direct in for incoming tcp messages
+        input tcpRequestIn@directIn; //direct in for request to send message via TCP
 }

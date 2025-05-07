@@ -31,8 +31,12 @@ class UserLayer : public cSimpleModule {
       virtual void handleMessage(cMessage *msg); // The algorithm
  //     virtual void finish();
     public:
+      cMessage *moveEV;
+      cMessage *testMsg;
+      cMessage *testMsg2;
+      double z_val;
 };
-Define_Module(UserLayer);
+
 #endif /* USER_LAYER_USER_LAYER_H_ */
 
 

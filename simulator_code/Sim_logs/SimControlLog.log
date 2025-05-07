@@ -1,13 +1,30 @@
 Simulation started at: 0
-Simulation control online
-New map created
-Drone 1: start at height: 110
-Drone Objects (3):
-Drone ID: 1
-Drone ID: 2
-Drone ID: 3
-POWER_ON signal sent to drone 1
-Drone 2: start at height: 125
-POWER_ON signal sent to drone 2
-Drone 3: start at height: 88
-POWER_ON signal sent to drone 3
+0: Simulation control online
+0: New map created
+0: Drone Objects (3):
+0: Drone ID: 1
+0: Drone ID: 2
+0: Drone ID: 3
+4: Drone 1 in motion
+4: Drone 1 move in z direction
+6: Drone 1 in motion
+6: Drone 1 move in z direction
+8: Drone 1 in motion
+8: Drone 1 move in z direction
+10: Drone 1 in motion
+10: Drone 1 move in z direction
+12: Drone 1 in motion
+12: Drone 1 move in z direction
+14: Drone 1 in motion
+14: Drone 1 move in x direction
+14: Drone 1 move in y direction
+14: Drone 1 move in z direction
+16: Drone 1 in motion
+16: Drone 1 move in x direction
+16: Drone 1 move in y direction
+18: Drone 1 in motion
+18: Drone 1 move in x direction
+18: Drone 1 move in y direction
+20: Drone 1 in motion
+20: Drone 1 move in x direction
+20: Drone 1 move in y direction
