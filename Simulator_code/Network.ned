@@ -21,7 +21,8 @@ network DroneNetwork
     parameters:
         int numChargeStation = default(2);
         int numDrones = default(3);
-        @display("bgb=1090,540");
+        //@display("bgb=1090,540;bgi=samples/Simulator_code_mark_4/photorealistic_heightmap.png,s;bgg=1000,2,grey95;bgu=m");
+        @display("bgb=1090,540;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
     submodules:
         radioMedium: Ieee80211RadioMedium {
             @display("p=810,20");
@@ -40,7 +41,7 @@ network DroneNetwork
             parameters:
                 Drone_ID = index + 1;
                 useAODV = default(true);
-                @display("p=110,250");
+                @display("p=110,250;i=contrastDrone;b=1,1,rect");
         }
         simControl: SimulationControl {
             parameters:
