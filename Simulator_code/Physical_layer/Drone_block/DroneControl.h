@@ -21,7 +21,6 @@
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
 
 #include "inet/networklayer/common/InterfaceTable.h"
-//#include "inet/networklayer/common/NetworkInterface.h"
 #include "inet/common/ModuleAccess.h"
 
 

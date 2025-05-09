@@ -11,13 +11,12 @@ module Drone extends WirelessHost
 {
     parameters:
         int Drone_ID;
-        mobility.typename = "StationaryMobility";  // Force stationary behavior
-        mobility.initialX = default(200m + Drone_ID * 100m);  // Read X from display
-        mobility.initialY = default(200m);               // Read Y from display
+        mobility.typename = "PublicStationaryMobility";  // Force stationary behavior
+        mobility.initialX = default(Drone_ID * 10m);  // Read X from display
+        mobility.initialY = default(0m);               // Read Y from display
         mobility.initialZ = default(0m);
         mobility.initFromDisplayString = false;
         mobility.updateFromDisplayString = true;
-        @display("i=device/satellite;bgb=2170,1130");
 
         bool useAODV = default(true);  // Determines if AODV should be created
         bool useAdhocHost = default(true);  // Determines if AODV should be created
