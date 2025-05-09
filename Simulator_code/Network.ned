@@ -9,6 +9,8 @@ import User_layer.UserLayer;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
+
+import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 //channel DataLinkChannel extends ned.DatarateChannel {
 //    datarate = 54Mbps;  // Default to WiFi speed
 //    delay = 2ms;
@@ -19,7 +21,8 @@ network DroneNetwork
     parameters:
         int numChargeStation = default(2);
         int numDrones = default(3);
-        @display("bgb=1090,540");
+        //@display("bgb=1090,540;bgi=samples/Simulator_code_mark_4/photorealistic_heightmap.png,s;bgg=1000,2,grey95;bgu=m");
+        @display("bgb=1090,540;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
     submodules:
         radioMedium: Ieee80211RadioMedium {
             @display("p=810,20");
@@ -37,7 +40,8 @@ network DroneNetwork
         drones[numDrones]: Drone {
             parameters:
                 Drone_ID = index + 1;
-                @display("p=110,250");
+                useAODV = default(true);
+                @display("p=110,250;i=contrastDrone;b=1,1,rect");
         }
         simControl: SimulationControl {
             parameters:
@@ -46,6 +50,7 @@ network DroneNetwork
                 numOfSockets = parent.numDrones;
                 numOfChargeStation = parent.numChargeStation;
                 nextStationId = numOfChargeStation + numDrones;
+                heightMapFile = default("heightmap.txt");
                 @display("p=810,110");
         }
         basicProtocol: BasicProtocol {
@@ -56,17 +61,7 @@ network DroneNetwork
         userLayer: UserLayer {
             @display("p=210,50");
         }
-        routingTableRecorder: RoutingTableRecorder {
-            parameters:
-                @display("p=560,20;is=s");
-        }
     connections allowunconnected:
-        //connection for cMessages between drone's submodules
-        for i=0..numDrones-2 {
-            drones[i].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drones[i+1].socketIn;
-        }
-        drones[numDrones-1].socketOut --> {  delay = uniform(0.1ms, 0.5ms); } --> drones[0].socketIn;
-
 		//Connection between Simulation control and drones for cMessage passing
         for i=0..numDrones-1 {
             simControl.controlSocket[i] <--> drones[i].socketControl;

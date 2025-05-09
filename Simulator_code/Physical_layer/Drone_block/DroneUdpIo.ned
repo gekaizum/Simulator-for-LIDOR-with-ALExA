@@ -13,18 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package BasicProtocol_layer;
+package Physical_layer.Drone_block;
+//import inet.applications.base.ApplicationBase;
+import inet.applications.contract.IApp;
 
-simple BasicProtocol
+simple DroneUdpIo like IApp
 {
     parameters:
-        int numOfdronesSockets;
-        int numOfchargeStationSockets;
-        int localPort = default(1235); // Port number to listen on (TCP)
-        int connectPort = default(1234); // Port number to connect to (TCP)
-        int udpPort = default(5001); // Port number for UDP connections/bind
+        string localAddress = default("");
+        int localPort = default(5001);
+        //string destAddress;
+        //int destPort;
+        //@display("i=block/app");
     gates:
-        inout controlSocket;
-        inout dronesSocket[numOfdronesSockets];
-        inout chargingStationSocket[numOfchargeStationSockets];   
+        input udpAppIn;
+        output trafficOut;
+        input socketIn;
+        output socketOut;
 }

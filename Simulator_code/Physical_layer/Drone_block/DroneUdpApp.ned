@@ -17,16 +17,29 @@ package Physical_layer.Drone_block;
 //import inet.applications.base.ApplicationBase;
 import inet.applications.contract.IApp;
 
-simple DroneUdpApp like IApp
+module DroneUdpApp like IApp
 {
     parameters:
+        string interfaceTableModule; // Relative module path of the interface table
         string localAddress = default("");
         int localPort = default(5001);
         //string destAddress;
         //int destPort;
         @display("i=block/app");
     gates:
-        input UdpAppIn@directIn;
+        input udpAppIn@directIn;
+        output trafficOut;
         input socketIn;
         output socketOut;
+    submodules:
+        udpSink: SmartPacketSink {
+		    parameters:      
+		}
+		udpIo: DroneUdpIo {
+		}
+	connections allowunconnected:
+	    udpAppIn --> udpIo.udpAppIn;
+	    udpIo.trafficOut --> udpSink.in;
+	    udpIo.socketOut --> socketOut;
+	    socketIn --> udpIo.socketIn;
 }

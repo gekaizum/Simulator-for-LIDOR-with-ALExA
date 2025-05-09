@@ -14,8 +14,10 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include <inet/applications/tcpapp/TcpServerListener.h>
 #include <inet/applications/tcpapp/TcpGenericServerApp.h>
+#include "inet/transportlayer/contract/tcp/TcpCommand_m.h"
+#include "inet/common/socket/SocketTag_m.h"
+#include "Physical_layer/Drone_block/CustomTcpServerSocketIo.h"
 
-//#include <inet/applications/tcpapp/TcpClientSocketIo.h>
 //TcpClientSocketIo
 #include <fstream>
 using namespace omnetpp;
@@ -32,7 +34,7 @@ class INET_API MyTcpAppListener : public ApplicationBase, public TcpSocket::ICal
     //virtual void sendTcpMessage(cMessage *msg);
     int connectionId = 0;
     TcpSocket serverSocket;
-    std::set<TcpServerSocketIo *> connectionSet;
+    std::set<CustomTcpServerSocketIo *> connectionSet;
     static const char *submoduleVectorName;
     const char *localAddress;
     int localPort;
@@ -56,8 +58,8 @@ class INET_API MyTcpAppListener : public ApplicationBase, public TcpSocket::ICal
     virtual void socketStatusArrived(TcpSocket *socket, TcpStatusInfo *status) override {}
     virtual void socketDeleted(TcpSocket *socket) override {}
 
-    virtual void removeConnection(TcpServerSocketIo *connection);
-    virtual void connectionClosed(TcpServerSocketIo *connection);
+    virtual void removeConnection(CustomTcpServerSocketIo *connection);
+    virtual void connectionClosed(CustomTcpServerSocketIo *connection);
 };
 
 

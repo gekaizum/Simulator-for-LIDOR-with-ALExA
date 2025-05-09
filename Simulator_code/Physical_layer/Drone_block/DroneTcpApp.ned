@@ -27,7 +27,6 @@ module DroneTcpApp like IApp
 {
     parameters:
         string interfaceTableModule; // Relative module path of the interface table
-        //*.interfaceTableModule = default(this.interfaceTableModule);
         @display("i=block/app");
     gates:
         input socketIn;
@@ -35,7 +34,6 @@ module DroneTcpApp like IApp
     submodules:
         listener: MyTcpAppListener {
             parameters:
-                //        input listener.tcpAppIn@directIn;  // External control input gate @directIn
                 @display("p=100,100");
         }
         connection[0]: <default(listener.serverConnectionModuleType)> like IApp {
@@ -47,7 +45,6 @@ module DroneTcpApp like IApp
                 @display("p=100,200");
         }
     connections:
-        //listener.socketIn --> { serviceMapping = [{ protocol = "tcp", gate = "socketOut" }]; };
         ta.out++ --> listener.socketIn;
         listener.socketOut --> ta.in++;
         ta.out++ --> { @display("m=s"); } --> socketOut;

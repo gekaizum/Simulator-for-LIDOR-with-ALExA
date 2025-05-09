@@ -36,6 +36,7 @@ protected:
     cMessage *trigger2 = nullptr;
     const char *localAddress;
     int localPort;
+    int nextUnusedLPort;
     int Drone_ID;
 
     virtual void handleStartOperation(LifecycleOperation *operation) override {} //not in use, but must be implemented

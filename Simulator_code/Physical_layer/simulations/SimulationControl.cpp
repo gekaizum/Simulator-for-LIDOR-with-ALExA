@@ -18,12 +18,14 @@ send(msg, "out");
 void SimulationControl::initialize() {
     SimControlLogger = new SimulationControlLogger();
     SimControlLogger->logFile.flush();
-    SimControlLogger->logFile << "Simulation control online" << endl;
-    int res = system("python3 Physical_layer/Map_block/python_map_generator.py");
-    SimControlLogger->logFile << "New map created" << endl;
+    SimControlLogger->logFile << simTime() << ": Simulation control online" << endl;
+    int res = system("python3 Physical_layer/Map_block/python_map_generator.py"); //python script to create a random map
+    SimControlLogger->logFile << simTime() << ": New map created" << endl;
     //Map object creation///////////////////
-    int blockSize = par("blockSize").intValue();
-    Current_map = new HeightMapLoader("Sim_logs/heightmap.txt", blockSize);
+    int blockSize = par("blockSize").intValue(); //size of block (part of map) that will be uploaded into RAM
+    heightMapFile = par("heightMapFile").stdstringValue(); //name of file created by python script
+    std::string heightMapPath = "Sim_logs/" + heightMapFile; // full path to map file
+    Current_map = new HeightMapLoader(heightMapPath, blockSize);
     ////////////////////////////////////////
     nextStationId = par("nextStationId");
     numOfChargeStation = par("numOfChargeStation");
@@ -36,53 +38,47 @@ void SimulationControl::initialize() {
     /////////////////////////////////////
     //Creating list of drones
     int nD = par("numDrones").intValue();  // Get array size
-
-    // Clear the vector to avoid duplication on re-initialization
-    drone_data.clear();
-
-    // Extract drones from the NED submodules
-    for (int i = 0; i < nD; i++) {
+    drone_data.clear();// Clear the vector to avoid duplication on re-initialization
+    for (int i = 0; i < nD; i++) {// Extract drones from the NED submodules
         // Create a string for the module path
         std::string modulePath = "DroneNetwork.drones[" + std::to_string(i) + "]";
-
         // Get the module using the path
         cModule *host = getModuleByPath(modulePath.c_str());
-
         if (host) {
             // Get the "droneControl" submodule and cast it to DroneControl*
             DroneControl *drone = check_and_cast<DroneControl *>(host->getSubmodule("droneControl"));
             drone_data.push_back(drone);  // Store pointers to Drone instances
         } else {
-            SimControlLogger->logFile << "Warning: Drone submodule " << i << " not found!" << endl;
+            SimControlLogger->logFile << simTime() << ": Warning: Drone submodule " << i << " not found!" << endl;
         }
     }
-    //std::string getInfo() const { return "Drone ID: " + std::to_string(id);
-    SimControlLogger->logFile << "Drone Objects (" << drone_data.size() << "):" << endl;
+    SimControlLogger->logFile << simTime() << ": Drone Objects (" << drone_data.size() << "):" << endl;
     for (const auto& drone : drone_data) {
-        SimControlLogger->logFile << "Drone ID: " << drone->Drone_ID << endl;
+        SimControlLogger->logFile << simTime() << ": Drone ID: " << drone->Drone_ID << endl;
     }
-    /////////////////////////////////////
 }
+
 void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messages
-    if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0){
-    }
-    else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0){
-    }
-    else if (strcmp(msg->par("State").stringValue(), "moveEventChecker") == 0){
+    if (strcmp(msg->par("State").stringValue(), "moveEventChecker") == 0){
         current_drone_move(drone_data, 2, Current_map, SimControlLogger);
         scheduleAt(simTime() + 2.0, msg);
     }
     else{
-        SimControlLogger->logFile << "Unknown message: " << msg->getName() << endl;
+        SimControlLogger->logFile << simTime() << ": Unknown message: " << msg->getName() << endl;
     }
 }
-void SimulationControl::simControl_mainFunc(){}
 void SimulationControl::height_checker(double x_pos, double y_pos, double &z_val){
     z_val = Current_map->getHeightAt(x_pos, y_pos);
 }
 void SimulationControl::finish(){
     delete Current_map;
     delete ChargStationManager;
+    if (moveEventChecker != nullptr) {
+        if (moveEventChecker->isScheduled()) {
+            cancelEvent(moveEventChecker);  // cancel first if still in event queue
+        }
+        delete moveEventChecker;
+    }
     SimControlLogger->~SimulationControlLogger();
 }
 
