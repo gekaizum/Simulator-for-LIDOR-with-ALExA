@@ -22,14 +22,14 @@ network DroneNetwork
         int numChargeStation = default(2);
         int numDrones = default(3);
         //@display("bgb=1090,540;bgi=samples/Simulator_code_mark_4/photorealistic_heightmap.png,s;bgg=1000,2,grey95;bgu=m");
-        @display("bgb=1090,540;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
+        @display("bgb=5000,5000;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
     submodules:
         radioMedium: Ieee80211RadioMedium {
-            @display("p=810,20");
+            @display("p=810,60");
         }
         configurator: Ipv4NetworkConfigurator {
             parameters:
-                @display("p=720,20;is=s");
+                @display("p=670,50;is=s");
         }
         ChargingStation[numChargeStation]: ChargingStation {
             parameters:
@@ -51,12 +51,12 @@ network DroneNetwork
                 numOfChargeStation = parent.numChargeStation;
                 nextStationId = numOfChargeStation + numDrones;
                 heightMapFile = default("heightmap.txt");
-                @display("p=810,110");
+                @display("p=300,50");
         }
         basicProtocol: BasicProtocol {
             numOfdronesSockets = parent.numDrones;
             numOfchargeStationSockets = parent.numChargeStation;
-            @display("p=810,310");
+            @display("p=390,50");
         }
         userLayer: UserLayer {
             @display("p=210,50");

@@ -11,7 +11,7 @@ void BasicProtocol::initialize() { // Initializes the drone module
     BPLogger->logFile.flush();
     message_init();
     controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simControl"));
-    BPLogger->logFile << "Basic protocol layer online" << endl;
+    BPLogger->logFile << simTime() << ": Basic protocol layer online" << endl;
 }
 void BasicProtocol::handleMessage(cMessage *msg){ // Handles incoming messages
 
@@ -52,7 +52,7 @@ void BasicProtocol::message_init(){
     setAcceleration = new cMessage("setAcceleration");
     setAcceleration->addPar("State") = "SETACCEL";
     /**/
-    BPLogger->logFile << "Movement cMessages initialized" << endl;
+    BPLogger->logFile << simTime() << ": Movement cMessages initialized" << endl;
     ///////////////////////////////////////////////////////////////
     //State management cMessages
     /**/
@@ -65,7 +65,7 @@ void BasicProtocol::message_init(){
     powerOffDrone = new cMessage("powerOffDrone");
     powerOffDrone->addPar("State") = "POWER_OFF";
     /**/
-    BPLogger->logFile << "State management cMessages initialized" << endl;
+    BPLogger->logFile << simTime() << ": State management cMessages initialized" << endl;
     /////////////////////////////////////////////////////////////////////
     //Sensor, data and monitoring cMessages
     /**/
@@ -81,7 +81,7 @@ void BasicProtocol::message_init(){
     getBatteryDrone = new cMessage("getBatteryDrone");
     getBatteryDrone->addPar("State") = "SEND_BATT";
     /**/
-    BPLogger->logFile << "Sensor, data and monitoring cMessages initialized" << endl;
+    BPLogger->logFile << simTime() << ": Sensor, data and monitoring cMessages initialized" << endl;
     /////////////////////////////////////////////////////////////////////
 }
 //movement commands
@@ -129,8 +129,8 @@ bool BasicProtocol::set_base(int protocol, int drone_id_sender, int drone_id_rec
 bool BasicProtocol::take_off(int protocol,int drone_id_sender, int drone_id_receiver, double x_dest, double y_dest, double z_dest){
     BPLogger->logFile << simTime() << ": take_off command received" << endl;
     Enter_Method("take_off");
-    controlModule->height_checker(x_dest, y_dest,heightVal);
-    z_dest += heightVal;
+    //controlModule->height_checker(x_dest, y_dest,heightVal);
+    //z_dest += heightVal;
     cMessage *msg = takeOff->dup();
     msg->addPar("x") = x_dest;
     msg->addPar("y") = y_dest;

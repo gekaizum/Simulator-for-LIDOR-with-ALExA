@@ -16,6 +16,7 @@
 #include "inet/applications/base/ApplicationBase.h"
 #include "../Calculation_block/BatteryConsumption.h"
 #include "../Calculation_block/SignalStrengthCalculation.h"
+//#include "drone_positions_c.h"
 
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
@@ -87,9 +88,9 @@ class DroneControl : public ApplicationBase {
     virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
     virtual void finish();
     // Required lifecycle methods - not in use, but need to be implemented
-    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Start operation" << endl;}
-    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Stop operation" << endl;}
-    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Crash operation" << endl;}
+    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Start operation" << endl;}
+    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Stop operation" << endl;}
+    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Crash operation" << endl;}
 
 
   public:

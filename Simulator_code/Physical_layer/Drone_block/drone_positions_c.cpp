@@ -19,7 +19,7 @@ void update_drone_position(std::vector<DroneControl*>& drone_data, int drone_id,
 void update_mobility(DroneControl* drone, SimulationControlLogger *SimControlLogger){
     //updates the mobility module
     cModule* mobilityMod = drone->getParentModule()->getSubmodule("mobility");
-    PublicStationaryMobility* mobility = check_and_cast<PublicStationaryMobility*>(mobilityMod);
+    PublicStationaryMobility* mobility = static_cast<PublicStationaryMobility*>(mobilityMod);
     Coord newPos(drone->Current_Position[0], drone->Current_Position[1], drone->Current_Position[2]);
     mobility->setPositionPublic(newPos);
 }
@@ -28,13 +28,13 @@ void update_mobility(DroneControl* drone, SimulationControlLogger *SimControlLog
 void current_drone_move(std::vector<DroneControl*>& drone_objects, float time_step, HeightMapLoader* Current_Map, SimulationControlLogger *SimControlLogger) {
     //SimControlLogger->logFile << "Checking the drone moves"<< endl;
     for (auto& drone : drone_objects) {//Check all existing drone objects
+        //updates the mobility module
+        cModule* mobilityMod = drone->getParentModule()->getSubmodule("mobility");
+        PublicStationaryMobility* mobility = static_cast<PublicStationaryMobility*>(mobilityMod);
+        Coord newPos(drone->Current_Position[0], drone->Current_Position[1], drone->Current_Position[2]);
+        mobility->setPositionPublic(newPos);
         if (drone->Is_Moving) {//Check only of drone is in motion
             SimControlLogger->logFile << simTime() << ": Drone " << drone->Drone_ID <<" in motion"<< endl;
-            //updates the mobility module
-            cModule* mobilityMod = drone->getParentModule()->getSubmodule("mobility");
-            PublicStationaryMobility* mobility = check_and_cast<PublicStationaryMobility*>(mobilityMod);
-            Coord newPos(drone->Current_Position[0], drone->Current_Position[1], drone->Current_Position[2]);
-            mobility->setPositionPublic(newPos);
             // Move in x-axis
             if (drone->Next_Move == 1 && drone->Destination[0] != drone->Current_Position[0]) {// Motion in x axis if is isn't reached it's destination
                 SimControlLogger->logFile << simTime() << ": Drone " << drone->Drone_ID <<" move in x direction"<< endl;

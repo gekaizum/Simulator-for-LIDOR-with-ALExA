@@ -111,6 +111,10 @@ void DroneControl::handlePowerOn() {
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
 	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
     scheduleAt(simTime() + 10.0, batteryCheckEvent);
+    /*cModule* mobilityMod = getParentModule()->getSubmodule("mobility");
+    PublicStationaryMobility* mobility = check_and_cast<PublicStationaryMobility*>(mobilityMod);
+    Coord newPos(Current_Position[0], Current_Position[1], Current_Position[2]);
+    mobility->setPositionPublic(newPos);*/
     //nonOperationalEvent = new cMessage("nonOperationalEvent");
     //nonOperationalEvent->addPar("State") = "NON_OPERATIONAL";
     //scheduleAt(simTime() + 1.0, nonOperationalEvent);
@@ -134,6 +138,9 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
     }
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
         droneLogFile << simTime() << ": TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
+        msg->par("x") = Current_Position[0];
+        msg->par("y") = Current_Position[1];
+        msg->par("z") = Current_Position[2];
         handleMove(msg);
         batteryCheckHelper_forMove();
         in_air=true;

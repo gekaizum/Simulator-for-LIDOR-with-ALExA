@@ -4,6 +4,7 @@ package simulations;
 
 import inet.node.inet.WirelessHost;
 import Physical_layer.Drone_block.DroneControl;
+import Physical_layer.Drone_block.PublicStationaryMobility;
 import inet.routing.aodv.Aodv;
 import inet.networklayer.ipv4.Ipv4RoutingTable;
 
