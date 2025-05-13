@@ -56,6 +56,7 @@ void SimulationControl::initialize() {
     for (const auto& drone : drone_data) {
         SimControlLogger->logFile << simTime() << ": Drone ID: " << drone->Drone_ID << endl;
     }
+    getDisplayString().setTagArg("i", 0, "");
 }
 
 void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messages

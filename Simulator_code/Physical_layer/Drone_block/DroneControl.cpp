@@ -90,12 +90,14 @@ void DroneControl::handleMessageWhenUp(cMessage *msg) {
 	}
 	else if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
 	    droneLogFile << simTime() << ": Drone " << getName() << " received POWER_ON command" << endl;
+	    getParentModule()->getDisplayString().setTagArg("i", 0, "powerOnDrone");
         Current_Position[0] = msg->par("x").doubleValue();
         Current_Position[1] = msg->par("y").doubleValue();
         Current_Position[2] = msg->par("z").doubleValue();
         Destination[0] = Current_Position[0];
         Destination[1] = Current_Position[1];
         Destination[2] = Current_Position[2];
+        displayRelativeAlt = Current_Position[2];
         droneLogFile << simTime() << ": Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
         ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
         state = POWER_ON;
@@ -227,16 +229,13 @@ void DroneControl::handleNonOperational(cMessage *msg) {
     if (non_operational == true && state != NON_OPERATIONAL) {
         state = NON_OPERATIONAL;
         Is_Moving = false;
+        getParentModule()->getDisplayString().setTagArg("i", 0, "deadDrone");
         droneLogFile << simTime() << ": Drone" << Drone_ID << " is non-operational due to collision. State was changed to: NON_OPERATIONAL" << endl;
-        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") << endl;
-        for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getNumParams(); ++i) {
-                cPar& par = getParentModule()->getSubmodule("wlan",0)->par(i);
+        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")<< endl;
+        for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")->getNumParams(); ++i) {
+                cPar& par = getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")->par(i);
             droneLogFile << "Parameter: " << par.getFullName() << " = " << par.str() << endl;
         }
-        //getParentModule()->getSubmodule("wlan",0)->
-
-
-
     }
     else if (non_operational == true && state == NON_OPERATIONAL) {
         droneLogFile << simTime() << ": Drone " << Drone_ID << " is non-operational due to collision. New message received and ignored: " << msg->getName() << endl;
@@ -260,15 +259,22 @@ void DroneControl::finish() {
 void DroneControl::batteryCheckHelper(int time_step){
     droneLogFile << simTime() << ": Battery check event" << endl;
 	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
+	double battery_remain_percent = (battery_remain/battery_capacity)*100;
 	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
 								additional_power, hoveringCurrent, time_step); // in Joules
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 	droneLogFile << simTime() << ": Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
-	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
+	<< battery_remain_percent << "%" <<endl;
 	if(battery_remain <= 0){
 	    non_operational = true;
 	    Is_Moving = false;
 	}
+	std::ostringstream oss;
+	oss << "Battery: " << std::fixed << std::setprecision(1) << battery_remain_percent << "%\n";
+	oss << "Altitude: " << std::fixed << std::setprecision(1) << displayRelativeAlt << " m";
+	getParentModule() -> getDisplayString().setTagArg("t", 2, "black");         // Text color
+	getParentModule() -> getDisplayString().setTagArg("t", 3, "Arial,20");    // Font
+	getParentModule() -> getDisplayString().setTagArg("t", 0, oss.str().c_str());
 }
 
 void DroneControl::batteryCheckHelper_forMove(){

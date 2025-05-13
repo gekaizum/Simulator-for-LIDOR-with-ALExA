@@ -35,6 +35,7 @@ void current_drone_move(std::vector<DroneControl*>& drone_objects, float time_st
         mobility->setPositionPublic(newPos);
         if (drone->Is_Moving) {//Check only of drone is in motion
             SimControlLogger->logFile << simTime() << ": Drone " << drone->Drone_ID <<" in motion"<< endl;
+            drone->displayRelativeAlt = Current_Map->getHeightAt(drone->Current_Position[0], drone->Current_Position[1]);
             // Move in x-axis
             if (drone->Next_Move == 1 && drone->Destination[0] != drone->Current_Position[0]) {// Motion in x axis if is isn't reached it's destination
                 SimControlLogger->logFile << simTime() << ": Drone " << drone->Drone_ID <<" move in x direction"<< endl;

@@ -78,7 +78,7 @@ pil_img = Image.fromarray(rgb_uint8)
 
 # Adjust contrast
 enhancer = ImageEnhance.Contrast(pil_img)
-pil_img = enhancer.enhance(0.5)  # 1.0 = original, >1 = higher contrast
+pil_img = enhancer.enhance(0.3)  # 1.0 = original, >1 = higher contrast
 
 # Convert back to numpy if needed
 rgb = np.array(pil_img) / 255.0
@@ -86,8 +86,9 @@ rgb = np.array(pil_img) / 255.0
 # 💾 Save photorealistic terrain image
 plt.figure(figsize=(20, 20))
 plt.imshow(rgb, interpolation='bilinear')  # Smooth rendering
-plt.title("Realistic Hill-Mountain Terrain", fontsize=20)
+#plt.title("Realistic Hill-Mountain Terrain", fontsize=20)
 plt.axis('off')  # Hide axis
-plt.savefig("images/photorealistic_heightmap.png", dpi=300, bbox_inches='tight')
-plt.show()
+plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+plt.savefig("images/photorealistic_heightmap.png", dpi=300, bbox_inches='tight', pad_inches=0)
+#plt.show()
 

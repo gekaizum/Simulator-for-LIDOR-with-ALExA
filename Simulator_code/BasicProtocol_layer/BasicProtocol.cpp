@@ -12,6 +12,7 @@ void BasicProtocol::initialize() { // Initializes the drone module
     message_init();
     controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simControl"));
     BPLogger->logFile << simTime() << ": Basic protocol layer online" << endl;
+    getDisplayString().setTagArg("i", 0, "");
 }
 void BasicProtocol::handleMessage(cMessage *msg){ // Handles incoming messages
 

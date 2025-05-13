@@ -11,6 +11,9 @@
 #include <array>
 #include <cmath>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
+
 #include "inet/common/INETDefs.h"
 
 #include "inet/applications/base/ApplicationBase.h"
@@ -107,6 +110,7 @@ class DroneControl : public ApplicationBase {
     uint8_t Idle_Steps[3];
     double Destination[3]; // Drone destination as [x,y,z]
     double Current_Position[3]; // Drone's position as [x,y,z] coordinates
+    double displayRelativeAlt;
     uint8_t Next_Move;
     double ChargeStationCoord[3];
 

@@ -18,6 +18,7 @@ void UserLayer::initialize() { // Initializes the drone module
     testMsg = new cMessage("testMsg");
     testMsg->addPar("State") = "testMsg";
     scheduleAt(simTime()+2, testMsg);
+    getDisplayString().setTagArg("i", 0, "");
 }
 
 void UserLayer::handleMessage(cMessage *msg){ // Handles incoming messages
