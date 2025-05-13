@@ -111,10 +111,6 @@ void DroneControl::handlePowerOn() {
 	batteryCheckEvent = new cMessage("batteryCheckEvent");
 	batteryCheckEvent->addPar("State") = "batteryCheckEvent";
     scheduleAt(simTime() + 10.0, batteryCheckEvent);
-    /*cModule* mobilityMod = getParentModule()->getSubmodule("mobility");
-    PublicStationaryMobility* mobility = check_and_cast<PublicStationaryMobility*>(mobilityMod);
-    Coord newPos(Current_Position[0], Current_Position[1], Current_Position[2]);
-    mobility->setPositionPublic(newPos);*/
     //nonOperationalEvent = new cMessage("nonOperationalEvent");
     //nonOperationalEvent->addPar("State") = "NON_OPERATIONAL";
     //scheduleAt(simTime() + 1.0, nonOperationalEvent);
@@ -230,6 +226,7 @@ void DroneControl::handleReturningToBase(cMessage *msg) {
 void DroneControl::handleNonOperational(cMessage *msg) {
     if (non_operational == true && state != NON_OPERATIONAL) {
         state = NON_OPERATIONAL;
+        Is_Moving = false;
         droneLogFile << simTime() << ": Drone" << Drone_ID << " is non-operational due to collision. State was changed to: NON_OPERATIONAL" << endl;
         droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") << endl;
         for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getNumParams(); ++i) {
@@ -268,6 +265,10 @@ void DroneControl::batteryCheckHelper(int time_step){
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 	droneLogFile << simTime() << ": Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
 	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
+	if(battery_remain <= 0){
+	    non_operational = true;
+	    Is_Moving = false;
+	}
 }
 
 void DroneControl::batteryCheckHelper_forMove(){
