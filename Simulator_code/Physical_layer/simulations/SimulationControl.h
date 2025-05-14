@@ -23,9 +23,12 @@ class SimulationControl : public cSimpleModule {
     int numOfChargeStation;
     int nextStationId;
     cMessage *moveEventChecker;
+    cMessage *interruptEvent;
+    double interruptTime;
     HeightMapLoader* Current_map = nullptr; // pointer to map object
     SimulationControlLogger* SimControlLogger = nullptr; // pointer to logger object
     ChargingStationManager* ChargStationManager = nullptr; // pointer to charging stations manager object
+    bool userInterrupt;
   protected:
     virtual void initialize(); // Initializes the drone module
     virtual void handleMessage(cMessage *msg); // Handles incoming messages

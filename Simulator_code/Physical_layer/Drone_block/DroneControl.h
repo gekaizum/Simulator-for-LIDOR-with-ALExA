@@ -19,7 +19,6 @@
 #include "inet/applications/base/ApplicationBase.h"
 #include "../Calculation_block/BatteryConsumption.h"
 #include "../Calculation_block/SignalStrengthCalculation.h"
-//#include "drone_positions_c.h"
 
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
@@ -61,10 +60,6 @@ class DroneControl : public ApplicationBase {
     int drone_size;							// Size category of the drone - one number in meters
     double hoveringCurrent;					// Power needed for hovering
 
-    DroneState state;						// Current state of the drone for FSM
-
-	bool in_air = false;
-
 	double time_step; //frequency of battery check event
     // State handling functions
     void handlePowerOn();
@@ -78,6 +73,7 @@ class DroneControl : public ApplicationBase {
     void handleSetVelocity(cMessage *msg);
     void handleMove(cMessage *msg);
     void handleSetBase(cMessage *msg);
+    void handleLanding(cMessage *msg);
 
     // Helper functions
 	void batteryCheckHelper(int time_step);
@@ -107,6 +103,8 @@ class DroneControl : public ApplicationBase {
     
     bool Is_Moving = false;
     bool non_operational = false;
+    bool in_air = false;
+    DroneState state;                       // Current state of the drone for FSM
     uint8_t Idle_Steps[3];
     double Destination[3]; // Drone destination as [x,y,z]
     double Current_Position[3]; // Drone's position as [x,y,z] coordinates

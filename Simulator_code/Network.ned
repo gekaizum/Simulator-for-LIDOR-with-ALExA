@@ -21,6 +21,10 @@ network DroneNetwork
     parameters:
         int numChargeStation = default(2);
         int numDrones = default(3);
+        bool chargeStationPositionsCustomInput = default(false);
+        bool droneStartPosCustomInput = default(false);
+        bool droneStartPosDefault = default(true);
+        bool droneStartPosOnChargeStation = default(false);
         //@display("bgb=1090,540;bgi=samples/Simulator_code_mark_4/photorealistic_heightmap.png,s;bgg=1000,2,grey95;bgu=m");
         @display("bgb=5000,5000;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
     submodules:
@@ -37,7 +41,7 @@ network DroneNetwork
             parameters:
                 ChargingStation_ID = parent.numDrones + index + 1;
                 numOfSockets = parent.numDrones;
-                @display("i=block/control");
+                @display("i=chargingStation;b=1,1,rect;p=3790,1100");
         }
         drones[numDrones]: Drone {
             parameters:
@@ -53,6 +57,7 @@ network DroneNetwork
                 numOfChargeStation = parent.numChargeStation;
                 nextStationId = numOfChargeStation + numDrones;
                 heightMapFile = default("heightmap.txt");
+                userInterrupt = default(false);
                 //@display("p=300,50");
                 @display("i=;p=9999,9999");
         }
@@ -69,16 +74,16 @@ network DroneNetwork
     connections allowunconnected:
 		//Connection between Simulation control and drones for cMessage passing
         for i=0..numDrones-1 {
-            simControl.controlSocket[i] <--> {@display("ls=,0");} <--> drones[i].socketControl;
+            simControl.controlSocket[i] <--> { @display("ls=,0"); } <--> drones[i].socketControl;
         }
         //Connection between Basic protocol layer and Physical layer modules for cMessage passing
         for i=0..numDrones-1 {
-            basicProtocol.dronesSocket[i] <--> {@display("ls=,0");} <--> drones[i].basicProtocolSocket;
+            basicProtocol.dronesSocket[i] <--> { @display("ls=,0"); } <--> drones[i].basicProtocolSocket;
         }
         for i=0..numChargeStation-1 {
-            basicProtocol.chargingStationSocket[i] <--> {@display("ls=,0");} <--> ChargingStation[i].basicProtocolSocket;
+            basicProtocol.chargingStationSocket[i] <--> { @display("ls=,0"); } <--> ChargingStation[i].basicProtocolSocket;
         }
-        basicProtocol.controlSocket <--> {@display("ls=,0");} <--> simControl.basicProtocolSocket;
+        basicProtocol.controlSocket <--> { @display("ls=,0"); } <--> simControl.basicProtocolSocket;
 
 }
 
