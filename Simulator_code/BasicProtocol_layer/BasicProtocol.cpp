@@ -526,3 +526,13 @@ void BasicProtocol::height_checker(double x_pos, double y_pos, double &z_val){
     SimulationControl *SC = check_and_cast<SimulationControl *>(host);
     SC->height_checker(x_pos, y_pos,z_val);
 }
+
+bool BasicProtocol::moveStation(int id, int newX, int newY, int newZ){
+    controlModule->ChargStationManager->moveStation(id, newX, newY, newZ);
+    return true;
+}
+
+bool BasicProtocol::getStationLocation(int id, int &x, int &y, int &z){
+    controlModule->ChargStationManager->getStationLocation(id, x, y, z);
+    return true;
+}

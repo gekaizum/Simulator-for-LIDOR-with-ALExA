@@ -36,6 +36,9 @@ class UserLayer : public cSimpleModule {
       cMessage *moveEV2;
       cMessage *testMsg;
       cMessage *testMsg2;
+      cMessage *landingEV;
+      cMessage *landingEV2;
+      cMessage *landingEV3;
       double z_val;
 };
 

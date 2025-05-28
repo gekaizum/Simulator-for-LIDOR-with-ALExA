@@ -64,11 +64,18 @@ void SimulationControl::initialize() {
         SimControlLogger->logFile << simTime() << ": Drone ID: " << drone->Drone_ID << endl;
     }
     getDisplayString().setTagArg("i", 0, "");
+    double given_height = Current_map->getHeightAt(3500, 1500);
+    for (auto& st : ChargStationManager->ChargingStation_data){
+        st->Current_Position[0] = 3500;
+        st->Current_Position[1] = 1500;
+        st->Current_Position[2] = given_height;
+    }
 }
 
 void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messages
     if (strcmp(msg->par("State").stringValue(), "moveEventChecker") == 0){
         current_drone_move(drone_data, 1, Current_map, SimControlLogger);
+        //update_mobility(ChargStationManager->ChargingStation_data[0], SimControlLogger);
         scheduleAt(simTime() + 1.0, msg);
     }
     else if(strcmp(msg->par("State").stringValue(), "interruptEvent") == 0){

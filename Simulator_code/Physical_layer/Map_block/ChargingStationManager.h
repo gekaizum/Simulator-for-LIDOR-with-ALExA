@@ -12,10 +12,10 @@ using namespace omnetpp;
 class ChargingStationManager {
 private:
     int nextStationId;
-    std::vector<ChargingStation*> ChargingStation_data;
     cModule* parentModule;
 
 public:
+    std::vector<ChargingStation*> ChargingStation_data;
     ChargingStationManager(cModule* parent,int numOfChargeStation, int nSid);
     virtual ~ChargingStationManager();
     void addStation(int x, int y, int z);

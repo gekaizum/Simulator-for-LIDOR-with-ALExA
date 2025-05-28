@@ -16,7 +16,7 @@ void update_drone_position(std::vector<DroneControl*>& drone_data, int drone_id,
 	drone_data[drone_id-1]->Idle_Steps[2] = 0;
 }
 
-void update_mobility(DroneControl* drone, SimulationControlLogger *SimControlLogger){
+void update_mobility(ChargingStation* drone, SimulationControlLogger *SimControlLogger){
     //updates the mobility module
     cModule* mobilityMod = drone->getParentModule()->getSubmodule("mobility");
     PublicStationaryMobility* mobility = static_cast<PublicStationaryMobility*>(mobilityMod);

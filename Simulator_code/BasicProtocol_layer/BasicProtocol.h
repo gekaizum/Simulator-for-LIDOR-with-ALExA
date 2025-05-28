@@ -132,6 +132,12 @@ class BasicProtocol : public cSimpleModule {
     bool getDrone_SensorData();
     /**/
     void height_checker(double x_pos, double y_pos, double &z_val);
+    /**/
+    ///////////////////////////
+    //Base station commands
+    //////////////////////////
+    bool moveStation(int id, int newX, int newY, int newZ);
+    bool getStationLocation(int id, int &x, int &y, int &z);
 };
 
 Define_Module(BasicProtocol);

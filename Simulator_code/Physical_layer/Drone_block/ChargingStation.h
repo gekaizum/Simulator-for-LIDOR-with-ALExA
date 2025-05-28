@@ -22,7 +22,7 @@ class ChargingStation : public cSimpleModule {
     virtual void finish();
   public:
     int ChargingStation_ID;                                  // Unique identifier for the ChargingStation
-    float Current_Position[3];                               // ChargingStation's position as [x,y,z] coordinates
+    double Current_Position[3];                               // ChargingStation's position as [x,y,z] coordinates
 
     void broadcast(const std::string& message);              // Broadcasts a message to all drones
     void sendTo(int target_id, const std::string& message);  // Sends a message to a specific drone
