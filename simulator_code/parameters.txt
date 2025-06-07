@@ -1,2 +1,0 @@
-Parameters that can became global in future (User will be able to change it before starting a simulation):
-    BatteryConsumption.cpp -> line 30 -> "air_resistance_factor"
