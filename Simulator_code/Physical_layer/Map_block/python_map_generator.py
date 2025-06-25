@@ -64,7 +64,7 @@ terrain = mountains + hills + details
 terrain -= terrain.min()
 
 # 📁 Save terrain height values to file (for simulation)
-np.savetxt("Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
+np.savetxt("../../Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
 
 # ☀️ Simulate lighting and shading for realistic look
 ls = LightSource(azdeg=315, altdeg=45)  # Light from northwest, 45° elevation
@@ -91,4 +91,3 @@ plt.axis('off')  # Hide axis
 plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 plt.savefig("../../images/photorealistic_heightmap.png", dpi=300, bbox_inches='tight', pad_inches=0)
 #plt.show()
-
