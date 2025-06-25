@@ -21,8 +21,8 @@ double calculateHoveringPower(double weight, double motor_efficiency) {
 // Function to calculate total current battery consumption
 // Will be used after any movement command
 double calculateTotalCurrent(double weight, double acceleration, double velocity, double distance) {
-	double accelerationEnergy =0;
-	double velocityEnergy =0;
+	double accelerationEnergy = 0;
+	double velocityEnergy = 0;
 	if (acceleration != 0){ //will be done once for each move command received
 		accelerationEnergy = 0.5 * weight * std::pow(acceleration, 2) * (velocity/acceleration);// Energy in Joules
 	}

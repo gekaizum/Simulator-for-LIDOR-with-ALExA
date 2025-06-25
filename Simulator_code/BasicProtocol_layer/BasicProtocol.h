@@ -32,6 +32,7 @@ class BasicProtocol : public cSimpleModule {
     cMessage *moveTo;
     cMessage *setVelocity;
     cMessage *setAcceleration;
+    cMessage *retBase;
     //State management cMessages
     cMessage *stopDrone;
     cMessage *powerOnDrone;
@@ -85,7 +86,7 @@ class BasicProtocol : public cSimpleModule {
     bool set_acceleration(int protocol,int drone_id_sender, int drone_id_receiver,double acceleration);
     /**/
     //not in use in current simulator version
-    bool return_to_base();//not in use in current simulator version
+    bool return_to_base(int protocol,int drone_id_sender, int drone_id_receiver);//not in use in current simulator version
     /**/
     /////////////////////////////
     //State management commands
@@ -131,6 +132,12 @@ class BasicProtocol : public cSimpleModule {
     bool getDrone_SensorData();
     /**/
     void height_checker(double x_pos, double y_pos, double &z_val);
+    /**/
+    ///////////////////////////
+    //Base station commands
+    //////////////////////////
+    bool moveStation(int id, int newX, int newY, int newZ);
+    bool getStationLocation(int id, int &x, int &y, int &z);
 };
 
 Define_Module(BasicProtocol);

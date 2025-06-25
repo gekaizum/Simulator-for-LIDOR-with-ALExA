@@ -9,6 +9,7 @@
 void ChargingStation :: initialize(){                 // Initializes the ChargingStation module
     //char communication_type;                        // Communication type ('W' for WiFi, 'R' for Radio)
     frequencyHz = par("frequencyHz");                 // Frequency used by ChargingStation to communicate
+    ChargingStation_ID = par("ChargingStation_ID");
 }
 void ChargingStation :: handleMessage(cMessage *msg){ // Handles incoming messages
 

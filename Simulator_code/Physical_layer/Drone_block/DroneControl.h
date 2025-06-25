@@ -11,6 +11,9 @@
 #include <array>
 #include <cmath>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
+
 #include "inet/common/INETDefs.h"
 
 #include "inet/applications/base/ApplicationBase.h"
@@ -23,6 +26,7 @@
 #include "inet/networklayer/common/InterfaceTable.h"
 #include "inet/common/ModuleAccess.h"
 
+#include "inet/physicallayer/wireless/common/analogmodel/packetlevel/ScalarReception.h"
 
 using namespace omnetpp;
 using namespace inet;
@@ -37,8 +41,10 @@ enum DroneState {
     INITSTAGE_LOCAL_DRONE,	    // Init stage before POWER_ON
 };
 
-class DroneControl : public ApplicationBase {
+class DroneControl : public ApplicationBase,public omnetpp::cListener {
   private:
+    bool isSubscribed = false;
+
     int number_of_rotors;					// Number of rotors on the drone
     double motor_efficiency;					// efficiency of motors [W/N]
 	
@@ -57,10 +63,6 @@ class DroneControl : public ApplicationBase {
     int drone_size;							// Size category of the drone - one number in meters
     double hoveringCurrent;					// Power needed for hovering
 
-    DroneState state;						// Current state of the drone for FSM
-
-	bool in_air = false;
-
 	double time_step; //frequency of battery check event
     // State handling functions
     void handlePowerOn();
@@ -74,22 +76,26 @@ class DroneControl : public ApplicationBase {
     void handleSetVelocity(cMessage *msg);
     void handleMove(cMessage *msg);
     void handleSetBase(cMessage *msg);
+    void handleLanding(cMessage *msg);
 
     // Helper functions
 	void batteryCheckHelper(int time_step);
 	void batteryCheckHelper_forMove();
 
+	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *value, cObject *details) override;
+
 	//Periodical events for drone
 	cMessage *batteryCheckEvent;
 	cMessage *nonOperationalEvent;
   protected:
+	simsignal_t receivedPowerSignal;
     virtual void initialize(int stage) override; // Initializes the drone module
     virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
     virtual void finish();
     // Required lifecycle methods - not in use, but need to be implemented
-    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Start operation" << endl;}
-    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Stop operation" << endl;}
-    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << "Drone: Crash operation" << endl;}
+    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Start operation" << endl;}
+    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Stop operation" << endl;}
+    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {droneLogFile << simTime() << ": Drone: Crash operation" << endl;}
 
 
   public:
@@ -103,9 +109,12 @@ class DroneControl : public ApplicationBase {
     
     bool Is_Moving = false;
     bool non_operational = false;
+    bool in_air = false;
+    DroneState state;                       // Current state of the drone for FSM
     uint8_t Idle_Steps[3];
     double Destination[3]; // Drone destination as [x,y,z]
     double Current_Position[3]; // Drone's position as [x,y,z] coordinates
+    double displayRelativeAlt;
     uint8_t Next_Move;
     double ChargeStationCoord[3];
 

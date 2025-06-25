@@ -65,6 +65,17 @@ void DroneControl::initialize(int stage) {
     else if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
         droneLogFile << simTime() << ": Drone: Application initialization" << endl;
     }
+    receivedPowerSignal = registerSignal("receivedPower");
+    // Подписываемся на сигнал от радио (предположим, что это wlan[0].radio)
+    if (stage == 0 && !isSubscribed) {
+        cModule *radio = getModuleByPath("^.^.radioMedium");
+        if (radio) {
+            check_and_cast<cComponent*>(radio)->subscribe("signalArrivalStarted", this);
+            //check_and_cast<cComponent*>(radio)->subscribe("receptionPower", this);
+            isSubscribed = true;
+            droneLogFile << simTime() << ": Signal subscribed" << endl;
+        }
+    }
 }
 
 void DroneControl::handleMessageWhenUp(cMessage *msg) {
@@ -77,7 +88,7 @@ void DroneControl::handleMessageWhenUp(cMessage *msg) {
 				handleWaitingForCommands(msg);
 				break;
 			case RETURNING_TO_BASE:
-				handleReturningToBase(msg);
+				//handleReturningToBase(msg);
 				break;
 		}
 	}
@@ -90,12 +101,17 @@ void DroneControl::handleMessageWhenUp(cMessage *msg) {
 	}
 	else if (strcmp(msg->par("State").stringValue(), "POWER_ON") == 0) {
 	    droneLogFile << simTime() << ": Drone " << getName() << " received POWER_ON command" << endl;
+	    getParentModule()->getDisplayString().setTagArg("i", 0, "powerOnDrone");
         Current_Position[0] = msg->par("x").doubleValue();
         Current_Position[1] = msg->par("y").doubleValue();
         Current_Position[2] = msg->par("z").doubleValue();
         Destination[0] = Current_Position[0];
         Destination[1] = Current_Position[1];
         Destination[2] = Current_Position[2];
+        ChargeStationCoord[0] = Current_Position[0];
+        ChargeStationCoord[1] = Current_Position[1];
+        ChargeStationCoord[2] = Current_Position[2];
+        displayRelativeAlt = 0;
         droneLogFile << simTime() << ": Drone " << Drone_ID << " initial coordinates updated: x=" << Current_Position[0] <<
         ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
         state = POWER_ON;
@@ -134,6 +150,9 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
     }
     else if (strcmp(msg->par("State").stringValue(), "TAKEOFF") == 0) {// Check for TAKEOFF signal
         droneLogFile << simTime() << ": TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
+        msg->par("x") = Current_Position[0];
+        msg->par("y") = Current_Position[1];
+        msg->par("z") = Current_Position[2];
         handleMove(msg);
         batteryCheckHelper_forMove();
         in_air=true;
@@ -151,6 +170,22 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
         droneLogFile << simTime() << ": SETVEL signal received. Velocity parameters changed." << endl;
         handleSetVelocity(msg);
         delete(msg);
+    }
+    else if(strcmp(msg->par("State").stringValue(), "INTEREV") == 0){
+        non_operational = true;
+        Is_Moving = false;
+    }
+    else if (strcmp(msg->par("State").stringValue(), "POWER_OFF") == 0) {
+        droneLogFile << simTime() << ": POWER_OFF signal received." << endl;
+        Is_Moving = false;
+        power_on=false;
+        if(in_air){
+            getParentModule()->getDisplayString().setTagArg("i", 0, "deadDrone");
+            non_operational = true;
+        }
+        else{
+            getParentModule()->getDisplayString().setTagArg("i", 0, "powerOffDrone");
+        }
     }
 	else {
 	    droneLogFile << simTime() << ": Wrong command. Waiting for TAKEOFF signal. Received: " << msg->getName() << endl;
@@ -193,7 +228,8 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 		delete(msg);
     } 
 	else if (strcmp(msg->par("State").stringValue(), "RETURN") == 0) {
-        state = RETURNING_TO_BASE;
+        //state = RETURNING_TO_BASE;
+        handleReturningToBase(msg);
     }
 	else if (strcmp(msg->par("State").stringValue(), "STOP") == 0) {
         Is_Moving = false;
@@ -209,6 +245,30 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 	    handleSetBase(msg);
 	    delete(msg);
     }
+	else if(strcmp(msg->par("State").stringValue(), "LANDING") == 0){
+	    Is_Moving = false;
+	    handleMove(msg);
+	    handleLanding(msg);
+	    Is_Moving = true;
+	    Next_Move = 1;
+        batteryCheckHelper_forMove();
+        delete(msg);
+	}
+	else if(strcmp(msg->par("State").stringValue(), "INTEREV") == 0){
+	    non_operational = true;
+        Is_Moving = false;
+	}
+	else if (strcmp(msg->par("State").stringValue(), "POWER_OFF") == 0) {
+        Is_Moving = false;
+        power_on=false;
+        if(in_air){
+            getParentModule()->getDisplayString().setTagArg("i", 0, "deadDrone");
+            non_operational = true;
+        }
+        else{
+            getParentModule()->getDisplayString().setTagArg("i", 0, "powerOffDrone");
+        }
+    }
 	else {
 	    droneLogFile << simTime() << ": Unknown command received: " << msg << endl;
 	    delete(msg);
@@ -217,22 +277,30 @@ void DroneControl::handleWaitingForCommands(cMessage *msg) {
 
 void DroneControl::handleReturningToBase(cMessage *msg) {
     droneLogFile << simTime() << ": Drone is returning to base station." << endl;
-    state = WAITING_FOR_TAKEOFF;                             // Transition to WAITING_FOR_TAKEOFF state
+    Is_Moving = false;
+    msg->addPar("x") = ChargeStationCoord[0];
+    msg->addPar("y") = ChargeStationCoord[1];
+    msg->addPar("z") = Current_Position[2];
+    handleMove(msg);
+    Is_Moving = true;
+    Next_Move = 1;
+    batteryCheckHelper_forMove();
+    delete(msg);
 }
 
 void DroneControl::handleNonOperational(cMessage *msg) {
     if (non_operational == true && state != NON_OPERATIONAL) {
         state = NON_OPERATIONAL;
+        Is_Moving = false;
+        getParentModule()->getDisplayString().setTagArg("i", 0, "deadDrone");
         droneLogFile << simTime() << ": Drone" << Drone_ID << " is non-operational due to collision. State was changed to: NON_OPERATIONAL" << endl;
-        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") << endl;
-        for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getNumParams(); ++i) {
-                cPar& par = getParentModule()->getSubmodule("wlan",0)->par(i);
+        droneLogFile << simTime() << ": Drone " << Drone_ID << " current position: x=" << Current_Position[0] <<
+                            ", y=" << Current_Position[1] << ", z=" << Current_Position[2] << endl;
+        droneLogFile << simTime() << getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")<< endl;
+        for (int i = 0; i < getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")->getNumParams(); ++i) {
+                cPar& par = getParentModule()->getSubmodule("wlan",0)->getSubmodule("radio") -> getSubmodule("antenna")->par(i);
             droneLogFile << "Parameter: " << par.getFullName() << " = " << par.str() << endl;
         }
-        //getParentModule()->getSubmodule("wlan",0)->
-
-
-
     }
     else if (non_operational == true && state == NON_OPERATIONAL) {
         droneLogFile << simTime() << ": Drone " << Drone_ID << " is non-operational due to collision. New message received and ignored: " << msg->getName() << endl;
@@ -256,11 +324,22 @@ void DroneControl::finish() {
 void DroneControl::batteryCheckHelper(int time_step){
     droneLogFile << simTime() << ": Battery check event" << endl;
 	double battery_remain_joules = battery_remain * battery_voltage * 3600 / 1000;
+	double battery_remain_percent = (battery_remain/battery_capacity)*100;
 	double remainingCapacity = updateBatteryCapacity(battery_remain_joules, 0, true, sensor_power,
 								additional_power, hoveringCurrent, time_step); // in Joules
 	battery_remain = (remainingCapacity*1000)/(battery_voltage*3600); // converting Joules to mAh
 	droneLogFile << simTime() << ": Drone " << Drone_ID << " remaining power: " << battery_remain << " mAh, "
-	<< (battery_remain/battery_capacity)*100 << "%" <<endl;
+	<< battery_remain_percent << "%" <<endl;
+	if(battery_remain <= 0){
+	    non_operational = true;
+	    Is_Moving = false;
+	}
+	std::ostringstream oss;
+	oss << "Battery: " << std::fixed << std::setprecision(1) << battery_remain_percent << "%\n";
+	oss << "Altitude: " << std::fixed << std::setprecision(1) << displayRelativeAlt << " m";
+	getParentModule() -> getDisplayString().setTagArg("t", 2, "black");         // Text color
+	getParentModule() -> getDisplayString().setTagArg("t", 3, "Arial,30");    // Font
+	getParentModule() -> getDisplayString().setTagArg("t", 0, oss.str().c_str());
 }
 
 void DroneControl::batteryCheckHelper_forMove(){
@@ -300,6 +379,21 @@ void DroneControl::handleSetBase(cMessage *msg){
     droneLogFile << simTime() << ": Drone " << Drone_ID << " base station coordinates updated: x=" << ChargeStationCoord[0] <<
     ", y=" << ChargeStationCoord[1] << ", z=" << ChargeStationCoord[2] << endl;
 }
+void DroneControl::handleLanding(cMessage *msg){
+    droneLogFile << simTime() << ": Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
+        ", y=" << Destination[1] << ", z=" << Destination[2] << endl;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+void DroneControl::receiveSignal(cComponent *source, simsignal_t signalID, cObject *value, cObject *details)
+{
+    droneLogFile << simTime() << ": ReceiveSignal call" << endl;
+    auto reception = check_and_cast<const inet::physicallayer::ScalarReception *> (value);
+    W power = reception->getPower(); // тип W из inet::units
+    //EV << "Received power: " << power.get() << " W" << endl;
+    //if (signalID == receivedPowerSignal) {
+    //droneLogFile << simTime() << ": Received power: " << value << " W from " << source->getFullPath() << endl;
+    droneLogFile << simTime() << ": Received power: " << power.get() << " W from " << source->getFullPath() << endl;
+    //}
+}
 /////////////////////////////////////////////////////////////////////////////////////////////

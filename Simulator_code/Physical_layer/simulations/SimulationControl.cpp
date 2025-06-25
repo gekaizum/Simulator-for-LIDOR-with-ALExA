@@ -19,13 +19,20 @@ void SimulationControl::initialize() {
     SimControlLogger = new SimulationControlLogger();
     SimControlLogger->logFile.flush();
     SimControlLogger->logFile << simTime() << ": Simulation control online" << endl;
-    int res = system("python3 Physical_layer/Map_block/python_map_generator.py"); //python script to create a random map
+    //int res = system("python3 Physical_layer/Map_block/python_map_generator.py"); //python script to create a random map
     SimControlLogger->logFile << simTime() << ": New map created" << endl;
     //Map object creation///////////////////
     int blockSize = par("blockSize").intValue(); //size of block (part of map) that will be uploaded into RAM
     heightMapFile = par("heightMapFile").stdstringValue(); //name of file created by python script
     std::string heightMapPath = "Sim_logs/" + heightMapFile; // full path to map file
     Current_map = new HeightMapLoader(heightMapPath, blockSize);
+    userInterrupt = par("userInterrupt");
+    if (userInterrupt){
+        interruptEvent = new cMessage("interruptEvent");
+        interruptEvent->addPar("State") = "interruptEvent";
+        interruptTime = 50;
+        scheduleAt(simTime() + interruptTime, interruptEvent);
+    }
     ////////////////////////////////////////
     nextStationId = par("nextStationId");
     numOfChargeStation = par("numOfChargeStation");
@@ -34,7 +41,7 @@ void SimulationControl::initialize() {
     //Self event to check if there any move to be done
     moveEventChecker = new cMessage("moveEventChecker");
     moveEventChecker->addPar("State") = "moveEventChecker";
-    scheduleAt(simTime() + 2.0, moveEventChecker);
+    scheduleAt(simTime() + 1.0, moveEventChecker);
     /////////////////////////////////////
     //Creating list of drones
     int nD = par("numDrones").intValue();  // Get array size
@@ -56,13 +63,48 @@ void SimulationControl::initialize() {
     for (const auto& drone : drone_data) {
         SimControlLogger->logFile << simTime() << ": Drone ID: " << drone->Drone_ID << endl;
     }
+    getDisplayString().setTagArg("i", 0, "");
+    double given_height = Current_map->getHeightAt(3500, 1500);
+    for (auto& st : ChargStationManager->ChargingStation_data){
+        st->Current_Position[0] = 3500;
+        st->Current_Position[1] = 1500;
+        st->Current_Position[2] = given_height;
+    }
 }
 
 void SimulationControl::handleMessage(cMessage *msg){ // Handles incoming messages
     if (strcmp(msg->par("State").stringValue(), "moveEventChecker") == 0){
-        current_drone_move(drone_data, 2, Current_map, SimControlLogger);
-        scheduleAt(simTime() + 2.0, msg);
+        current_drone_move(drone_data, 1, Current_map, SimControlLogger);
+        //update_mobility(ChargStationManager->ChargingStation_data[0], SimControlLogger);
+        scheduleAt(simTime() + 1.0, msg);
     }
+    else if(strcmp(msg->par("State").stringValue(), "interruptEvent") == 0){
+        // Get the parent module (e.g., the network or container module)
+        cModule *parent = getParentModule();
+        if (!parent)
+            throw cRuntimeError("Cannot find module parent");
+        // Get the module type from the NED file
+        cModuleType *moduleType = cModuleType::get("Physical_layer.simulations.interruptModule");
+        if (!moduleType)
+            throw cRuntimeError("Cannot find module type 'interruptModule'");
+        cModule *newModule = moduleType->create("interM", parent);
+        // Build submodules and internal gates
+        newModule->buildInside();
+        // Schedule start if needed (for simple modules)
+        newModule->scheduleStart(simTime());
+        // Call initialize manually
+        newModule->callInitialize();
+        scheduleAt(simTime() + interruptTime, msg);
+    }
+    else if(strcmp(msg->par("State").stringValue(), "DELME") == 0){
+        cModule *mod = getParentModule()->getSubmodule("interM");
+        if (mod != nullptr) {
+            mod->callFinish();
+            mod->deleteModule();
+        }
+        delete msg;
+    }
+
     else{
         SimControlLogger->logFile << simTime() << ": Unknown message: " << msg->getName() << endl;
     }

@@ -9,7 +9,9 @@ simple SimulationControl
         int numOfChargeStation = default(1);//number of charging/base stations in simulation
         int nextStationId; //value used for creation of new objects
         string heightMapFile = default("heightmap.txt"); //name of file which stores map metadata
+        bool userInterrupt = default(true);
     gates:
         inout controlSocket[numOfSockets];
         inout basicProtocolSocket;
+        input additInput@directIn;
 }

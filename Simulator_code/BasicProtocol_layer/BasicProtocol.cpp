@@ -11,7 +11,8 @@ void BasicProtocol::initialize() { // Initializes the drone module
     BPLogger->logFile.flush();
     message_init();
     controlModule = check_and_cast<SimulationControl*>(getParentModule()->getSubmodule("simControl"));
-    BPLogger->logFile << "Basic protocol layer online" << endl;
+    BPLogger->logFile << simTime() << ": Basic protocol layer online" << endl;
+    getDisplayString().setTagArg("i", 0, "");
 }
 void BasicProtocol::handleMessage(cMessage *msg){ // Handles incoming messages
 
@@ -52,7 +53,10 @@ void BasicProtocol::message_init(){
     setAcceleration = new cMessage("setAcceleration");
     setAcceleration->addPar("State") = "SETACCEL";
     /**/
-    BPLogger->logFile << "Movement cMessages initialized" << endl;
+    retBase = new cMessage("retBase");
+    retBase->addPar("State") = "RETURN";
+    /**/
+    BPLogger->logFile << simTime() << ": Movement cMessages initialized" << endl;
     ///////////////////////////////////////////////////////////////
     //State management cMessages
     /**/
@@ -65,7 +69,7 @@ void BasicProtocol::message_init(){
     powerOffDrone = new cMessage("powerOffDrone");
     powerOffDrone->addPar("State") = "POWER_OFF";
     /**/
-    BPLogger->logFile << "State management cMessages initialized" << endl;
+    BPLogger->logFile << simTime() << ": State management cMessages initialized" << endl;
     /////////////////////////////////////////////////////////////////////
     //Sensor, data and monitoring cMessages
     /**/
@@ -81,7 +85,7 @@ void BasicProtocol::message_init(){
     getBatteryDrone = new cMessage("getBatteryDrone");
     getBatteryDrone->addPar("State") = "SEND_BATT";
     /**/
-    BPLogger->logFile << "Sensor, data and monitoring cMessages initialized" << endl;
+    BPLogger->logFile << simTime() << ": Sensor, data and monitoring cMessages initialized" << endl;
     /////////////////////////////////////////////////////////////////////
 }
 //movement commands
@@ -129,8 +133,8 @@ bool BasicProtocol::set_base(int protocol, int drone_id_sender, int drone_id_rec
 bool BasicProtocol::take_off(int protocol,int drone_id_sender, int drone_id_receiver, double x_dest, double y_dest, double z_dest){
     BPLogger->logFile << simTime() << ": take_off command received" << endl;
     Enter_Method("take_off");
-    controlModule->height_checker(x_dest, y_dest,heightVal);
-    z_dest += heightVal;
+    //controlModule->height_checker(x_dest, y_dest,heightVal);
+    //z_dest += heightVal;
     cMessage *msg = takeOff->dup();
     msg->addPar("x") = x_dest;
     msg->addPar("y") = y_dest;
@@ -173,6 +177,13 @@ bool BasicProtocol::land_drone(int protocol,int drone_id_sender, int drone_id_re
     BPLogger->logFile << simTime() << ": land_drone command received" << endl;
     Enter_Method("land_drone");
     cMessage *msg = landDrone->dup();
+    double x_c = controlModule->drone_data[drone_id_receiver-1]->Current_Position[0];
+    double y_c = controlModule->drone_data[drone_id_receiver-1]->Current_Position[1];
+    msg->addPar("x") = x_c;
+    msg->addPar("y") = y_c;
+    double z_val =0;
+    height_checker(x_c, y_c, z_val);
+    msg->addPar("z") = z_val;
     if(protocol == 1){
         send(msg, "dronesSocket$o",drone_id_receiver-1);
         BPLogger->logFile << simTime() << ": Landing sequence sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
@@ -331,7 +342,44 @@ bool BasicProtocol::set_acceleration(int protocol,int drone_id_sender, int drone
     BPLogger->logFile << simTime() << ": set_acceleration command: message passing protocol unrecognized, received: " << protocol << endl;
     return false;
 }
-bool BasicProtocol::return_to_base(){return true;}//not in use in current simulator version
+bool BasicProtocol::return_to_base(int protocol,int drone_id_sender, int drone_id_receiver){
+    BPLogger->logFile << simTime() << ": return_to_base command received" << endl;
+    Enter_Method("return_to_base");
+    cMessage *msg = retBase->dup();
+    if(protocol == 1){
+        send(msg, "dronesSocket$o",drone_id_receiver-1);
+        BPLogger->logFile << simTime() << ": Return to base command sent to drone with ID: "<< drone_id_receiver << " via cMessages." << endl;
+        return true;
+    }
+    else if (protocol == 2){//UDP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending UDP message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("udpPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"udpRequestIn");
+        BPLogger->logFile << simTime() << ": Return to base command sent from drone with ID: " << drone_id_sender <<
+                                        " to drone with ID: "<< drone_id_receiver << " via UDP." << endl;
+        return true;
+    }
+    else{//TCP
+        std::string dest_address = "drones[" + std::to_string(drone_id_receiver-1) + "]";
+        L3Address destAddr = L3AddressResolver().resolve(dest_address.c_str());
+        BPLogger->logFile << simTime() << ": Request for sending TCP message received. From drone: " << std::to_string(drone_id_sender)
+                << " to destination L3Adress: " << destAddr << " of drone " << std::to_string(drone_id_receiver) << endl;
+        msg->addPar("targetAddress").setStringValue(destAddr.str().c_str());
+        connectPort = par("connectPort");
+        msg->addPar("targetPort") = connectPort;
+        sendDirect(msg, controlModule->drone_data[drone_id_sender-1],"tcpRequestIn");
+        BPLogger->logFile << simTime() << ": Return to base command sent from drone with ID: " << drone_id_sender <<
+                                        " to drone with ID: "<< drone_id_receiver << " via TCP." << endl;
+        return true;
+    }
+    BPLogger->logFile << simTime() << ": return_to_base command: message passing protocol unrecognized, received: " << protocol << endl;
+    return false;
+}
 
 //State management cMessages
 bool BasicProtocol::stop_drone(int protocol,int drone_id_sender, int drone_id_receiver){
@@ -477,4 +525,14 @@ void BasicProtocol::height_checker(double x_pos, double y_pos, double &z_val){
     cModule *host = getModuleByPath(modulePath.c_str());
     SimulationControl *SC = check_and_cast<SimulationControl *>(host);
     SC->height_checker(x_pos, y_pos,z_val);
+}
+
+bool BasicProtocol::moveStation(int id, int newX, int newY, int newZ){
+    controlModule->ChargStationManager->moveStation(id, newX, newY, newZ);
+    return true;
+}
+
+bool BasicProtocol::getStationLocation(int id, int &x, int &y, int &z){
+    controlModule->ChargStationManager->getStationLocation(id, x, y, z);
+    return true;
 }
