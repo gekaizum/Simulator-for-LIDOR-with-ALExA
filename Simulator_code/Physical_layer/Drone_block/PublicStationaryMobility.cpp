@@ -66,6 +66,7 @@ void PublicStationaryMobility::setPositionPublic(const Coord& pos) {
         subjectModule->getDisplayString().setTagArg("p", 0, pos.x);
         subjectModule->getDisplayString().setTagArg("p", 1, pos.y);
     }
+    updateMobilityStateFromDisplayString();
     refreshDisplay();  // Force GUI refresh
 }
 

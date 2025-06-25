@@ -44,7 +44,7 @@ void MyTcpAppListener::initialize(int stage)
 
 void MyTcpAppListener::handleMessageWhenUp(cMessage *msg)
 {
-    droneLogFile << simTime() << ": Message arrived" << endl;
+    droneLogFile << simTime() << ": Message arrived: " << msg << endl;
     if (msg->isSelfMessage()){
     }
     else if (msg->arrivedOn("tcpAppIn")) {
@@ -89,6 +89,7 @@ void MyTcpAppListener::socketAvailable(TcpSocket *socket, TcpAvailableInfo *avai
     connection->finalizeParameters();
     connection->buildInside();
     connection->callInitialize();
+    EV << "Creating dispatcher gate in: " << getName() << endl;
     auto dispatcher = check_and_cast<cSimpleModule *>(gate("socketIn")->getPathStartGate()->getOwnerModule());
     dispatcher->setGateSize("in", dispatcher->gateSize("in") + 1);
     dispatcher->setGateSize("out", dispatcher->gateSize("out") + 1);
@@ -108,21 +109,74 @@ void MyTcpAppListener::socketClosed(TcpSocket *socket)
 
 void MyTcpAppListener::removeConnection(CustomTcpServerSocketIo *connection)
 {
+    if (!connection) return;
+    EV << "Erasing connection from list" << endl;
+    for (auto conn : connectionSet) {
+        EV << "Connection: " << conn << "\n";
+        // Optional: print more info from each socket
+    }
     connectionSet.erase(connection);
     cModule *sinkModule = connection->getParentModule()->getSubmodule("sink");
+    EV << "Deleting sink module" << endl;
     sinkModule->callFinish();     // Clean up sink
     sinkModule->deleteModule();
+    EV << "Deleting io module" << endl;
+    cModule *con2 = connection->getParentModule();//->getParentModule()->getSubmodule(connection->getParentModule()->getName());
     connection->deleteModule();
+    //con2->callFinish();
+    EV << "Deleting connection module: "<< con2->getName() << endl;
+    con2->callFinish();
+    con2->deleteModule();
+    EV << "Deleting dispatcher gates in: "<< getName() << endl;
+    auto dispatcher = check_and_cast<cSimpleModule *>(gate("socketIn")->getPathStartGate()->getOwnerModule());
+    if (!(dispatcher->gate("in", dispatcher->gateSize("in")-1)->isConnected())) {
+        EV << "Deleting gate from: "<< dispatcher << endl;
+        dispatcher->setGateSize("in", dispatcher->gateSize("in") - 1);
+    }
+    if (!(dispatcher->gate("out", dispatcher->gateSize("out")-1)->isConnected())) {
+        EV << "Deleting gate from: "<< dispatcher << endl;
+        dispatcher->setGateSize("out", dispatcher->gateSize("out") - 1);
+    }
+    cModule *parentModule = getParentModule();
+    int submoduleIndex = parentModule->getSubmoduleVectorSize(submoduleVectorName);
+    parentModule->setSubmoduleVectorSize(submoduleVectorName, submoduleIndex - 1);
+    EV << "Connection vector size: " << submoduleIndex << endl;
 }
 
 void MyTcpAppListener::connectionClosed(CustomTcpServerSocketIo *connection)
 {
+    if (!connection) return;
+    EV << "Erasing connection from list" << endl;
+    for (auto conn : connectionSet) {
+        EV << "Connection: " << conn << "\n";
+        // Optional: print more info from each socket
+    }
     connectionSet.erase(connection);
-    //socketClosed(connection->getSocket());
     cModule *sinkModule = connection->getParentModule()->getSubmodule("sink");
+    EV << "Deleting sink module" << endl;
     sinkModule->callFinish();     // Clean up sink
     sinkModule->deleteModule();
+    EV << "Deleting io module" << endl;
+    cModule *con2 = connection->getParentModule();//->getParentModule()->getSubmodule(connection->getParentModule()->getName());
     connection->deleteModule();
+    //con2->callFinish();
+    EV << "Deleting connection module: "<< con2->getName() << endl;
+    con2->callFinish();
+    con2->deleteModule();
+    EV << "Deleting dispatcher gates in: "<< getName() << endl;
+    auto dispatcher = check_and_cast<cSimpleModule *>(gate("socketIn")->getPathStartGate()->getOwnerModule());
+    if (!(dispatcher->gate("in", dispatcher->gateSize("in")-1)->isConnected())) {
+        EV << "Deleting gate from: "<< dispatcher << endl;
+        dispatcher->setGateSize("in", dispatcher->gateSize("in") - 1);
+    }
+    if (!(dispatcher->gate("out", dispatcher->gateSize("out")-1)->isConnected())) {
+        EV << "Deleting gate from: "<< dispatcher << endl;
+        dispatcher->setGateSize("out", dispatcher->gateSize("out") - 1);
+    }
+    cModule *parentModule = getParentModule();
+    int submoduleIndex = parentModule->getSubmoduleVectorSize(submoduleVectorName);
+    parentModule->setSubmoduleVectorSize(submoduleVectorName, submoduleIndex - 1);
+    EV << "Connection vector size: " << submoduleIndex << endl;
 }
 
 

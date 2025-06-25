@@ -9,7 +9,7 @@
 
 #include <omnetpp.h>
 #include "../Calculation_block/SignalStrengthCalculation.h"
-
+using namespace std;
 using namespace omnetpp;
 
 class ChargingStation : public cSimpleModule {

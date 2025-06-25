@@ -65,6 +65,17 @@ void DroneControl::initialize(int stage) {
     else if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
         droneLogFile << simTime() << ": Drone: Application initialization" << endl;
     }
+    receivedPowerSignal = registerSignal("receivedPower");
+    // Подписываемся на сигнал от радио (предположим, что это wlan[0].radio)
+    if (stage == 0 && !isSubscribed) {
+        cModule *radio = getModuleByPath("^.^.radioMedium");
+        if (radio) {
+            check_and_cast<cComponent*>(radio)->subscribe("signalArrivalStarted", this);
+            //check_and_cast<cComponent*>(radio)->subscribe("receptionPower", this);
+            isSubscribed = true;
+            droneLogFile << simTime() << ": Signal subscribed" << endl;
+        }
+    }
 }
 
 void DroneControl::handleMessageWhenUp(cMessage *msg) {
@@ -374,4 +385,15 @@ void DroneControl::handleLanding(cMessage *msg){
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+void DroneControl::receiveSignal(cComponent *source, simsignal_t signalID, cObject *value, cObject *details)
+{
+    droneLogFile << simTime() << ": ReceiveSignal call" << endl;
+    auto reception = check_and_cast<const inet::physicallayer::ScalarReception *> (value);
+    W power = reception->getPower(); // тип W из inet::units
+    //EV << "Received power: " << power.get() << " W" << endl;
+    //if (signalID == receivedPowerSignal) {
+    //droneLogFile << simTime() << ": Received power: " << value << " W from " << source->getFullPath() << endl;
+    droneLogFile << simTime() << ": Received power: " << power.get() << " W from " << source->getFullPath() << endl;
+    //}
+}
 /////////////////////////////////////////////////////////////////////////////////////////////

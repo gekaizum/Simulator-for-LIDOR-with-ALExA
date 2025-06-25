@@ -64,7 +64,7 @@ terrain = mountains + hills + details
 terrain -= terrain.min()
 
 # 📁 Save terrain height values to file (for simulation)
-np.savetxt("../../Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
+np.savetxt("Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
 
 # ☀️ Simulate lighting and shading for realistic look
 ls = LightSource(azdeg=315, altdeg=45)  # Light from northwest, 45° elevation

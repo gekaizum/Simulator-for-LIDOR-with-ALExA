@@ -64,7 +64,7 @@ int HeightMapLoader::getHeightAt(float x, float y) {
     int y_int = y;
     int blockX = x_int / blockSize;
     int blockY = y_int / blockSize;
-
+    EV << "Check block: " << blockX << ", " << blockY << endl;
     // Load the block if it's not currently loaded
     if (blockX != currentBlockX || blockY != currentBlockY) {
         loadBlock(blockX, blockY);
@@ -85,12 +85,12 @@ std::tuple<int, int, int> HeightMapLoader::findMaxHeightOnLine(int x1, int y1, i
 
     int err = dx - dy; // Error term for Bresenham's algorithm
 
-    int maxZ = getHeightAt(x1, y1); // Initialize max height with the starting point
+    int maxZ = getHeightAt(static_cast<float>(x1), static_cast<float>(y1)); // Initialize max height with the starting point
     int maxX = x1, maxY = y1; // Initialize coordinates of the max height point
 
     while (true) {
         // Get the height at the current coordinates
-        int currentZ = getHeightAt(x1, y1);
+        int currentZ = getHeightAt(static_cast<float>(x1), static_cast<float>(y1));
         if (currentZ > maxZ) {
             maxZ = currentZ;
             maxX = x1;

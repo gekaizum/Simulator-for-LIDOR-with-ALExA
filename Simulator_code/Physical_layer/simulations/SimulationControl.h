@@ -25,6 +25,7 @@ class SimulationControl : public cSimpleModule {
     cMessage *moveEventChecker;
     cMessage *interruptEvent;
     double interruptTime;
+
     SimulationControlLogger* SimControlLogger = nullptr; // pointer to logger object
     bool userInterrupt;
   protected:

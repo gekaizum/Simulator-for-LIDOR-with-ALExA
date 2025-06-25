@@ -22,6 +22,7 @@ protected:
   virtual void handleMessage(cMessage *message) override;
 
 public:
+  virtual void initialize(int stage) override {}
   virtual ~CustomTcpServerSocketIo() { delete socket; }
 
   virtual TcpSocket *getSocket() { return socket; }
@@ -35,6 +36,7 @@ public:
   virtual void socketFailure(TcpSocket *socket, int code) override {}
   virtual void socketStatusArrived(TcpSocket *socket, TcpStatusInfo *status) override {}
   virtual void socketDeleted(TcpSocket *socket) override {}
+  virtual void finish() override {}
 };
 
 

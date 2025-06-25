@@ -26,6 +26,7 @@
 #include "inet/networklayer/common/InterfaceTable.h"
 #include "inet/common/ModuleAccess.h"
 
+#include "inet/physicallayer/wireless/common/analogmodel/packetlevel/ScalarReception.h"
 
 using namespace omnetpp;
 using namespace inet;
@@ -40,8 +41,10 @@ enum DroneState {
     INITSTAGE_LOCAL_DRONE,	    // Init stage before POWER_ON
 };
 
-class DroneControl : public ApplicationBase {
+class DroneControl : public ApplicationBase,public omnetpp::cListener {
   private:
+    bool isSubscribed = false;
+
     int number_of_rotors;					// Number of rotors on the drone
     double motor_efficiency;					// efficiency of motors [W/N]
 	
@@ -79,10 +82,13 @@ class DroneControl : public ApplicationBase {
 	void batteryCheckHelper(int time_step);
 	void batteryCheckHelper_forMove();
 
+	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *value, cObject *details) override;
+
 	//Periodical events for drone
 	cMessage *batteryCheckEvent;
 	cMessage *nonOperationalEvent;
   protected:
+	simsignal_t receivedPowerSignal;
     virtual void initialize(int stage) override; // Initializes the drone module
     virtual void handleMessageWhenUp(cMessage *msg) override; // Handles incoming messages
     virtual void finish();
