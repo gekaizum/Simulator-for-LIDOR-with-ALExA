@@ -64,10 +64,10 @@ void SimulationControl::initialize() {
         SimControlLogger->logFile << simTime() << ": Drone ID: " << drone->Drone_ID << endl;
     }
     getDisplayString().setTagArg("i", 0, "");
-    double given_height = Current_map->getHeightAt(3500, 1500);
+    double given_height = Current_map->getHeightAt(3500, 4000);
     for (auto& st : ChargStationManager->ChargingStation_data){
         st->Current_Position[0] = 3500;
-        st->Current_Position[1] = 1500;
+        st->Current_Position[1] = 4000;
         st->Current_Position[2] = given_height;
     }
 }

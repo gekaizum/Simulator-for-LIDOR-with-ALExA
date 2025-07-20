@@ -9,7 +9,7 @@ import User_layer.UserLayer;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-
+import inet.environment.common.PhysicalEnvironment;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 //channel DataLinkChannel extends ned.DatarateChannel {
 //    datarate = 54Mbps;  // Default to WiFi speed
@@ -25,23 +25,17 @@ network DroneNetwork
         bool droneStartPosCustomInput = default(false);
         bool droneStartPosDefault = default(true);
         bool droneStartPosOnChargeStation = default(false);
-        //@display("bgb=1090,540;bgi=samples/Simulator_code_mark_4/photorealistic_heightmap.png,s;bgg=1000,2,grey95;bgu=m");
-        @display("bgb=5000,5000;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
+        @statistic[receptionPower](source="receptionMinSignalPower(radioMedium.signalArrivalStarted)"; record=last,vector);
+        @display("bgb=7000,7000;bgi=photorealistic_heightmap,s;bgg=1000,2,grey95;bgu=m");
     submodules:
-        radioMedium: Ieee80211RadioMedium {
-            //@display("p=810,60");
-            @display("i=;p=9999,9999");
-        }
+        //physicalEnvironment: PhysicalEnvironment {
+         //   @display("i=;p=500,500");
+        //}
+
         configurator: Ipv4NetworkConfigurator {
             parameters:
                 //@display("p=670,50;is=s");
                 @display("i=;p=9999,9999");
-        }
-        ChargingStation[numChargeStation]: ChargingStation {
-            parameters:
-                ChargingStation_ID = parent.numDrones + index + 1;
-                numOfSockets = parent.numDrones;
-                @display("i=chargingStation;b=1,1,rect;p=3790,1100");
         }
         drones[numDrones]: Drone {
             parameters:
@@ -51,7 +45,7 @@ network DroneNetwork
         }
         simControl: SimulationControl {
             parameters:
-                blockSize = default(100);
+                blockSize = default(1000);
                 numDrones = parent.numDrones;
                 numOfSockets = parent.numDrones;
                 numOfChargeStation = parent.numChargeStation;
@@ -60,6 +54,16 @@ network DroneNetwork
                 userInterrupt = default(false);
                 //@display("p=300,50");
                 @display("i=;p=9999,9999");
+        }
+        radioMedium: Ieee80211RadioMedium {
+            //@display("p=810,60");
+            @display("i=;p=9999,9999");
+        }
+        ChargingStation[numChargeStation]: ChargingStation {
+            parameters:
+                ChargingStation_ID = parent.numDrones + index + 1;
+                numOfSockets = parent.numDrones;
+                @display("i=chargingStation;b=1,1,rect;p=5150,4800");
         }
         basicProtocol: BasicProtocol {
             numOfdronesSockets = parent.numDrones;

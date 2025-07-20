@@ -80,7 +80,6 @@ double HybridFadingModel::computePathLoss(const ITransmission *transmission, con
     double transHeight = Current_map->getHeightAt(transmitterPos.x,transmitterPos.y);
     double losFunc = recHeight + (transHeight - recHeight) * ((receiverPos.x - get<0>(max_Altitude))/distance.get()); ///need to be improved!!!!!!!!!!!!!!!!!!!!!!!!!!
     if(get<2>(max_Altitude) > losFunc){
-    //if(0){
         m waveLength = propagationSpeed / frequency;
         double c = 1.0 / (2.0 * (k + 1));
         double x = normal(0, 1);

@@ -64,7 +64,7 @@ int HeightMapLoader::getHeightAt(float x, float y) {
     int y_int = y;
     int blockX = x_int / blockSize;
     int blockY = y_int / blockSize;
-    EV << "Check block: " << blockX << ", " << blockY << endl;
+    //EV << "Check block: " << blockX << ", " << blockY << endl;
     // Load the block if it's not currently loaded
     if (blockX != currentBlockX || blockY != currentBlockY) {
         loadBlock(blockX, blockY);
