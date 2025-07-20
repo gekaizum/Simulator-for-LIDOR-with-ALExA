@@ -25,11 +25,13 @@ double calculateTotalCurrent(double weight, double acceleration, double velocity
 	double velocityEnergy = 0;
 	if (acceleration != 0){ //will be done once for each move command received
 		accelerationEnergy = 0.5 * weight * std::pow(acceleration, 2) * (velocity/acceleration);// Energy in Joules
+		accelerationEnergy = abs(accelerationEnergy);
 	}
 	if (velocity != 0) {//will be done once when move command received
 		double air_resistance_factor = 0.05; // Adjusted based on aerodynamics
 		double drag_power = air_resistance_factor * std::pow(velocity, 2);
 		velocityEnergy = drag_power * (distance/velocity); // Energy in Joules
+		velocityEnergy = abs(velocityEnergy);
 
 	}
 	double totalCurrentConsumption = accelerationEnergy + velocityEnergy;// Energy in Joules

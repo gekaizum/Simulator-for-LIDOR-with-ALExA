@@ -8,10 +8,10 @@ import os
 from PIL import Image, ImageEnhance
 
 # ✅ Ensure output directory exists
-os.makedirs("Sim_logs", exist_ok=True)
+#os.makedirs("Sim_logs", exist_ok=True)
 
 # 🗺️ Simulation grid setup
-grid_size = 5000  # Size of the terrain: 5000x5000 meters (1 meter per cell)
+grid_size = 7000  # Size of the terrain: 5000x5000 meters (1 meter per cell)
 
 # 🔧 Terrain generation settings for 3 layers
 # Lower scale → more detail, higher scale → larger features
@@ -64,7 +64,7 @@ terrain = mountains + hills + details
 terrain -= terrain.min()
 
 # 📁 Save terrain height values to file (for simulation)
-np.savetxt("Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
+np.savetxt("../../Sim_logs/heightmap.txt", terrain, fmt="%d")  # Format to 3 decimal places
 
 # ☀️ Simulate lighting and shading for realistic look
 ls = LightSource(azdeg=315, altdeg=45)  # Light from northwest, 45° elevation

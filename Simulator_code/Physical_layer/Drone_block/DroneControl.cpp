@@ -152,7 +152,7 @@ void DroneControl::handleWaitingForTakeoff(cMessage *msg) {
         droneLogFile << simTime() << ": TAKEOFF signal received. Drone is passing to DRONE_IN_AIR state." << endl;
         msg->par("x") = Current_Position[0];
         msg->par("y") = Current_Position[1];
-        msg->par("z") = Current_Position[2];
+        //msg->par("z") = Current_Position[2];
         handleMove(msg);
         batteryCheckHelper_forMove();
         in_air=true;
@@ -369,6 +369,15 @@ void DroneControl::handleMove(cMessage *msg){
     Destination[0] = msg->par("x").doubleValue();
     Destination[1] = msg->par("y").doubleValue();
     Destination[2] = msg->par("z").doubleValue();
+    if (Destination[0] < Current_Position[0]) {
+            x_velocity = x_velocity * (-1);
+    }
+    if (Destination[1] < Current_Position[1]) {
+        y_velocity = y_velocity * (-1);
+    }
+    if (Destination[2] < Current_Position[2]) {
+        z_velocity = z_velocity * (-1);
+    }
     droneLogFile << simTime() << ": Drone " << Drone_ID << " destination coordinates updated: x=" << Destination[0] <<
     ", y=" << Destination[1] << ", z=" << Destination[2] << endl;
 }
